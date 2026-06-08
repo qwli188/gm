@@ -6,10 +6,13 @@ extends Node
 # 8 部位槽位
 const SLOTS = ["weapon", "helmet", "chest", "legs", "boots", "gloves", "ring", "amulet"]
 
-# 玩家当前装备（每部位一件，存完整 item_data）
+# 玩家当前装备（每部位存 instance_id，而非完整 item_data）
 var equipped_items: Dictionary = {}
 
-# 装备仓库
+# 装备实例仓库 {uuid_str: {template_id, rarity, rolled_affixes, enhancement_level, bound, acquired_at}}
+var equipment_instances: Dictionary = {}
+
+# 背包（存 instance_id 数组）
 var inventory: Array = []
 
 # 当前激活的套装效果缓存 {set_id: piece_count}
@@ -24,20 +27,113 @@ func _ready():
 	print("[EquipmentSystem] 装备系统初始化 (8部位)")
 	ConfigLoader.config_reloaded.connect(_on_config_reloaded)
 
-## 装备一件物品（自动判断槽位）
-func equip_item(item_data: Dictionary) -> bool:
+## ============ 装备实例管理 ============
+## 生成装备实例（roll 随机词缀）
+func roll_equipment(template_id: String, rarity: String = "") -> String:
+	var template = ConfigLoader.get_equipment_by_id(template_id)
+	if template.is_empty():
+		push_warning("[EquipmentSystem] 模板不存在: %s" % template_id)
+		return ""
+	if rarity == "":
+		rarity = template.get("rarity", "common")
+
+	var uuid = _generate_uuid()
+	var now_iso = Time.get_datetime_string_from_system(true)
+	var instance = {
+		"uuid": uuid,
+		"template_id": template_id,
+		"rarity": rarity,
+		"rolled_affixes": _roll_affixes(rarity),
+		"enhancement_level": 0,
+		"bound": false,
+		"acquired_at": now_iso,
+	}
+	equipment_instances[uuid] = instance
+	print("[EquipmentSystem] 生成实例: %s (%s, id=%s)" % [template.get("display_name", "?"), rarity, uuid])
+	return uuid
+
+## roll 随机词缀（根据稀有度决定词缀数量）
+func _roll_affixes(rarity: String) -> Array:
+	var affix_count = 0
+	match rarity:
+		"common": affix_count = 0
+		"rare": affix_count = 1
+		"epic": affix_count = 2
+		"legendary": affix_count = 3
+		"mythic": affix_count = 4
+	var affixes = []
+	# 简化：从配置表随机抽取词缀（实际可按 slot/tier 过滤）
+	var all_affixes = ConfigLoader.get_all_affixes()
+	if all_affixes.is_empty():
+		return affixes
+	for i in affix_count:
+		var affix = all_affixes[randi() % all_affixes.size()]
+		affixes.append({
+			"affix_id": affix.get("id", ""),
+			"roll_value": randf_range(0.8, 1.0),  # roll 倍率 0.8~1.0
+		})
+	return affixes
+
+## 生成简单 UUID（不依赖外部插件）
+func _generate_uuid() -> String:
+	var chars = "abcdefghijklmnopqrstuvwxyz0123456789"
+	var result = "eq_inst_"
+	for i in 12:
+		result += chars[randi() % chars.length()]
+	return result
+
+## 根据 instance_id 获取完整装备数据（模板 + 词缀）
+func get_equipment_instance_data(instance_id: String) -> Dictionary:
+	var instance = equipment_instances.get(instance_id, {})
+	if instance.is_empty():
+		return {}
+	var template = ConfigLoader.get_equipment_by_id(instance.get("template_id", ""))
+	if template.is_empty():
+		return {}
+	# 合并模板与实例数据
+	var item_data = template.duplicate(true)
+	item_data["instance_id"] = instance_id
+	item_data["rarity"] = instance.get("rarity", item_data.get("rarity", "common"))
+	item_data["enhancement_level"] = instance.get("enhancement_level", 0)
+	item_data["bound"] = instance.get("bound", false)
+	# 将 rolled_affixes 合并到 fixed_affixes（供后续计算使用）
+	var rolled = instance.get("rolled_affixes", [])
+	for affix_roll in rolled:
+		var affix_id = affix_roll.get("affix_id", "")
+		if affix_id != "":
+			if not item_data.has("fixed_affixes"):
+				item_data["fixed_affixes"] = []
+			item_data["fixed_affixes"].append(affix_id)
+	return item_data
+
+## 装备一件物品（通过 instance_id）
+func equip_item_by_id(instance_id: String) -> bool:
+	var item_data = get_equipment_instance_data(instance_id)
 	if item_data.is_empty():
 		return false
 	var slot = item_data.get("slot", "weapon")
 	if not equipped_items.has(slot):
 		push_warning("[EquipmentSystem] 未知部位: %s" % slot)
 		return false
-	equipped_items[slot] = item_data
-	print("[EquipmentSystem] 装备: %s [%s]" % [item_data.get("display_name", "?"), slot])
+	equipped_items[slot] = instance_id
+	print("[EquipmentSystem] 装备: %s [%s] (id=%s)" % [item_data.get("display_name", "?"), slot, instance_id])
 	_recompute_sets()
 	equipment_changed.emit()
 	_notify_player()
 	return true
+
+
+## 装备一件物品（自动判断槽位）- 兼容旧接口
+func equip_item(item_data: Dictionary) -> bool:
+	# 如果是 instance_id，转到新接口
+	if item_data.has("instance_id"):
+		return equip_item_by_id(item_data["instance_id"])
+	# 否则是模板数据，生成实例后装备
+	var template_id = item_data.get("id", "")
+	if template_id == "":
+		return false
+	var instance_id = roll_equipment(template_id, item_data.get("rarity", ""))
+	return equip_item_by_id(instance_id)
 
 ## 卸下部位
 func unequip_item(slot: String):
@@ -60,8 +156,11 @@ func _notify_player():
 func _recompute_sets():
 	var counts = {}
 	for slot in equipped_items:
-		var item = equipped_items[slot]
-		if item == null:
+		var instance_id = equipped_items[slot]
+		if instance_id == null:
+			continue
+		var item = get_equipment_instance_data(instance_id)
+		if item.is_empty():
 			continue
 		var sid = item.get("set_id", "")
 		if sid != "":
@@ -111,8 +210,11 @@ func get_total_stats() -> Dictionary:
 	}
 
 	for slot in equipped_items:
-		var item = equipped_items[slot]
-		if item == null:
+		var instance_id = equipped_items[slot]
+		if instance_id == null:
+			continue
+		var item = get_equipment_instance_data(instance_id)
+		if item.is_empty():
 			continue
 		var stats = item.get("base_stats", {})
 		total["damage"] += stats.get("damage", 0)
@@ -158,8 +260,11 @@ func _apply_item_affix_stats(item: Dictionary, total: Dictionary):
 func get_combat_effects() -> Dictionary:
 	var effects = {}
 	for slot in equipped_items:
-		var item = equipped_items[slot]
-		if item == null:
+		var instance_id = equipped_items[slot]
+		if instance_id == null:
+			continue
+		var item = get_equipment_instance_data(instance_id)
+		if item.is_empty():
 			continue
 		for affix_id in item.get("fixed_affixes", []):
 			var affix = ConfigLoader.get_affix_by_id(affix_id)
@@ -210,11 +315,16 @@ func drop_random_equipment(position: Vector2, quality_bonus: float = 0.0, set_bi
 	var all_equipment = ConfigLoader.get_all_equipment()
 	if all_equipment.is_empty():
 		return
-	var item = _roll_equipment(all_equipment, quality_bonus, set_bias)
-	if item.is_empty():
+	var template = _roll_equipment(all_equipment, quality_bonus, set_bias)
+	if template.is_empty():
 		return
-	print("[EquipmentSystem] 掉落: %s (%s)" % [item.get("display_name", "?"), item.get("rarity", "?")])
-	_spawn_drop_item(item, position)
+	# 生成实例
+	var instance_id = roll_equipment(template.get("id", ""), template.get("rarity", "common"))
+	if instance_id == "":
+		return
+	var item_data = get_equipment_instance_data(instance_id)
+	print("[EquipmentSystem] 掉落: %s (%s)" % [item_data.get("display_name", "?"), item_data.get("rarity", "?")])
+	_spawn_drop_item(item_data, position)
 
 ## 按稀有度权重随机抽一件装备
 func _roll_equipment(pool: Array, quality_bonus: float, set_bias: String = "") -> Dictionary:
@@ -296,11 +406,22 @@ func get_rarity_vfx_level(rarity: String) -> int:
 
 ## 拾取装备
 func pickup_equipment(item_data: Dictionary):
-	inventory.append(item_data)
-	print("[EquipmentSystem] 拾取: %s" % item_data.get("display_name", "?"))
-	var slot = item_data.get("slot", "weapon")
-	if equipped_items.has(slot) and equipped_items[slot] == null:
-		equip_item(item_data)
+	var instance_id = item_data.get("instance_id", "")
+	if instance_id != "":
+		inventory.append(instance_id)
+		print("[EquipmentSystem] 拾取: %s (id=%s)" % [item_data.get("display_name", "?"), instance_id])
+		var slot = item_data.get("slot", "weapon")
+		if equipped_items.has(slot) and equipped_items[slot] == null:
+			equip_item_by_id(instance_id)
+	else:
+		# 兼容旧代码：直接是模板数据
+		var template_id = item_data.get("id", "")
+		if template_id != "":
+			var new_instance_id = roll_equipment(template_id, item_data.get("rarity", ""))
+			inventory.append(new_instance_id)
+			var slot = item_data.get("slot", "weapon")
+			if equipped_items.has(slot) and equipped_items[slot] == null:
+				equip_item_by_id(new_instance_id)
 
 func _on_config_reloaded(file_name: String) -> void:
 	if file_name in ["equipment.json", "affixes.json", "sets.json"]:
@@ -308,3 +429,45 @@ func _on_config_reloaded(file_name: String) -> void:
 		_notify_player()
 		equipment_changed.emit()
 		print("[EquipmentSystem] 响应配置重载: " + file_name)
+
+## ============ 序列化与反序列化（供 SaveSystem 调用）============
+## 序列化所有装备实例
+func serialize_instances() -> Dictionary:
+	return equipment_instances.duplicate(true)
+
+## 反序列化装备实例
+func deserialize_instances(data: Dictionary):
+	equipment_instances = data.duplicate(true)
+	print("[EquipmentSystem] 加载装备实例: %d 件" % equipment_instances.size())
+
+## 序列化已穿戴装备（返回 {slot: instance_id}）
+func serialize_equipped() -> Dictionary:
+	var result = {}
+	for slot in SLOTS:
+		var instance_id = equipped_items.get(slot, null)
+		if instance_id != null:
+			result[slot] = instance_id
+	return result
+
+## 反序列化已穿戴装备
+func deserialize_equipped(data: Dictionary):
+	for slot in SLOTS:
+		equipped_items[slot] = null
+	for slot in data:
+		var instance_id = data[slot]
+		if equipment_instances.has(instance_id):
+			equipped_items[slot] = instance_id
+	_recompute_sets()
+	equipment_changed.emit()
+	_notify_player()
+	print("[EquipmentSystem] 恢复穿戴: %d 件" % data.size())
+
+## 序列化背包
+func serialize_backpack() -> Array:
+	return inventory.duplicate()
+
+## 反序列化背包
+func deserialize_backpack(data: Array):
+	inventory = data.duplicate()
+	print("[EquipmentSystem] 恢复背包: %d 件" % inventory.size())
+

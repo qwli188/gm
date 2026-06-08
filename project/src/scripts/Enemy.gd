@@ -15,6 +15,16 @@ const ATTACK_DISTANCE = 36.0
 var anim_sprite: AnimatedSprite2D
 var _hp_bar: ProgressBar
 var _is_attacking: bool = false
+var _knockback_velocity: Vector2 = Vector2.ZERO  # 击退速度
+var _knockback_decay: float = 0.0  # 击退衰减计时器
+
+# Boss 阶段系统
+var current_phase: int = 1
+var phase_thresholds: Array = [0.7, 0.4]  # 70% 和 40% 血量触发转换
+var skill_cooldown: float = 0.0
+var _is_boss: bool = false
+var attack_speed_mult: float = 1.0  # 阶段转换时提升，缩短攻击间隔
+var _casting: bool = false  # 防止多个 AOE await 叠加
 
 func _ready():
 	if enemy_data.is_empty():
@@ -31,6 +41,10 @@ func _ready():
 
 	player = get_tree().get_first_node_in_group("player")
 	add_to_group("enemy")
+
+	_is_boss = enemy_data.get("rank", "normal") == "boss"
+	if _is_boss:
+		skill_cooldown = randf_range(8.0, 12.0)
 
 	_setup_visual()
 	_setup_collision()
@@ -101,21 +115,35 @@ func _physics_process(delta):
 	if attack_cooldown > 0:
 		attack_cooldown -= delta
 
-	var distance = global_position.distance_to(player.global_position)
+	# Boss 技能循环
+	if _is_boss and not _dying:
+		skill_cooldown -= delta
+		if skill_cooldown <= 0 and not _casting:
+			_use_boss_skill()
+			skill_cooldown = randf_range(8.0, 12.0)
 
-	if distance < ATTACK_DISTANCE:
-		attack()
-	elif distance < VISION_RANGE:
-		chase_player(delta)
+	# 击退衰减(优先于 AI:被击退时不执行追击)
+	if _knockback_decay > 0:
+		_knockback_decay -= delta
+		velocity = _knockback_velocity.lerp(Vector2.ZERO, 1.0 - (_knockback_decay / 0.15))
+		if _knockback_decay <= 0:
+			_knockback_velocity = Vector2.ZERO
 	else:
-		velocity = Vector2.ZERO
+		# 正常移动逻辑
+		var distance = global_position.distance_to(player.global_position)
+		if distance < ATTACK_DISTANCE:
+			attack()
+		elif distance < VISION_RANGE:
+			chase_player(delta)
+		else:
+			velocity = Vector2.ZERO
 
 	move_and_slide()
 
 func chase_player(delta):
-	# 应用减速效果
+	# 应用减速效果和眩晕
 	var effective_speed = move_speed * slow_multiplier
-	if is_frozen:
+	if is_frozen or is_stunned:
 		effective_speed = 0
 
 	var direction = (player.global_position - global_position).normalized()
@@ -143,7 +171,7 @@ func attack():
 			get_node("/root/CombatSystem").enemy_attack_player(damage, player)
 		else:
 			player.take_damage(damage)
-	attack_cooldown = 1.0  # 每秒攻击一次
+	attack_cooldown = 1.0 / attack_speed_mult  # 攻速提升时间隔缩短(Boss狂暴)
 
 func _on_attack_anim_done():
 	_is_attacking = false
@@ -162,6 +190,50 @@ func take_damage(damage_amount: float, is_crit: bool = false):
 
 	if current_hp <= 0:
 		die()
+		return
+
+	# Boss 阶段转换检查
+	if _is_boss:
+		_check_phase_transition()
+
+## 打击感 - 击退效果
+func apply_knockback(attacker_pos: Vector2, is_crit: bool):
+	var knockback_dir = (global_position - attacker_pos).normalized()
+	var knockback_force = 600.0 if is_crit else 300.0  # 暴击更大击退力
+	_knockback_velocity = knockback_dir * knockback_force
+	_knockback_decay = 0.15  # 击退持续 0.15 秒
+	velocity = _knockback_velocity
+
+## ============ Boss 阶段系统 ============
+func _check_phase_transition():
+	var hp_percent = current_hp / max_hp
+	if hp_percent <= phase_thresholds[0] and current_phase == 1:
+		_enter_phase(2)
+	elif hp_percent <= phase_thresholds[1] and current_phase == 2:
+		_enter_phase(3)
+
+func _enter_phase(phase: int):
+	current_phase = phase
+	print("[Boss] 进入第 %d 阶段" % phase)
+	# 阶段转换特效：脚下爆发 + 短暂染色脉冲
+	EffectSprite.spawn(get_parent(), "fire", global_position, 2.0)
+	if anim_sprite:
+		var tween = create_tween()
+		tween.tween_property(anim_sprite, "modulate", Color(2.0, 0.6, 0.6), 0.15)
+		var base_tint = SpriteLibrary.RANK_TINT.get("boss", Color.WHITE)
+		tween.tween_property(anim_sprite, "modulate", base_tint, 0.3)
+
+	if phase == 2:
+		# 狂暴：攻速、移速提升
+		attack_speed_mult *= 1.3
+		move_speed *= 1.2
+		skill_cooldown = min(skill_cooldown, 2.2)
+	elif phase == 3:
+		# 终焉：再次提速，召唤援军 + 缩短技能冷却
+		attack_speed_mult *= 1.3
+		move_speed *= 1.15
+		_summon_adds(2)
+		skill_cooldown = min(skill_cooldown, 2.2)
 
 func _update_hp_bar():
 	if _hp_bar:
@@ -175,8 +247,11 @@ var poison_timer: float = 0.0
 var poison_dps: float = 0.0
 var freeze_timer: float = 0.0
 var is_frozen: bool = false
+var slow_timer: float = 0.0
 var base_move_speed: float = 0.0
 var slow_multiplier: float = 1.0
+var stun_timer: float = 0.0
+var is_stunned: bool = false
 
 func apply_ignite(dps: float, duration: float):
 	ignite_dps = max(ignite_dps, dps)  # 取最高DPS
@@ -200,7 +275,15 @@ func apply_freeze(duration: float):
 
 func apply_slow(slow_percent: float, duration: float):
 	slow_multiplier = 1.0 - slow_percent
-	freeze_timer = duration  # 复用计时器
+	slow_timer = duration
+
+func apply_stun(duration: float):
+	is_stunned = true
+	stun_timer = duration
+	# 眩晕使用冰冻的停止逻辑，但不变色
+	if not is_frozen:
+		base_move_speed = move_speed
+	move_speed = 0
 
 var _dot_tick: float = 0.0
 
@@ -232,7 +315,18 @@ func _process(delta):
 				is_frozen = false
 				if anim_sprite:
 					anim_sprite.modulate = SpriteLibrary.RANK_TINT.get(enemy_data.get("rank", "normal"), Color.WHITE)
+
+	if slow_timer > 0:
+		slow_timer -= delta
+		if slow_timer <= 0:
 			slow_multiplier = 1.0
+
+	if stun_timer > 0:
+		stun_timer -= delta
+		if stun_timer <= 0:
+			is_stunned = false
+			if not is_frozen:
+				move_speed = base_move_speed
 
 	_update_hp_bar()
 
@@ -248,6 +342,103 @@ func _flash_white():
 		var base_tint = SpriteLibrary.RANK_TINT.get(rank, Color.WHITE)
 		var tween = create_tween()
 		tween.tween_property(anim_sprite, "modulate", base_tint, 0.12)
+
+
+# ============================================================
+# Boss 技能系统：AOE 冲击波 / 地刺预警 / 召唤援军
+# ============================================================
+
+## 选择并释放一个 Boss 技能（阶段越高可用技能越多）
+func _use_boss_skill():
+	if not player or not is_instance_valid(player):
+		return
+	if _casting:
+		return  # 防止多个 AOE await 叠加
+	var choices := ["aoe_self"]
+	if current_phase >= 2:
+		choices.append("aoe_target")  # 在玩家脚下落下地刺
+	if current_phase >= 3:
+		choices.append("summon")
+	var skill = choices[randi() % choices.size()]
+	match skill:
+		"aoe_self":
+			_boss_aoe_attack(global_position, 150.0)
+		"aoe_target":
+			_boss_aoe_attack(player.global_position, 150.0)
+		"summon":
+			_summon_adds(3)
+
+## AOE 攻击：先显示预警圈，1.5 秒后在范围内结算伤害
+func _boss_aoe_attack(center: Vector2, radius: float):
+	_casting = true
+	var warning = _create_warning_circle(center, radius)
+	get_parent().add_child(warning)
+	# 节点进入场景树后再启动闪烁 Tween（Godot 4 要求 Tween 绑定在树内节点）
+	var blink = warning.create_tween().set_loops()
+	blink.tween_property(warning, "modulate:a", 0.9, 0.25)
+	blink.tween_property(warning, "modulate:a", 0.3, 0.25)
+	# 阶段越高伤害越高
+	var aoe_damage = damage * (1.0 + 0.5 * (current_phase - 1))
+	await get_tree().create_timer(1.5).timeout
+	if not is_instance_valid(self):
+		if is_instance_valid(warning):
+			warning.queue_free()
+		return
+	_deal_aoe_damage(center, radius, aoe_damage)
+	EffectSprite.spawn(get_parent(), "fire", center, radius / 75.0)
+	if is_instance_valid(warning):
+		warning.queue_free()
+	_casting = false
+
+## 生成红色半透明预警圈（带闪烁动画）
+func _create_warning_circle(pos: Vector2, radius: float) -> Node2D:
+	var circle = ColorRect.new()
+	circle.size = Vector2(radius * 2, radius * 2)
+	circle.global_position = pos - circle.size / 2.0
+	circle.color = Color(1.0, 0.2, 0.2, 0.35)
+	circle.z_index = -1  # 画在角色脚下
+	return circle
+
+## AOE 伤害判定：用 distance_to 遍历 player 组
+func _deal_aoe_damage(center: Vector2, radius: float, dmg: float):
+	var players = get_tree().get_nodes_in_group("player")
+	for p in players:
+		if not is_instance_valid(p):
+			continue
+		if p.global_position.distance_to(center) <= radius and p.has_method("take_damage"):
+			p.take_damage(dmg)
+
+## 召唤援军：在 Boss 周围生成普通小怪
+func _summon_adds(count: int):
+	print("[Boss] 召唤 %d 个援军" % count)
+	var add_id = enemy_data.get("summon_id", "")
+	for i in range(count):
+		var offset = Vector2(randf_range(-80, 80), randf_range(-80, 80))
+		var spawn_pos = global_position + offset
+		var add = null
+		if add_id != "":
+			add = load("res://scripts/Enemy.gd").create_enemy(add_id, spawn_pos)
+		# 没有指定 summon_id 时，复用本敌人的配置但降格为普通怪
+		if add == null:
+			add = _spawn_minion_from_self(spawn_pos)
+		if add != null:
+			get_parent().add_child(add)
+			EffectSprite.spawn(get_parent(), "frost", spawn_pos, 1.0)
+
+## 根据 Boss 自身配置克隆一个弱化的普通小怪
+func _spawn_minion_from_self(spawn_pos: Vector2) -> Node2D:
+	var minion_data = enemy_data.duplicate(true)
+	minion_data["rank"] = "normal"
+	# 弱化数值，避免召唤物喧宾夺主
+	if minion_data.has("base_stats"):
+		var bs = minion_data["base_stats"]
+		bs["max_hp"] = bs.get("max_hp", 20) * 0.3
+		bs["damage"] = bs.get("damage", 5) * 0.5
+	var minion = CharacterBody2D.new()
+	minion.set_script(load("res://scripts/Enemy.gd"))
+	minion.enemy_data = minion_data
+	minion.global_position = spawn_pos
+	return minion
 
 
 var _dying := false

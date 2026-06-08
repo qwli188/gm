@@ -38,21 +38,24 @@
   },
 
   "affix_kinds": {
-    "implemented": ["add_stat", "mult_stat", "lifesteal", "ignite", "poison", "freeze", "slow", "stun"],
+    "implemented": ["add_stat", "mult_stat", "lifesteal", "add_damage", "ignite", "poison", "freeze", "slow", "stun", "on_hit_chance"],
     "effect_structure": {
       "add_stat": {"stat": "string from base", "value": "number"},
       "mult_stat": {"stat": "string from base", "value": "float (0.15 = +15%)"},
       "lifesteal": {"value": "float (0.15 = 15% lifesteal)"},
+      "add_damage": {"value": "number", "damage_type": "string"},
       "ignite": {"dps": "number", "duration": "seconds"},
       "poison": {"dps": "number", "duration": "seconds"},
       "freeze": {"chance": "float", "duration": "seconds"},
       "slow": {"percent": "float", "duration": "seconds"},
-      "stun": {"chance": "float", "duration": "seconds"}
+      "stun": {"chance": "float", "duration": "seconds"},
+      "on_hit_chance": {"chance": "float", "sub_effect": {"kind": "freeze|slow|stun", "...": "depends on sub_effect kind"}}
     },
     "output_keys_mapping": {
       "freeze": ["freeze_chance", "freeze_duration"],
-      "slow": ["slow_percent", "slow_duration"],
+      "slow": ["slow_chance", "slow_percent", "slow_duration"],
       "stun": ["stun_chance", "stun_duration"],
+      "on_hit_chance": "展开为 sub_effect 对应的 *_chance + duration，支持 freeze/slow/stun",
       "note": "EquipmentSystem._merge_affix_effect 输出这些键，CombatSystem.apply_damage 读取"
     }
   },

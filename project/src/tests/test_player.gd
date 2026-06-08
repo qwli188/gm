@@ -160,17 +160,19 @@ func test_get_meta_bonus_call():
 
 	# Set meta bonuses in mock GameState
 	mock_game_state.set_meta_bonus("perm_damage", 5.0)
-	mock_game_state.set_meta_bonus("perm_max_hp", 20.0)
+	mock_game_state.set_meta_bonus("perm_hp", 20.0)
 
 	var initial_base_damage = player.base_damage
 	var initial_base_hp = player.base_max_hp
 
-	# Recalculate stats (should call GameState.get_meta_bonus)
+	# Recalculate stats (should call GameState.get_meta_bonus and apply to final stats)
 	player.recalculate_stats()
 
-	# Verify meta bonuses were applied to base stats
-	assert(player.base_damage == initial_base_damage + 5.0, "Expected base_damage increased by 5, got " + str(player.base_damage))
-	assert(player.base_max_hp == initial_base_hp + 20.0, "Expected base_max_hp increased by 20, got " + str(player.base_max_hp))
+	# Verify meta bonuses were applied to FINAL stats, not base
+	assert(player.base_damage == initial_base_damage, "Expected base_damage unchanged, got " + str(player.base_damage))
+	assert(player.base_max_hp == initial_base_hp, "Expected base_max_hp unchanged, got " + str(player.base_max_hp))
+	assert(player.damage == initial_base_damage + 5.0, "Expected final damage increased by 5, got " + str(player.damage))
+	assert(player.max_hp == initial_base_hp + 20.0, "Expected final max_hp increased by 20, got " + str(player.max_hp))
 
 	teardown()
 	print("[PASS] test_get_meta_bonus_call")

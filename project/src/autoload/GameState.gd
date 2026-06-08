@@ -18,7 +18,15 @@ var selected_set_drop: String = ""
 var total_gold: int = 0
 var meta_upgrades: Dictionary = {}      # {"perm_hp": 3, "perm_damage": 5, ...}
 var unlocked_dungeons: Array = ["dungeon_crypt_1"]
-var cleared_dungeons: Dictionary = {}   # {"clear_dungeon_crypt_1": true}
+# cleared_dungeons: 记录每个副本的通关进度（支持多难度）
+# 格式: {
+#   "dungeon_crypt_1": {
+#     "max_tier_cleared": 2,
+#     "first_clear_time": "2026-06-08T12:34:56",
+#     "total_clears": 5
+#   }
+# }
+var cleared_dungeons: Dictionary = {}
 
 func _ready():
 	print("[GameState] 全局状态初始化")
@@ -70,3 +78,13 @@ func get_meta_bonus(upgrade_id: String) -> float:
 		if stat.get("id", "") == upgrade_id:
 			return stat.get("per_level", 0) * level
 	return 0.0
+
+## 查询副本最高通关难度（返回 0 表示未通关）
+func get_max_cleared_tier(dungeon_id: String) -> int:
+	if not cleared_dungeons.has(dungeon_id):
+		return 0
+	return cleared_dungeons[dungeon_id].get("max_tier_cleared", 0)
+
+## 查询副本是否通关过指定难度
+func is_dungeon_cleared(dungeon_id: String, tier: int = 1) -> bool:
+	return get_max_cleared_tier(dungeon_id) >= tier

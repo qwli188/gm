@@ -19,15 +19,18 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-# 伤害公式常量（对齐 CombatSystem.gd）
-CRIT_MULTIPLIER_BASE = 1.5
-ARMOR_CONSTANT = 100.0
-
 class MockPlayer:
     def __init__(self, class_id: str, equipment_ids: List[str], config_root: str):
         self.class_id = class_id
         self.equipment_ids = equipment_ids
         self.config_root = Path(config_root)
+
+        # 从 balance.json 读取公式参数（消除硬编码）
+        balance_path = self.config_root / "balance.json"
+        with open(balance_path, 'r', encoding='utf-8') as f:
+            balance = json.load(f)
+        self.crit_multiplier = balance["damage_formula"]["crit_multiplier_base"]
+        self.armor_constant = 100.0  # balance.json 里没定义就用默认值
 
         # 加载配置
         self.class_data = self._load_class(class_id)
@@ -65,7 +68,7 @@ class MockPlayer:
             "max_hp": 100.0,
             "armor": 0.0,
             "crit_chance": 0.05,
-            "crit_damage": CRIT_MULTIPLIER_BASE,
+            "crit_damage": self.crit_multiplier,
             "attack_speed": 1.0,
             "move_speed": 150.0,
             "hp_regen": 0.0,
@@ -124,7 +127,7 @@ class MockPlayer:
 
         # 抗性（简化，只考虑护甲）
         enemy_armor = enemy.stats["armor"]
-        resistance = 1.0 - (enemy_armor / (enemy_armor + ARMOR_CONSTANT))
+        resistance = 1.0 - (enemy_armor / (enemy_armor + self.armor_constant))
 
         final_damage = base_damage * crit_mult * resistance
 
@@ -178,7 +181,7 @@ class MockEnemy:
         """攻击玩家，返回实际伤害"""
         enemy_damage = self.stats.get("damage", 5)
         player_armor = player.stats["armor"]
-        resistance = 1.0 - (player_armor / (player_armor + ARMOR_CONSTANT))
+        resistance = 1.0 - (player_armor / (player_armor + player.armor_constant))
         final_damage = enemy_damage * resistance
 
         player.hp -= final_damage

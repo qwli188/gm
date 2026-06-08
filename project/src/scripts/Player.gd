@@ -29,6 +29,15 @@ var current_level: int = 1
 var current_exp: float = 0.0
 var exp_to_next_level: float = 10.0
 
+# 属性加点系统
+var attributes: Dictionary = {
+	"strength": 0,
+	"agility": 0,
+	"vitality": 0,
+	"intelligence": 0
+}
+var attribute_points_unspent: int = 0
+
 # 游戏统计
 var survival_time: float = 0.0
 var kills: int = 0
@@ -40,10 +49,24 @@ signal hp_changed(current: float, maximum: float)
 signal auto_attack_toggled(enabled: bool)
 signal level_up(new_level: int)
 signal player_died(time: float, kill_count: int, gold_earned: int)
+signal attribute_points_changed(unspent: int)
+signal attributes_changed(attrs: Dictionary)
 
 var anim_sprite: AnimatedSprite2D
 var _attacking: bool = false
 var _facing_left: bool = false
+
+# ============ 闪避系统 ============
+var is_dodging: bool = false
+var dodge_cooldown: float = 0.0
+var dodge_timer: float = 0.0
+var dodge_i_frame_duration: float = 0.3  # 无敌帧时长
+var dodge_duration: float = 0.3  # 闪避总时长
+var dodge_distance: float = 220.0  # 闪避距离(220 保证一次能脱出 Boss AOE)
+var dodge_speed: float = 600.0  # 闪避速度
+var dodge_cooldown_time: float = 1.5  # 闪避冷却
+var dodge_direction: Vector2 = Vector2.ZERO  # 闪避方向
+var _dodge_requested: bool = false  # 输入缓冲(由 _unhandled_input 设置,_physics_process 消费)
 
 func _ready():
 	add_to_group("player")
@@ -91,8 +114,8 @@ func _apply_class():
 		anim_sprite.animation = "idle"
 		anim_sprite.play("idle")
 
-## 重算最终属性 = 基础 + 局外强化 + 装备 + 词缀
-## 每次装备/卸下/局外升级后调用
+## 重算最终属性 = 基础 + 局外强化 + 属性加点 + 装备 + 词缀
+## 每次装备/卸下/局外升级/加点后调用
 func recalculate_stats():
 	# 1. 从基础属性起步
 	max_hp = base_max_hp
@@ -104,7 +127,16 @@ func recalculate_stats():
 	armor = base_armor
 	combat_stats = {}
 
-	# 2. 叠加装备属性（由 EquipmentSystem 汇总）
+	# 2. 叠加局外永久强化（GameState 管理）
+	var perm_damage = GameState.get_meta_bonus("perm_damage")
+	var perm_max_hp = GameState.get_meta_bonus("perm_max_hp")
+	base_damage += perm_damage
+	base_max_hp += perm_max_hp
+
+	# 3. 叠加属性加点效果
+	_apply_attribute_bonuses()
+
+	# 4. 叠加装备属性（由 EquipmentSystem 汇总）
 	if has_node("/root/EquipmentSystem"):
 		var eq = get_node("/root/EquipmentSystem")
 		var total = eq.get_total_stats()
@@ -118,12 +150,6 @@ func recalculate_stats():
 		# 词缀效果（吸血、点燃、毒、附加伤害等）传给战斗系统
 		combat_stats = eq.get_combat_effects()
 
-	# 3. 叠加局外永久强化（GameState 管理）
-	var perm_damage = GameState.get_meta_bonus("perm_damage")
-	var perm_max_hp = GameState.get_meta_bonus("perm_max_hp")
-	base_damage += perm_damage
-	base_max_hp += perm_max_hp
-
 	# 上限保护
 	crit_chance = min(crit_chance, 0.75)
 	attack_speed = min(attack_speed, 3.0)
@@ -132,9 +158,60 @@ func recalculate_stats():
 
 func _physics_process(delta):
 	survival_time += delta
-	handle_movement()
+
+	# 更新闪避冷却
+	if dodge_cooldown > 0:
+		dodge_cooldown -= delta
+
+	# 处理闪避逻辑
+	handle_dodge(delta)
+
+	# 不在闪避中才正常处理移动(闪避期间 velocity 由 handle_dodge 接管)
+	if not is_dodging:
+		handle_movement()
+
 	handle_attack(delta)
 	move_and_slide()
+
+## 闪避输入用 _unhandled_input 检测,避免顿帧(time_scale=0)期间物理帧停摆吞输入
+func _unhandled_input(event):
+	if event.is_action_pressed("dodge"):
+		_dodge_requested = true
+
+func handle_dodge(delta):
+	# 消费输入缓冲(冷却好了且不在闪避中)
+	if _dodge_requested:
+		_dodge_requested = false
+		if dodge_cooldown <= 0 and not is_dodging:
+			# 确定闪避方向
+			var input_dir = Vector2(
+				Input.get_axis("move_left", "move_right"),
+				Input.get_axis("move_up", "move_down")
+			).normalized()
+			# 有移动输入则用移动方向,否则用朝向
+			if input_dir.length() > 0.1:
+				dodge_direction = input_dir
+			else:
+				dodge_direction = Vector2(-1 if _facing_left else 1, 0)
+			# 触发闪避
+			is_dodging = true
+			dodge_timer = 0.0
+			dodge_cooldown = dodge_cooldown_time
+			dodge_duration = dodge_distance / dodge_speed
+			# 视觉反馈:半透明
+			if anim_sprite:
+				anim_sprite.modulate.a = 0.5
+			AudioManager.play("footstep")
+
+	# 闪避进行中
+	if is_dodging:
+		dodge_timer += delta
+		if dodge_timer < dodge_duration:
+			velocity = dodge_direction * dodge_speed
+		else:
+			is_dodging = false
+			if anim_sprite:
+				anim_sprite.modulate.a = 1.0
 
 func handle_movement():
 	var input_dir = Vector2(
@@ -209,6 +286,11 @@ func _on_attack_done():
 		anim_sprite.play("idle")
 
 func take_damage(damage: float):
+	# 闪避无敌帧检测(也是 Boss AOE 防护的唯一来源,不可丢)
+	if is_dodging and dodge_timer < dodge_i_frame_duration:
+		print("[Player] 闪避成功！无敌帧生效")
+		return
+
 	current_hp -= damage
 	current_hp = clamp(current_hp, 0, max_hp)
 	AudioManager.play("hit")
@@ -263,9 +345,9 @@ func _calculate_exp_to_next_level():
 func _on_level_up():
 	print("[Player] 升级到 %d 级！" % current_level)
 
-	# 提升基础属性（每级），再重算最终属性
-	base_max_hp += 8
-	base_damage += 2
+	# 给予属性点
+	attribute_points_unspent += 5
+	attribute_points_changed.emit(attribute_points_unspent)
 
 	recalculate_stats()
 	current_hp = max_hp  # 升级回满血
@@ -290,3 +372,61 @@ func on_enemy_killed(enemy_data: Dictionary):
 	var max_gold = gold_drop.get("max", 0)
 	var gold_amount = randi_range(min_gold, max_gold)
 	gold += gold_amount
+
+## 分配属性点
+func add_attribute(attr_name: String, points: int):
+	if attribute_points_unspent < points:
+		push_warning("[Player] 属性点不足: %d < %d" % [attribute_points_unspent, points])
+		return
+
+	if not attributes.has(attr_name):
+		push_error("[Player] 未知属性: %s" % attr_name)
+		return
+
+	attributes[attr_name] += points
+	attribute_points_unspent -= points
+
+	recalculate_stats()
+	attribute_points_changed.emit(attribute_points_unspent)
+	attributes_changed.emit(attributes)
+
+	print("[Player] +%d %s (剩余点数: %d)" % [points, attr_name, attribute_points_unspent])
+
+## 应用属性加点对数值的影响
+func _apply_attribute_bonuses():
+	var attr_config = ConfigLoader.get_balance_config().get("attributes", {})
+
+	# 力量：增加伤害
+	var str_val = attributes.get("strength", 0)
+	if str_val > 0:
+		var str_cfg = attr_config.get("strength", {})
+		damage += str_val * str_cfg.get("damage_flat", 0)
+		var dmg_pct = str_val * str_cfg.get("damage_percent", 0)
+		damage *= (1.0 + dmg_pct)
+
+	# 敏捷：增加攻速、暴击、闪避
+	var agi_val = attributes.get("agility", 0)
+	if agi_val > 0:
+		var agi_cfg = attr_config.get("agility", {})
+		attack_speed += agi_val * agi_cfg.get("attack_speed", 0)
+		crit_chance += agi_val * agi_cfg.get("crit_chance", 0)
+		# 闪避暂存到 combat_stats，供战斗系统读取
+		var dodge = agi_val * agi_cfg.get("dodge", 0)
+		if dodge > 0:
+			combat_stats["dodge"] = dodge
+
+	# 体质：增加生命和护甲
+	var vit_val = attributes.get("vitality", 0)
+	if vit_val > 0:
+		var vit_cfg = attr_config.get("vitality", {})
+		max_hp += vit_val * vit_cfg.get("max_hp", 0)
+		armor += vit_val * vit_cfg.get("armor", 0)
+
+	# 智力：增加法术伤害（预留，未来技能系统使用）
+	var int_val = attributes.get("intelligence", 0)
+	if int_val > 0:
+		var int_cfg = attr_config.get("intelligence", {})
+		var magic_dmg = int_val * int_cfg.get("magic_damage_flat", 0)
+		if magic_dmg > 0:
+			combat_stats["magic_damage"] = magic_dmg
+

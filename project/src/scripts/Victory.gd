@@ -32,10 +32,23 @@ func show_victory(time: float, kill_count: int, gold: int):
 	if has_node("/root/GameState"):
 		var gs = get_node("/root/GameState")
 		gs.total_gold += gold
-		# 记录通关：clear_{dungeon}_t{tier} 用于解锁下一难度/下一副本
-		var dungeon_short = gs.selected_dungeon_id.replace("dungeon_", "")
-		var clear_key = "clear_%s_t%d" % [dungeon_short, gs.selected_difficulty_tier]
-		gs.cleared_dungeons[clear_key] = true
+		# 记录通关进度（复杂格式：支持多难度、首次时间、总次数）
+		var dungeon_id = gs.selected_dungeon_id
+		var tier = gs.selected_difficulty_tier
+		var now_iso = Time.get_datetime_string_from_system(true)
+
+		if not gs.cleared_dungeons.has(dungeon_id):
+			# 首次通关该副本
+			gs.cleared_dungeons[dungeon_id] = {
+				"max_tier_cleared": tier,
+				"first_clear_time": now_iso,
+				"total_clears": 1
+			}
+		else:
+			# 更新记录
+			var record = gs.cleared_dungeons[dungeon_id]
+			record["max_tier_cleared"] = max(record.get("max_tier_cleared", 0), tier)
+			record["total_clears"] = record.get("total_clears", 0) + 1
 
 	show()
 

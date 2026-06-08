@@ -67,11 +67,23 @@ func apply_damage(target: Node2D, damage: float, attacker_stats: Dictionary, is_
 	if freeze_chance > 0 and randf() < freeze_chance:
 		trigger_freeze(target, freeze_duration)
 
-	# 触发减速
+	# 触发减速（支持 slow_chance 概率触发）
+	var slow_chance = attacker_stats.get("slow_chance", 0.0)
 	var slow_percent = attacker_stats.get("slow_percent", 0.0)
 	var slow_duration = attacker_stats.get("slow_duration", 0.0)
 	if slow_percent > 0:
-		trigger_slow(target, slow_percent, slow_duration)
+		# 如果有 slow_chance，按概率触发；否则 100% 触发
+		if slow_chance > 0:
+			if randf() < slow_chance:
+				trigger_slow(target, slow_percent, slow_duration)
+		else:
+			trigger_slow(target, slow_percent, slow_duration)
+
+	# 触发眩晕
+	var stun_chance = attacker_stats.get("stun_chance", 0.0)
+	var stun_duration = attacker_stats.get("stun_duration", 0.0)
+	if stun_chance > 0 and randf() < stun_chance:
+		trigger_stun(target, stun_duration)
 
 ## 吸血效果
 func trigger_lifesteal(damage: float, lifesteal_percent: float):
@@ -104,6 +116,12 @@ func trigger_slow(target: Node2D, slow_percent: float, duration: float):
 		return
 	target.apply_slow(slow_percent, duration)
 
+## 眩晕效果
+func trigger_stun(target: Node2D, duration: float):
+	if not target.has_method("apply_stun"):
+		return
+	target.apply_stun(duration)
+
 ## 玩家攻击检测（Area2D）
 func check_player_attack(attack_area: Area2D, player_stats: Dictionary):
 	var enemies = attack_area.get_overlapping_bodies()
@@ -114,10 +132,30 @@ func check_player_attack(attack_area: Area2D, player_stats: Dictionary):
 			apply_damage(enemy, result.damage, player_stats, result.is_crit)
 			damage_dealt.emit(enemy, result.damage, result.is_crit)
 
+			# 打击感效果
+			# 1. 顿帧 (hitstop)
+			if result.is_crit:
+				_apply_hitstop(0.08)  # 暴击顿帧 0.08 秒
+				_apply_screen_shake(8.0)  # 暴击震屏
+			else:
+				_apply_hitstop(0.04)  # 普攻顿帧 0.04 秒
+
+			# 2. 击退（传递玩家位置给敌人）
+			if enemy.has_method("apply_knockback"):
+				var player = get_tree().get_first_node_in_group("player")
+				if player:
+					enemy.apply_knockback(player.global_position, result.is_crit)
+
 ## 敌人攻击玩家
 func enemy_attack_player(enemy_damage: float, player: Node2D):
 	if not player.has_method("take_damage"):
 		return
+
+	# 闪避无敌帧：攻击判定 miss，不结算伤害(先于一切结算,避免吸血/点燃误触发)
+	if "is_dodging" in player and player.is_dodging:
+		if "dodge_timer" in player and "dodge_i_frame_duration" in player:
+			if player.dodge_timer < player.dodge_i_frame_duration:
+				return
 
 	var player_armor = 0.0
 	if player.has_method("get_stat"):
@@ -133,3 +171,29 @@ func _on_config_reloaded(file_name: String) -> void:
 		var dmg_formula = ConfigLoader.balance_data.get("damage_formula", {})
 		crit_multiplier_base = dmg_formula.get("crit_multiplier_base", 1.5)
 		print("[CombatSystem] 响应 balance.json 重载: crit_mult=" + str(crit_multiplier_base))
+
+## 打击感 - 顿帧效果
+func _apply_hitstop(duration: float):
+	Engine.time_scale = 0.0
+	# 创建不受 time_scale 影响的定时器(第4参数 ignore_time_scale=true)
+	get_tree().create_timer(duration, true, false, true).timeout.connect(func():
+		Engine.time_scale = 1.0
+	)
+
+## 打击感 - 震屏效果（暴击时）
+func _apply_screen_shake(intensity: float):
+	var camera = get_viewport().get_camera_2d()
+	if not camera:
+		return
+	# 第一段震动
+	camera.offset = Vector2(randf_range(-intensity, intensity), randf_range(-intensity, intensity))
+	# 0.05 秒后衰减
+	get_tree().create_timer(0.05).timeout.connect(func():
+		if camera:
+			camera.offset = Vector2(randf_range(-intensity * 0.5, intensity * 0.5), randf_range(-intensity * 0.5, intensity * 0.5))
+	)
+	# 0.1 秒后恢复
+	get_tree().create_timer(0.1).timeout.connect(func():
+		if camera:
+			camera.offset = Vector2.ZERO
+	)
