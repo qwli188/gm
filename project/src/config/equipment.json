@@ -576,8 +576,8 @@
       "rarity": "rare",
       "base_stats": {
         "damage": 50,
-        "attack_speed": 10.4,
-        "crit_chance": 7.6
+        "attack_speed": 1.04,
+        "crit_chance": 0.076
       },
       "drop_level": 3,
       "affix_slots": 2,
@@ -600,8 +600,8 @@
       "rarity": "epic",
       "base_stats": {
         "damage": 68,
-        "attack_speed": 13.4,
-        "crit_chance": 9.6
+        "attack_speed": 1.34,
+        "crit_chance": 0.096
       },
       "drop_level": 3,
       "affix_slots": 3,
@@ -763,7 +763,7 @@
       "rarity": "common",
       "base_stats": {
         "armor": 12,
-        "move_speed": 6
+        "move_speed": 0.06
       },
       "drop_level": 2,
       "affix_slots": 1,
@@ -784,7 +784,7 @@
       "rarity": "rare",
       "base_stats": {
         "armor": 25,
-        "move_speed": 9
+        "move_speed": 0.09
       },
       "drop_level": 3,
       "affix_slots": 2,
@@ -807,7 +807,7 @@
       "rarity": "rare",
       "base_stats": {
         "armor": 17,
-        "attack_speed": 6.6
+        "attack_speed": 0.066
       },
       "drop_level": 2,
       "affix_slots": 2,
@@ -830,7 +830,7 @@
       "rarity": "epic",
       "base_stats": {
         "armor": 34,
-        "attack_speed": 9.6
+        "attack_speed": 0.096
       },
       "drop_level": 3,
       "affix_slots": 3,
@@ -853,7 +853,7 @@
       "rarity": "common",
       "base_stats": {
         "poison_damage": 14,
-        "crit_chance": 5
+        "crit_chance": 0.05
       },
       "drop_level": 2,
       "affix_slots": 1,
@@ -874,7 +874,7 @@
       "rarity": "rare",
       "base_stats": {
         "poison_damage": 29,
-        "crit_chance": 7.6
+        "crit_chance": 0.076
       },
       "drop_level": 3,
       "affix_slots": 2,
@@ -944,8 +944,8 @@
       "rarity": "legendary",
       "base_stats": {
         "damage": 94,
-        "attack_speed": 17.6,
-        "crit_chance": 12.4
+        "attack_speed": 1.76,
+        "crit_chance": 0.124
       },
       "drop_level": 3,
       "affix_slots": 4,
@@ -1046,7 +1046,7 @@
       "rarity": "legendary",
       "base_stats": {
         "armor": 47,
-        "attack_speed": 12.4
+        "attack_speed": 0.124
       },
       "drop_level": 3,
       "affix_slots": 4,
@@ -1072,7 +1072,7 @@
       "rarity": "legendary",
       "base_stats": {
         "armor": 47,
-        "move_speed": 15
+        "move_speed": 0.15
       },
       "drop_level": 3,
       "affix_slots": 4,
@@ -2132,7 +2132,7 @@
       },
       "affix_slots": 4,
       "fixed_affixes": [
-        "affix_affix_mutation"
+        "affix_mutation"
       ],
       "set_id": "",
       "vfx_level": 3,
@@ -2252,7 +2252,7 @@
       },
       "affix_slots": 5,
       "fixed_affixes": [
-        "affix_affix_mutation"
+        "affix_mutation"
       ],
       "set_id": "set_void",
       "vfx_level": 4,

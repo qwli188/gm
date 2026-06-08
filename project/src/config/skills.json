@@ -1459,38 +1459,6 @@
       "design_note": "召唤流终结技，把'召唤大军'与'尸爆'两条死灵师路线合一：先用骷髅潮压制，结束时全员引爆造成一轮死亡AOE。受skill_undying_legion的数量与伤害乘区放大,配set_bone(白骨君王)的6件套大招效果时是清Boss房与精英波次的核按钮。"
     },
     {
-      "id": "skill_bloodthirst",
-      "display_name": "嗜血本能",
-      "class": "all",
-      "type": "passive",
-      "tags": [
-        "lifesteal",
-        "sustain"
-      ],
-      "effect": {
-        "kind": "add_stat",
-        "stat": "lifesteal",
-        "value": 0.08,
-        "extra": {
-          "min_heal_per_hit": 1
-        }
-      },
-      "max_level": 5,
-      "level_scaling": {
-        "value_per_level": 0.04
-      },
-      "synergy": {
-        "with_affix": "affix_lifesteal",
-        "with_tag": "lifesteal",
-        "with_set": "set_bone",
-        "bonus": "造成伤害回复等比生命，与affix_lifesteal吸血词缀和高攻速直接相加叠满。任何职业堆攻速都能转为续航。"
-      },
-      "rarity": "rare",
-      "icon": "res://assets/icons/skills/bloodthirst.png",
-      "unlock_condition": "default",
-      "design_note": "通用续航被动。对高攻速职业(游侠/刺客)和召唤本体回血都通吃；与affix_lifesteal/affix_attack_speed叠加后形成'打得越快回得越多'的吸血流，配set_bone的吸取生命词条收益最高。是把任意输出构筑转坦的万金油件。"
-    },
-    {
       "id": "skill_overcharge",
       "display_name": "超载冲锋",
       "class": "all",

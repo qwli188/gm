@@ -7,6 +7,10 @@ var is_flying: bool = false
 var target_player: Node2D
 var _vfx_time: float = 0.0
 
+func setup(data: Dictionary):
+	item_data = data
+	_setup_rarity_visual()
+
 func _ready():
 	body_entered.connect(_on_body_entered)
 	_setup_rarity_visual()

@@ -1,4 +1,5 @@
 {
+  "version": "1.0.0",
   "dungeons": [
     {
       "id": "dungeon_crypt_1",
@@ -22,7 +23,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 1,
           "enemy_dmg_mult": 1,
-          "drop_quality_bonus": 0,
+          "drop_bonus": 0,
           "unlock": "default"
         },
         {
@@ -30,7 +31,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 1.5,
           "enemy_dmg_mult": 1.35,
-          "drop_quality_bonus": 0.1,
+          "drop_bonus": 0.1,
           "unlock": "clear_dungeon_crypt_1_t1"
         },
         {
@@ -38,7 +39,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 2.3,
           "enemy_dmg_mult": 1.7,
-          "drop_quality_bonus": 0.25,
+          "drop_bonus": 0.25,
           "unlock": "clear_dungeon_crypt_1_t2"
         }
       ]
@@ -65,7 +66,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 1.15,
           "enemy_dmg_mult": 1.1,
-          "drop_quality_bonus": 0,
+          "drop_bonus": 0,
           "unlock": "default"
         },
         {
@@ -73,7 +74,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 1.73,
           "enemy_dmg_mult": 1.49,
-          "drop_quality_bonus": 0.1,
+          "drop_bonus": 0.1,
           "unlock": "clear_dungeon_crypt_2_t1"
         },
         {
@@ -81,7 +82,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 2.65,
           "enemy_dmg_mult": 1.87,
-          "drop_quality_bonus": 0.25,
+          "drop_bonus": 0.25,
           "unlock": "clear_dungeon_crypt_2_t2"
         }
       ]
@@ -108,7 +109,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 1.3,
           "enemy_dmg_mult": 1.2,
-          "drop_quality_bonus": 0,
+          "drop_bonus": 0,
           "unlock": "default"
         },
         {
@@ -116,7 +117,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 1.95,
           "enemy_dmg_mult": 1.62,
-          "drop_quality_bonus": 0.1,
+          "drop_bonus": 0.1,
           "unlock": "clear_dungeon_crypt_3_t1"
         },
         {
@@ -124,7 +125,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 2.99,
           "enemy_dmg_mult": 2.04,
-          "drop_quality_bonus": 0.25,
+          "drop_bonus": 0.25,
           "unlock": "clear_dungeon_crypt_3_t2"
         }
       ]
@@ -151,7 +152,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 1.5,
           "enemy_dmg_mult": 1.35,
-          "drop_quality_bonus": 0,
+          "drop_bonus": 0,
           "unlock": "default"
         },
         {
@@ -159,7 +160,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 2.25,
           "enemy_dmg_mult": 1.82,
-          "drop_quality_bonus": 0.1,
+          "drop_bonus": 0.1,
           "unlock": "clear_dungeon_crypt_4_t1"
         },
         {
@@ -167,7 +168,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 3.45,
           "enemy_dmg_mult": 2.3,
-          "drop_quality_bonus": 0.25,
+          "drop_bonus": 0.25,
           "unlock": "clear_dungeon_crypt_4_t2"
         }
       ]
@@ -194,7 +195,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 1.7,
           "enemy_dmg_mult": 1.5,
-          "drop_quality_bonus": 0,
+          "drop_bonus": 0,
           "unlock": "default"
         },
         {
@@ -202,7 +203,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 2.55,
           "enemy_dmg_mult": 2.03,
-          "drop_quality_bonus": 0.1,
+          "drop_bonus": 0.1,
           "unlock": "clear_dungeon_crypt_5_t1"
         },
         {
@@ -210,7 +211,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 3.91,
           "enemy_dmg_mult": 2.55,
-          "drop_quality_bonus": 0.25,
+          "drop_bonus": 0.25,
           "unlock": "clear_dungeon_crypt_5_t2"
         }
       ]
@@ -237,7 +238,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 1.9,
           "enemy_dmg_mult": 1.6,
-          "drop_quality_bonus": 0.05,
+          "drop_bonus": 0.05,
           "unlock": "default"
         },
         {
@@ -245,7 +246,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 2.85,
           "enemy_dmg_mult": 2.16,
-          "drop_quality_bonus": 0.15,
+          "drop_bonus": 0.15,
           "unlock": "clear_dungeon_swamp_1_t1"
         },
         {
@@ -253,7 +254,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 4.37,
           "enemy_dmg_mult": 2.72,
-          "drop_quality_bonus": 0.3,
+          "drop_bonus": 0.3,
           "unlock": "clear_dungeon_swamp_1_t2"
         }
       ]
@@ -280,7 +281,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 2.1,
           "enemy_dmg_mult": 1.75,
-          "drop_quality_bonus": 0.05,
+          "drop_bonus": 0.05,
           "unlock": "default"
         },
         {
@@ -288,7 +289,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 3.15,
           "enemy_dmg_mult": 2.36,
-          "drop_quality_bonus": 0.15,
+          "drop_bonus": 0.15,
           "unlock": "clear_dungeon_swamp_2_t1"
         },
         {
@@ -296,7 +297,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 4.83,
           "enemy_dmg_mult": 2.98,
-          "drop_quality_bonus": 0.3,
+          "drop_bonus": 0.3,
           "unlock": "clear_dungeon_swamp_2_t2"
         }
       ]
@@ -323,7 +324,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 2.3,
           "enemy_dmg_mult": 1.9,
-          "drop_quality_bonus": 0.05,
+          "drop_bonus": 0.05,
           "unlock": "default"
         },
         {
@@ -331,7 +332,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 3.45,
           "enemy_dmg_mult": 2.57,
-          "drop_quality_bonus": 0.15,
+          "drop_bonus": 0.15,
           "unlock": "clear_dungeon_swamp_3_t1"
         },
         {
@@ -339,7 +340,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 5.29,
           "enemy_dmg_mult": 3.23,
-          "drop_quality_bonus": 0.3,
+          "drop_bonus": 0.3,
           "unlock": "clear_dungeon_swamp_3_t2"
         }
       ]
@@ -366,7 +367,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 2.6,
           "enemy_dmg_mult": 2.1,
-          "drop_quality_bonus": 0.05,
+          "drop_bonus": 0.05,
           "unlock": "default"
         },
         {
@@ -374,7 +375,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 3.9,
           "enemy_dmg_mult": 2.84,
-          "drop_quality_bonus": 0.15,
+          "drop_bonus": 0.15,
           "unlock": "clear_dungeon_swamp_4_t1"
         },
         {
@@ -382,7 +383,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 5.98,
           "enemy_dmg_mult": 3.57,
-          "drop_quality_bonus": 0.3,
+          "drop_bonus": 0.3,
           "unlock": "clear_dungeon_swamp_4_t2"
         }
       ]
@@ -409,7 +410,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 2.9,
           "enemy_dmg_mult": 2.3,
-          "drop_quality_bonus": 0.1,
+          "drop_bonus": 0.1,
           "unlock": "default"
         },
         {
@@ -417,7 +418,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 4.35,
           "enemy_dmg_mult": 3.11,
-          "drop_quality_bonus": 0.2,
+          "drop_bonus": 0.2,
           "unlock": "clear_dungeon_forge_1_t1"
         },
         {
@@ -425,7 +426,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 6.67,
           "enemy_dmg_mult": 3.91,
-          "drop_quality_bonus": 0.35,
+          "drop_bonus": 0.35,
           "unlock": "clear_dungeon_forge_1_t2"
         }
       ]
@@ -452,7 +453,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 3.2,
           "enemy_dmg_mult": 2.5,
-          "drop_quality_bonus": 0.1,
+          "drop_bonus": 0.1,
           "unlock": "default"
         },
         {
@@ -460,7 +461,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 4.8,
           "enemy_dmg_mult": 3.38,
-          "drop_quality_bonus": 0.2,
+          "drop_bonus": 0.2,
           "unlock": "clear_dungeon_forge_2_t1"
         },
         {
@@ -468,7 +469,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 7.36,
           "enemy_dmg_mult": 4.25,
-          "drop_quality_bonus": 0.35,
+          "drop_bonus": 0.35,
           "unlock": "clear_dungeon_forge_2_t2"
         }
       ]
@@ -495,7 +496,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 3.5,
           "enemy_dmg_mult": 2.7,
-          "drop_quality_bonus": 0.1,
+          "drop_bonus": 0.1,
           "unlock": "default"
         },
         {
@@ -503,7 +504,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 5.25,
           "enemy_dmg_mult": 3.65,
-          "drop_quality_bonus": 0.2,
+          "drop_bonus": 0.2,
           "unlock": "clear_dungeon_forge_3_t1"
         },
         {
@@ -511,7 +512,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 8.05,
           "enemy_dmg_mult": 4.59,
-          "drop_quality_bonus": 0.35,
+          "drop_bonus": 0.35,
           "unlock": "clear_dungeon_forge_3_t2"
         }
       ]
@@ -538,7 +539,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 3.9,
           "enemy_dmg_mult": 2.95,
-          "drop_quality_bonus": 0.1,
+          "drop_bonus": 0.1,
           "unlock": "default"
         },
         {
@@ -546,7 +547,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 5.85,
           "enemy_dmg_mult": 3.98,
-          "drop_quality_bonus": 0.2,
+          "drop_bonus": 0.2,
           "unlock": "clear_dungeon_forge_4_t1"
         },
         {
@@ -554,7 +555,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 8.97,
           "enemy_dmg_mult": 5.02,
-          "drop_quality_bonus": 0.35,
+          "drop_bonus": 0.35,
           "unlock": "clear_dungeon_forge_4_t2"
         }
       ]
@@ -581,7 +582,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 4.3,
           "enemy_dmg_mult": 3.2,
-          "drop_quality_bonus": 0.15,
+          "drop_bonus": 0.15,
           "unlock": "default"
         },
         {
@@ -589,7 +590,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 6.45,
           "enemy_dmg_mult": 4.32,
-          "drop_quality_bonus": 0.28,
+          "drop_bonus": 0.28,
           "unlock": "clear_dungeon_ice_1_t1"
         },
         {
@@ -597,7 +598,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 9.89,
           "enemy_dmg_mult": 5.44,
-          "drop_quality_bonus": 0.45,
+          "drop_bonus": 0.45,
           "unlock": "clear_dungeon_ice_1_t2"
         }
       ]
@@ -624,7 +625,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 4.7,
           "enemy_dmg_mult": 3.5,
-          "drop_quality_bonus": 0.15,
+          "drop_bonus": 0.15,
           "unlock": "default"
         },
         {
@@ -632,7 +633,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 7.05,
           "enemy_dmg_mult": 4.73,
-          "drop_quality_bonus": 0.28,
+          "drop_bonus": 0.28,
           "unlock": "clear_dungeon_ice_2_t1"
         },
         {
@@ -640,7 +641,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 10.81,
           "enemy_dmg_mult": 5.95,
-          "drop_quality_bonus": 0.45,
+          "drop_bonus": 0.45,
           "unlock": "clear_dungeon_ice_2_t2"
         }
       ]
@@ -667,7 +668,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 5.2,
           "enemy_dmg_mult": 3.8,
-          "drop_quality_bonus": 0.15,
+          "drop_bonus": 0.15,
           "unlock": "default"
         },
         {
@@ -675,7 +676,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 7.8,
           "enemy_dmg_mult": 5.13,
-          "drop_quality_bonus": 0.28,
+          "drop_bonus": 0.28,
           "unlock": "clear_dungeon_ice_3_t1"
         },
         {
@@ -683,7 +684,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 11.96,
           "enemy_dmg_mult": 6.46,
-          "drop_quality_bonus": 0.45,
+          "drop_bonus": 0.45,
           "unlock": "clear_dungeon_ice_3_t2"
         }
       ]
@@ -710,7 +711,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 5.8,
           "enemy_dmg_mult": 4.2,
-          "drop_quality_bonus": 0.2,
+          "drop_bonus": 0.2,
           "unlock": "default"
         },
         {
@@ -718,7 +719,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 8.7,
           "enemy_dmg_mult": 5.67,
-          "drop_quality_bonus": 0.35,
+          "drop_bonus": 0.35,
           "unlock": "clear_dungeon_void_1_t1"
         },
         {
@@ -726,7 +727,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 13.34,
           "enemy_dmg_mult": 7.14,
-          "drop_quality_bonus": 0.55,
+          "drop_bonus": 0.55,
           "unlock": "clear_dungeon_void_1_t2"
         }
       ]
@@ -753,7 +754,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 6.5,
           "enemy_dmg_mult": 4.7,
-          "drop_quality_bonus": 0.2,
+          "drop_bonus": 0.2,
           "unlock": "default"
         },
         {
@@ -761,7 +762,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 9.75,
           "enemy_dmg_mult": 6.35,
-          "drop_quality_bonus": 0.35,
+          "drop_bonus": 0.35,
           "unlock": "clear_dungeon_void_2_t1"
         },
         {
@@ -769,7 +770,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 14.95,
           "enemy_dmg_mult": 7.99,
-          "drop_quality_bonus": 0.55,
+          "drop_bonus": 0.55,
           "unlock": "clear_dungeon_void_2_t2"
         }
       ]
@@ -796,7 +797,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 2,
           "enemy_dmg_mult": 1.7,
-          "drop_quality_bonus": 0.05,
+          "drop_bonus": 0.05,
           "unlock": "default"
         },
         {
@@ -804,7 +805,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 3,
           "enemy_dmg_mult": 2.3,
-          "drop_quality_bonus": 0.15,
+          "drop_bonus": 0.15,
           "unlock": "clear_field_wasteland_t1"
         },
         {
@@ -812,7 +813,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 4.6,
           "enemy_dmg_mult": 2.89,
-          "drop_quality_bonus": 0.3,
+          "drop_bonus": 0.3,
           "unlock": "clear_field_wasteland_t2"
         }
       ]
@@ -839,7 +840,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 2.4,
           "enemy_dmg_mult": 1.95,
-          "drop_quality_bonus": 0.05,
+          "drop_bonus": 0.05,
           "unlock": "default"
         },
         {
@@ -847,7 +848,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 3.6,
           "enemy_dmg_mult": 2.63,
-          "drop_quality_bonus": 0.15,
+          "drop_bonus": 0.15,
           "unlock": "clear_field_forest_t1"
         },
         {
@@ -855,7 +856,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 5.52,
           "enemy_dmg_mult": 3.32,
-          "drop_quality_bonus": 0.3,
+          "drop_bonus": 0.3,
           "unlock": "clear_field_forest_t2"
         }
       ]
@@ -882,7 +883,7 @@
           "display_name": "普通",
           "enemy_hp_mult": 2.8,
           "enemy_dmg_mult": 2.2,
-          "drop_quality_bonus": 0.05,
+          "drop_bonus": 0.05,
           "unlock": "default"
         },
         {
@@ -890,7 +891,7 @@
           "display_name": "困难",
           "enemy_hp_mult": 4.2,
           "enemy_dmg_mult": 2.97,
-          "drop_quality_bonus": 0.15,
+          "drop_bonus": 0.15,
           "unlock": "clear_field_ruins_t1"
         },
         {
@@ -898,7 +899,7 @@
           "display_name": "噩梦",
           "enemy_hp_mult": 6.44,
           "enemy_dmg_mult": 3.74,
-          "drop_quality_bonus": 0.3,
+          "drop_bonus": 0.3,
           "unlock": "clear_field_ruins_t2"
         }
       ]

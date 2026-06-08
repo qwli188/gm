@@ -19,11 +19,11 @@ config/icon="res://icon.svg"
 [autoload]
 
 ConfigLoader="*res://autoload/ConfigLoader.gd"
+FileWatcher="*res://autoload/FileWatcher.gd"
 GameState="*res://autoload/GameState.gd"
 AudioManager="*res://autoload/AudioManager.gd"
 SpriteLibrary="*res://autoload/SpriteLibrary.gd"
 EquipmentSystem="*res://autoload/EquipmentSystem.gd"
-AffixSystem="*res://autoload/AffixSystem.gd"
 CombatSystem="*res://autoload/CombatSystem.gd"
 ActiveSkillSystem="*res://autoload/ActiveSkillSystem.gd"
 

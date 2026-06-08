@@ -14,6 +14,7 @@ func _ready():
 		var dmg_formula = config.get("damage_formula", {})
 		crit_multiplier_base = dmg_formula.get("crit_multiplier_base", 1.5)
 	print("[CombatSystem] 战斗系统初始化")
+	ConfigLoader.config_reloaded.connect(_on_config_reloaded)
 
 ## 计算最终伤害
 ## 公式: (基础伤害 + 附加伤害) × 增益 × 暴击 × 抗性
@@ -126,3 +127,9 @@ func enemy_attack_player(enemy_damage: float, player: Node2D):
 	var final_damage = enemy_damage * resistance
 
 	player.take_damage(final_damage)
+
+func _on_config_reloaded(file_name: String) -> void:
+	if file_name == "balance.json":
+		var dmg_formula = ConfigLoader.balance_data.get("damage_formula", {})
+		crit_multiplier_base = dmg_formula.get("crit_multiplier_base", 1.5)
+		print("[CombatSystem] 响应 balance.json 重载: crit_mult=" + str(crit_multiplier_base))

@@ -118,15 +118,11 @@ func recalculate_stats():
 		# 词缀效果（吸血、点燃、毒、附加伤害等）传给战斗系统
 		combat_stats = eq.get_combat_effects()
 
-	# 3. 叠加局外永久强化（GameManager 管理）
-	if has_node("/root/GameManager"):
-		var gm = get_node("/root/GameManager")
-		if gm.has_method("get_meta_bonus"):
-			max_hp += gm.get_meta_bonus("perm_hp")
-			damage += gm.get_meta_bonus("perm_damage")
-			attack_speed += gm.get_meta_bonus("perm_attack_speed")
-			crit_chance += gm.get_meta_bonus("perm_crit_chance")
-			move_speed *= (1.0 + gm.get_meta_bonus("perm_move_speed"))
+	# 3. 叠加局外永久强化（GameState 管理）
+	var perm_damage = GameState.get_meta_bonus("perm_damage")
+	var perm_max_hp = GameState.get_meta_bonus("perm_max_hp")
+	base_damage += perm_damage
+	base_max_hp += perm_max_hp
 
 	# 上限保护
 	crit_chance = min(crit_chance, 0.75)

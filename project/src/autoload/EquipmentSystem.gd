@@ -22,6 +22,7 @@ func _ready():
 	for slot in SLOTS:
 		equipped_items[slot] = null
 	print("[EquipmentSystem] 装备系统初始化 (8部位)")
+	ConfigLoader.config_reloaded.connect(_on_config_reloaded)
 
 ## 装备一件物品（自动判断槽位）
 func equip_item(item_data: Dictionary) -> bool:
@@ -121,23 +122,25 @@ func get_total_stats() -> Dictionary:
 		total["crit_damage"] += stats.get("crit_damage", 0)
 		total["hp_regen"] += stats.get("hp_regen", 0)
 		if stats.has("attack_speed"):
-			total["attack_speed_mult"] *= stats["attack_speed"]
+			# 语义区分：武器的 attack_speed 是倍率（1.1 = 1.1 倍）
+			# 其它部位（手套等）是百分比加成（0.1 = +10%）
+			if slot == "weapon":
+				total["attack_speed_mult"] *= stats["attack_speed"]
+			else:
+				total["attack_speed_mult"] *= (1.0 + stats["attack_speed"])
 		if stats.has("move_speed"):
+			# move_speed 统一为百分比加成（0.1 = +10%）
 			total["move_speed_mult"] *= (1.0 + stats["move_speed"])
 		# 词缀的属性加成（roll出来的随机词缀）
 		_apply_item_affix_stats(item, total)
 
 	# 套装属性加成
 	var set_bonus = get_set_bonuses()
-	total["damage"] += set_bonus.get("damage", 0)
-	total["max_hp"] += set_bonus.get("max_hp", 0)
-	total["armor"] += set_bonus.get("armor", 0)
-	total["crit_chance"] += set_bonus.get("crit_chance", 0)
-	total["crit_damage"] += set_bonus.get("crit_damage", 0)
-	if set_bonus.has("attack_speed_mult"):
-		total["attack_speed_mult"] *= (1.0 + set_bonus["attack_speed_mult"])
-	if set_bonus.has("damage_mult"):
-		total["damage"] *= (1.0 + set_bonus["damage_mult"])
+	for stat_key in set_bonus:
+		if stat_key.ends_with("_mult"):
+			total[stat_key] = total.get(stat_key, 1.0) * (1.0 + set_bonus[stat_key])
+		else:
+			total[stat_key] = total.get(stat_key, 0.0) + set_bonus[stat_key]
 
 	return total
 
@@ -186,12 +189,18 @@ func _merge_affix_effect(effects: Dictionary, affix: Dictionary):
 		"poison":
 			effects["poison_dps"] = effects.get("poison_dps", 0.0) + eff.get("dps", 0)
 			effects["poison_duration"] = max(effects.get("poison_duration", 0.0), eff.get("duration", 0))
-		"on_hit_chance":
-			var sub = eff.get("sub_effect", {})
-			effects["on_hit_" + sub.get("kind", "")] = eff.get("chance", 0)
+		"freeze":
+			effects["freeze_chance"] = effects.get("freeze_chance", 0.0) + eff.get("chance", 0)
+			effects["freeze_duration"] = max(effects.get("freeze_duration", 0.0), eff.get("duration", 0))
+		"slow":
+			effects["slow_percent"] = effects.get("slow_percent", 0.0) + eff.get("percent", 0)
+			effects["slow_duration"] = max(effects.get("slow_duration", 0.0), eff.get("duration", 0))
+		"stun":
+			effects["stun_chance"] = effects.get("stun_chance", 0.0) + eff.get("chance", 0)
+			effects["stun_duration"] = max(effects.get("stun_duration", 0.0), eff.get("duration", 0))
 		"mult_stat":
 			var stat = eff.get("stat", "")
-			effects["mult_" + stat] = effects.get("mult_" + stat, 0.0) + eff.get("value", 0)
+			effects[stat + "_mult"] = effects.get(stat + "_mult", 0.0) + eff.get("value", 0)
 		_:
 			pass
 
@@ -292,3 +301,10 @@ func pickup_equipment(item_data: Dictionary):
 	var slot = item_data.get("slot", "weapon")
 	if equipped_items.has(slot) and equipped_items[slot] == null:
 		equip_item(item_data)
+
+func _on_config_reloaded(file_name: String) -> void:
+	if file_name in ["equipment.json", "affixes.json", "sets.json"]:
+		_recompute_sets()
+		_notify_player()
+		equipment_changed.emit()
+		print("[EquipmentSystem] 响应配置重载: " + file_name)

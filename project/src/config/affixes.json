@@ -1,4 +1,5 @@
 {
+  "version": 1,
   "affixes": [
     {
       "id": "affix_attack_speed",
@@ -730,7 +731,7 @@
       "design_note": "突破常规数值上限的巨幅百分比增伤(红传奇mythic倾向)，虚空流终极放大器，代价是极稀有且常伴随负面随机性。"
     },
     {
-      "id": "affix_affix_mutation",
+      "id": "affix_mutation",
       "display_name": "词缀变异",
       "type": "stat",
       "tags": [

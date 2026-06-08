@@ -2,6 +2,10 @@ extends Node
 ## 配置表加载器 - 从 JSON 文件加载游戏配置
 ## 这是配置表驱动架构的核心：所有游戏内容从配置读取，不写死在代码里
 
+# 热重载信号
+signal config_reloaded(file_name: String)
+signal all_configs_reloaded()
+
 # 配置数据缓存
 var equipment_data: Dictionary = {}
 var affixes_data: Dictionary = {}
@@ -169,3 +173,36 @@ func get_all_dungeons() -> Array:
 ## 获取稀有度特效配置
 func get_vfx_for_rarity(rarity: String) -> Dictionary:
 	return vfx_data.get("rarity_vfx", {}).get(rarity, {})
+
+## 热重载单个配置文件
+func reload_config(file_name: String) -> bool:
+	var path = "res://config/" + file_name
+	if not ResourceLoader.exists(path):
+		push_error("[ConfigLoader] 文件不存在: " + path)
+		return false
+	var data = load_json_config(file_name)
+	if data.is_empty():
+		return false
+	match file_name:
+		"equipment.json": equipment_data = data
+		"affixes.json": affixes_data = data
+		"skills.json": skills_data = data
+		"enemies.json": enemies_data = data
+		"classes.json": classes_data = data
+		"dungeons.json": dungeons_data = data
+		"waves.json": waves_data = data
+		"sets.json": sets_data = data
+		"balance.json": balance_data = data
+		"vfx.json": vfx_data = data
+		_:
+			push_warning("[ConfigLoader] 未知配置: " + file_name)
+			return false
+	print("[ConfigLoader] 热重载: " + file_name)
+	config_reloaded.emit(file_name)
+	return true
+
+## 热重载所有配置文件
+func reload_all() -> void:
+	load_all_configs()
+	all_configs_reloaded.emit()
+	print("[ConfigLoader] 全部配置已重载")

@@ -1,0 +1,80 @@
+{
+  "version": "3.0.0",
+  "description": "DarkLoot v3 配置表词汇标准 - 单一事实源",
+  "updated": "2026-06-08",
+
+  "rarity_levels": {
+    "order": ["common", "rare", "epic", "legendary", "mythic"],
+    "colors": {
+      "common": "#C8C8C8",
+      "rare": "#4A90D9",
+      "epic": "#9B4DCA",
+      "legendary": "#E8A317",
+      "mythic": "#E03131"
+    },
+    "vfx_levels": {
+      "common": 0,
+      "rare": 1,
+      "epic": 2,
+      "legendary": 3,
+      "mythic": 4
+    }
+  },
+
+  "equipment_slots": ["weapon", "helmet", "chest", "legs", "boots", "gloves", "ring", "amulet"],
+
+  "stat_names": {
+    "base": ["damage", "max_hp", "armor", "crit_chance", "crit_damage", "attack_speed", "move_speed", "hp_regen"],
+    "multipliers": ["attack_speed_mult", "move_speed_mult", "damage_mult"],
+    "combat": ["added_damage", "lifesteal", "ignite_dps", "ignite_duration", "poison_dps", "poison_duration", "freeze_chance", "freeze_duration", "slow_percent", "slow_duration", "stun_chance", "stun_duration"],
+    "note": "base 直接累加，multipliers 用乘法，combat 传给 CombatSystem",
+    "semantics": {
+      "attack_speed": "weapon 部位是倍率（1.0=标准，1.2=快20%）；其它部位是百分比加成（0.1=+10%）",
+      "move_speed": "全部位百分比加成（0.1=+10%）",
+      "crit_chance": "百分比，0.05=5%，上限0.75",
+      "crit_damage": "加成倍率，0.2=+20%暴伤（叠加到player基础1.5上）",
+      "lifesteal": "百分比，0.15=15%吸血"
+    }
+  },
+
+  "affix_kinds": {
+    "implemented": ["add_stat", "mult_stat", "lifesteal", "ignite", "poison", "freeze", "slow", "stun"],
+    "effect_structure": {
+      "add_stat": {"stat": "string from base", "value": "number"},
+      "mult_stat": {"stat": "string from base", "value": "float (0.15 = +15%)"},
+      "lifesteal": {"value": "float (0.15 = 15% lifesteal)"},
+      "ignite": {"dps": "number", "duration": "seconds"},
+      "poison": {"dps": "number", "duration": "seconds"},
+      "freeze": {"chance": "float", "duration": "seconds"},
+      "slow": {"percent": "float", "duration": "seconds"},
+      "stun": {"chance": "float", "duration": "seconds"}
+    },
+    "output_keys_mapping": {
+      "freeze": ["freeze_chance", "freeze_duration"],
+      "slow": ["slow_percent", "slow_duration"],
+      "stun": ["stun_chance", "stun_duration"],
+      "note": "EquipmentSystem._merge_affix_effect 输出这些键，CombatSystem.apply_damage 读取"
+    }
+  },
+
+  "skill_kinds": ["projectile", "melee_swing", "aura", "summon", "buff", "dash", "execute"],
+
+  "enemy_ranks": ["normal", "elite", "boss"],
+
+  "sprite_sheet": {
+    "path": "res://assets/sprites/roguelike/roguelikeSheet_transparent.png",
+    "tile_size": 16,
+    "grid_step": 17,
+    "note": "sprite_region 格式 [x, y, 16, 16]，坐标是 grid_step 的倍数"
+  },
+
+  "config_required_fields": {
+    "all": ["id", "display_name"],
+    "equipment": ["slot", "rarity", "base_stats", "affix_slots", "set_id", "vfx_level", "drop_level"],
+    "affixes": ["type", "effect", "tier", "applicable_slots"],
+    "skills": ["class", "type", "effect", "max_level"],
+    "enemies": ["rank", "region", "base_stats", "behavior", "drop_table", "sprite_region"],
+    "dungeons": ["region", "difficulty_tiers", "wave_set"],
+    "sets": ["bonuses"]
+  }
+}

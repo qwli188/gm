@@ -10,24 +10,16 @@
 ## 🎮 快速开始
 
 ### 验收测试（制作人必读）
-**立即开始** → [验收指引](ACCEPTANCE_GUIDE.md)
 
 1. 打开项目：`project/src/project.godot`
 2. 按 F5 运行游戏
-3. 按照指引逐项测试
-4. 填写验收反馈表
+3. 进行测试
 
 **预计时间**：15-20分钟
 
 ---
 
 ## 📚 文档导航
-
-### 🎯 验收相关（重要）
-- **[验收指引](ACCEPTANCE_GUIDE.md)** ⭐ 必读
-- [验收反馈表](ACCEPTANCE_FEEDBACK.md)
-- [完整测试报告](FINAL_TEST_REPORT.md)
-- [交付总结](PROJECT_DELIVERY_SUMMARY.md)
 
 ### 📖 项目文档
 - [游戏设计文档 (GDD)](project/GDD.md)
@@ -40,9 +32,9 @@
 - [待办任务](producer/TODO.md)
 
 ### 🎨 素材指引
-- [素材库说明](project/assets/README.md)
-- [下载指引](project/assets/DOWNLOAD_GUIDE.md)
-- [授权记录](project/assets/CREDITS.md)
+- [素材库说明](project/src/assets/README.md)
+- [下载指引](project/src/assets/DOWNLOAD_GUIDE.md)
+- [授权记录](project/src/assets/CREDITS.md)
 
 ---
 
@@ -82,6 +74,8 @@ UI系统：       ████████████████████ 1
 音效音乐：     ████░░░░░░░░░░░░░░░░ 20%
 ```
 
+> **说明**：_schema_standard.json 定义了所有配置文件的词汇标准，是配置系统的单一事实源。
+
 ---
 
 ## 🚀 项目结构
@@ -89,20 +83,25 @@ UI系统：       ████████████████████ 1
 ```
 d:\桌面\CC工具\gm/
 ├── README.md                       ⬅️ 本文件
-├── ACCEPTANCE_GUIDE.md             ⬅️ 验收指引（必读）
-├── ACCEPTANCE_FEEDBACK.md          ⬅️ 验收反馈表
-├── FINAL_TEST_REPORT.md            测试报告
-├── PROJECT_DELIVERY_SUMMARY.md     交付总结
 │
 ├── project/
 │   ├── src/                        ⬅️ Godot 项目（双击 project.godot）
 │   │   ├── project.godot
-│   │   ├── config/                 配置表（10个JSON）
+│   │   ├── config/                 配置表（JSON文件）
+│   │   │   ├── _schema_standard.json  配置词汇标准，单一事实源
+│   │   │   ├── classes.json
+│   │   │   ├── equipment.json
+│   │   │   ├── affixes.json
+│   │   │   ├── sets.json
+│   │   │   ├── skills.json
+│   │   │   ├── enemies.json
+│   │   │   ├── dungeons.json
+│   │   │   └── balance.json
+│   │   ├── assets/                 美术素材
 │   │   ├── scenes/                 场景文件（10个）
 │   │   ├── scripts/                游戏脚本（20个）
 │   │   └── autoload/               核心系统（7个）
 │   │
-│   ├── assets/                     美术素材
 │   ├── design/                     设计文档
 │   └── GDD.md                      游戏设计文档
 │
@@ -177,14 +176,8 @@ d:\桌面\CC工具\gm/
 
 ## 🎯 下一步
 
-### 当前阶段：等待验收
-**你需要做的**：
-1. 阅读 [ACCEPTANCE_GUIDE.md](ACCEPTANCE_GUIDE.md)
-2. 运行游戏进行测试
-3. 填写验收反馈表
-4. 决定验收结果
-
-### 验收通过后
+### 当前阶段：开发完成
+**可选优化**：
 - 下载美术素材
 - 添加音效音乐
 - 数值平衡调优
@@ -236,21 +229,19 @@ A: 双击 `project/src/project.godot` 或在Godot编辑器中打开，按F5运�
 A: 编辑 `project/src/config/*.json` 文件，重启游戏生效
 
 **Q: 如何添加新装备？**  
-A: 在 `equipment.json` 中按照现有格式添加新条目
+A: 在 `project/src/config/equipment.json` 中按照现有格式添加新条目
 
 **Q: 美术素材如何获取？**  
-A: 参考 `project/assets/DOWNLOAD_GUIDE.md`
+A: 参考 `project/src/assets/DOWNLOAD_GUIDE.md`
 
 **Q: 发现Bug怎么办？**  
-A: 填写验收反馈表，详细描述问题
+A: 记录问题详情并反馈
 
 ---
 
-## 🎉 开始验收
+## 🎉 开始游戏
 
 **制作人，项目已准备就绪！**
-
-👉 **立即开始** → [验收指引](ACCEPTANCE_GUIDE.md)
 
 **游戏已经可以玩了！** 🎮✨
 
@@ -258,4 +249,4 @@ A: 填写验收反馈表，详细描述问题
 
 **项目版本**：DarkLoot v3.0  
 **最后更新**：2026-06-04  
-**状态**：✅ 等待人工验收
+**状态**：✅ 开发完成
