@@ -1,0 +1,205 @@
+{
+  "sets": [
+    {
+      "id": "set_bone",
+      "display_name": "白骨君王",
+      "god": "奈瑟拉",
+      "region": "crypt",
+      "style_tag": "undead",
+      "design_note": "枯骨王陵亡灵/吸血流核心套装。2件套铺垫续航，4件套围绕击杀召唤滚雪球，6件套化身亡者军团统帅，召唤物越多收益越高。配合死灵师与吸血流装备最强。",
+      "vfx_note": "巨大的幽绿色白骨王座自地面轰然升起，骸骨碎片汇聚成环绕角色的亡灵旋风，全屏笼罩在奈瑟拉青白色的骨光与低吟安魂曲之中，敌人脚下不断浮现伸出的枯手。",
+      "bonuses": [
+        {
+          "pieces": 2,
+          "description": "吸血流属性+15%：攻击吸取生命提升15%，奠定枯骨王陵的续航基底。",
+          "stats": {
+            "lifesteal": 0.15
+          }
+        },
+        {
+          "pieces": 4,
+          "description": "解锁【白骨役使】：击杀敌人时20%概率召唤一具骷髅仆从为你作战，持续8秒，可叠加数具。",
+          "effects": {
+            "summon_on_kill": 0.2,
+            "skeleton_duration": 8,
+            "skeleton_inherit_damage": 0.3
+          }
+        },
+        {
+          "pieces": 6,
+          "description": "【白骨王座·亡者军团】全屏激活：召唤上限提升至12，击杀召唤概率翻倍至50%，所有亡灵伤害+50%，自身吸血+25%、生命上限+20%，化身白骨君王统御亡者大军。",
+          "stats": {
+            "lifesteal": 0.25,
+            "summon_damage_mult": 0.5,
+            "max_hp_mult": 0.2
+          },
+          "effects": {
+            "ultimate": "bone_legion",
+            "summon_on_kill": 0.5,
+            "max_summons": 12
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_plague",
+      "display_name": "疫疠之主",
+      "god": "古尔撒",
+      "region": "swamp",
+      "style_tag": "poison",
+      "design_note": "腐沼疫地毒系DoT/虫群流核心套装。2件套强化中毒伤害，4件套用毒素扩散引发链式感染清群，6件套提供高叠层与残血处决，是大规模AOE消耗流的终点。",
+      "vfx_note": "病绿色的毒雾与蛆群从角色脚下喷涌，蔓延成覆盖全屏的腐沼瘴气，空气中浮动着孵化中的卵囊，伴随古尔撒千子之巢的虫鸣搏动与水泡破裂声。",
+      "bonuses": [
+        {
+          "pieces": 2,
+          "description": "毒系DoT属性+15%：中毒持续伤害提升15%，腐沼疫地毒流起手。",
+          "stats": {
+            "poison_damage_mult": 0.15
+          }
+        },
+        {
+          "pieces": 4,
+          "description": "解锁【疫疠扩散】：中毒的敌人死亡或被再次命中时，毒素向半径120范围内的敌人扩散感染，引爆虫群瘟疫。",
+          "effects": {
+            "poison_spread": true,
+            "spread_radius": 120,
+            "spread_stack_inherit": 0.5
+          }
+        },
+        {
+          "pieces": 6,
+          "description": "【千子之巢·瘟疫风暴】全屏激活：中毒可叠加至10层，毒系伤害+40%，对低于50%生命的敌人额外+50%伤害，瘟疫在全场无差别扩散感染。",
+          "stats": {
+            "poison_damage_mult": 0.4,
+            "dot_stack_max": 10
+          },
+          "effects": {
+            "ultimate": "plague_storm",
+            "poison_spread": true,
+            "low_hp_bonus": 0.5
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_ember",
+      "display_name": "燃烬战甲",
+      "god": "伊格诺斯",
+      "region": "forge",
+      "style_tag": "fire",
+      "design_note": "熔火深渊火焰/爆发流核心套装。2件套堆火焰伤害，4件套用点燃叠层过热引爆做范围爆发，6件套召唤陨石轰炸全场，是高爆发法师与火焰流的终极构筑。",
+      "vfx_note": "角色周身迸发熔岩裂纹与火星风暴，天幕被染成橙红，拖着烈焰尾迹的陨石不断砸落全屏，伴随伊格诺斯锻心熔炉的风箱轰鸣与铁锤回响。",
+      "bonuses": [
+        {
+          "pieces": 2,
+          "description": "火焰属性+15%：火焰伤害提升15%，熔火深渊爆发流基底。",
+          "stats": {
+            "fire_damage_mult": 0.15
+          }
+        },
+        {
+          "pieces": 4,
+          "description": "解锁【过热引爆】：点燃效果可叠加，叠至5层时自动引爆，对周围敌人造成120%过热爆发伤害并重置层数。",
+          "effects": {
+            "ignite_stack": true,
+            "overheat_threshold": 5,
+            "overheat_burst": 1.2
+          }
+        },
+        {
+          "pieces": 6,
+          "description": "【锻心熔炉·天降陨火】全屏激活：火焰伤害+45%、暴击伤害+50%，持续从天降下陨石轰炸战场，所有点燃引爆的范围与威力大幅提升。",
+          "stats": {
+            "fire_damage_mult": 0.45,
+            "crit_damage": 0.5
+          },
+          "effects": {
+            "ultimate": "meteor_fall",
+            "ignite_stack": true,
+            "burst_radius": 200
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_frost",
+      "display_name": "永冻王权",
+      "god": "克里斯塔",
+      "region": "ice",
+      "style_tag": "frost",
+      "design_note": "冰封王座冰霜/控制流核心套装（DLC）。2件套强化冰霜与减速，4件套用霜爆冰冻提供硬控与法力护盾兼顾攻防，6件套展开时停领域全场控制，是控制流与法师的安全终点。",
+      "vfx_note": "寒霜自角色向外炸开，全屏覆上冰晶薄膜与飘雪，时间仿佛凝滞、敌人动作迟缓，克里斯塔永冻女王的蓝白光晕与时停寂静笼罩整个战场。",
+      "bonuses": [
+        {
+          "pieces": 2,
+          "description": "冰霜属性+15%：冰霜伤害与减速效果提升15%，冰封王座控制流基底。",
+          "stats": {
+            "frost_damage_mult": 0.15
+          }
+        },
+        {
+          "pieces": 4,
+          "description": "解锁【霜爆冰封】：攻击15%概率冰冻敌人，冰冻触发时炸开霜爆冻结周围目标，并将受到伤害的10%转化为法力护盾吸收。",
+          "effects": {
+            "freeze_on_hit": 0.15,
+            "frost_nova_on_freeze": true,
+            "mana_shield": 0.1
+          }
+        },
+        {
+          "pieces": 6,
+          "description": "【永冻王座·时停领域】全屏激活：展开时间停滞领域，全场敌人减速50%、冰冻概率提升至40%，冰霜伤害+40%、暴击率+15%，霜爆连锁冻结整个战场。",
+          "stats": {
+            "frost_damage_mult": 0.4,
+            "crit_chance": 0.15
+          },
+          "effects": {
+            "ultimate": "time_freeze",
+            "freeze_on_hit": 0.4,
+            "slow_aura": 0.5
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_void",
+      "display_name": "虚空裂界",
+      "god": "虚空之子",
+      "region": "void",
+      "style_tag": "void",
+      "design_note": "虚空裂隙混沌/规则突破流核心套装（DLC，终局）。2件套提供通用混沌伤害，4件套用词缀变异与必定暴击突破常规规则上限，6件套撕裂现实触发随机混沌效果，是高风险高回报的终极构筑。",
+      "vfx_note": "紫黑色的虚空裂缝撕裂全屏，现实如碎镜般扭曲剥落，异色光带与悬浮的几何残片环绕角色，伴随虚空之子的混沌低频共鸣与失真噪声，规则本身仿佛在崩解。",
+      "bonuses": [
+        {
+          "pieces": 2,
+          "description": "混沌属性+15%：混沌伤害提升15%，虚空裂隙规则突破流基底。",
+          "stats": {
+            "damage_mult": 0.15
+          }
+        },
+        {
+          "pieces": 4,
+          "description": "解锁【词缀变异】：战斗中装备词缀随机变异强化，攻击20%概率无视暴击率必定暴击，混沌之力突破常规规则上限。",
+          "effects": {
+            "affix_mutation": true,
+            "random_crit": 0.2,
+            "rule_break": true
+          }
+        },
+        {
+          "pieces": 6,
+          "description": "【虚空裂界·规则崩坏】全屏激活：撕裂现实，全场伤害+50%、暴击伤害+100%，50%概率触发混沌效果（瞬移敌人/吞噬/复制伤害），规则彻底失序。",
+          "stats": {
+            "damage_mult": 0.5,
+            "crit_damage": 1
+          },
+          "effects": {
+            "ultimate": "void_rift",
+            "affix_mutation": true,
+            "chaos_chance": 0.5
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "rarity_vfx": {
+    "common": {
+      "color": "#C8C8C8",
+      "vfx_level": 0,
+      "drop_beam": false,
+      "particle": null,
+      "outline": null,
+      "aura": null,
+      "sound": "item_drop",
+      "description": "白装无任何特效。物品以原始精灵图静置于地面，灰白色调，无描边、无粒子、无光柱，掉落时仅播放普通拾荒掉落声，体现拾荒者行会眼中最常见的破损战利品。"
+    },
+    "rare": {
+      "color": "#4A90D9",
+      "vfx_level": 1,
+      "drop_beam": false,
+      "particle": null,
+      "outline": "#4A90D9",
+      "aura": null,
+      "sound": "item_drop",
+      "description": "蓝装拥有1像素冷光描边。物品轮廓被淡蓝色勾勒，在昏暗的黑暗纪元场景中微微凸显，无粒子与光柱，掉落音效与普通物品一致，提示这是值得弯腰拾取的稀有品。"
+    },
+    "epic": {
+      "color": "#9B4DCA",
+      "vfx_level": 2,
+      "drop_beam": false,
+      "particle": "紫色流光粒子，沿物品轮廓缓慢上浮的细小光点，伴随偶发的魔力火花飘散",
+      "outline": "#9B4DCA",
+      "aura": null,
+      "sound": "item_drop",
+      "description": "紫装在描边基础上叠加粒子流光。紫色魔力粒子持续从物品边缘升腾，轮廓泛着幽紫描边，营造蕴含古神力量的不安质感，掉落时播放强化的掉落声。"
+    },
+    "legendary": {
+      "color": "#E8A317",
+      "vfx_level": 3,
+      "drop_beam": true,
+      "particle": "金色流星拖尾粒子，物品旋浮时拖出明亮金光残影并洒落细碎金尘",
+      "outline": "#E8A317",
+      "aura": "环绕物品的金色脉动光环，呼吸般明灭，半径随时间轻微涨缩",
+      "sound": "coin",
+      "description": "金装拥有完整光环与拖尾。一道金色光柱自掉落点直冲天际，物品被脉动金色光环包裹并拖出流星残影，金尘飞洒，掉落时奏响华贵的金币音效，远距离即可锁定。"
+    },
+    "mythic": {
+      "color": "#E03131",
+      "vfx_level": 4,
+      "drop_beam": true,
+      "particle": "猩红混沌粒子风暴，缠绕物品的赤红能量丝线与爆裂火星向四周喷涌",
+      "outline": "#E03131",
+      "aura": "赤红与暗影交织的全屏光环，伴随地面裂纹状血色光晕扩散，物品上方悬浮独有的古神虚影印记",
+      "sound": "level_up",
+      "description": "红传奇触发全屏特效。掉落瞬间屏幕泛起猩红震屏与暗影涟漪，巨型血色光柱撕裂天幕，混沌粒子风暴缠绕物品，专属古神虚影印记悬浮其上，配合最高规格的传奇音效，宣告一件改变流派的神器降临埃博利亚。"
+    }
+  }
+}

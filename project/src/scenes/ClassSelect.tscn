@@ -1,0 +1,112 @@
+[gd_scene load_steps=4 format=3 uid="uid://class_select_scene"]
+
+[ext_resource type="Script" path="res://scripts/ClassSelect.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/roguelike/roguelikeSheet_transparent.png" id="2"]
+
+[sub_resource type="AtlasTexture" id="atlas_warrior"]
+atlas = ExtResource("2")
+region = Rect2(425, 408, 16, 16)
+
+[node name="ClassSelect" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.08, 0.07, 0.12, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = 40.0
+offset_right = -40.0
+offset_bottom = -40.0
+theme_override_constants/separation = 30
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "选择你的职业"
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1, 0.9, 0.6, 1)
+theme_override_font_sizes/font_size = 48
+
+[node name="Subtitle" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "每个职业拥有独特的技能和玩法风格"
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 20
+
+[node name="GridCenter" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 1
+
+[node name="ClassGrid" type="GridContainer" parent="VBoxContainer/GridCenter"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 30
+theme_override_constants/v_separation = 30
+columns = 3
+
+[node name="InfoPanel" type="Panel" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/InfoPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="VBoxContainer/InfoPanel/MarginContainer"]
+layout_mode = 2
+
+[node name="ClassNameLabel" type="Label" parent="VBoxContainer/InfoPanel/MarginContainer/VBox"]
+layout_mode = 2
+text = "选择一个职业查看详情"
+theme_override_colors/font_color = Color(1, 0.8, 0.3, 1)
+theme_override_font_sizes/font_size = 28
+
+[node name="DescLabel" type="Label" parent="VBoxContainer/InfoPanel/MarginContainer/VBox"]
+layout_mode = 2
+text = ""
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 18
+
+[node name="StatsLabel" type="Label" parent="VBoxContainer/InfoPanel/MarginContainer/VBox"]
+layout_mode = 2
+text = ""
+theme_override_colors/font_color = Color(0.6, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 20
+
+[node name="ButtonContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="BackButton" type="Button" parent="VBoxContainer/ButtonContainer"]
+custom_minimum_size = Vector2(180, 60)
+layout_mode = 2
+text = "返回主菜单"
+theme_override_font_sizes/font_size = 22
+
+[node name="ConfirmButton" type="Button" parent="VBoxContainer/ButtonContainer"]
+custom_minimum_size = Vector2(180, 60)
+layout_mode = 2
+disabled = true
+text = "确认进入游戏"
+theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
+theme_override_font_sizes/font_size = 24

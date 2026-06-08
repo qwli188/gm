@@ -1,0 +1,780 @@
+{
+  "affixes": [
+    {
+      "id": "affix_attack_speed",
+      "display_name": "迅捷",
+      "type": "stat",
+      "tags": [
+        "speed",
+        "generic"
+      ],
+      "effect": {
+        "kind": "mult_stat",
+        "stat": "attack_speed",
+        "value": 0.2
+      },
+      "value_range": {
+        "min": 0.1,
+        "max": 0.3
+      },
+      "tier": 1,
+      "applicable_slots": [
+        "weapon",
+        "gloves",
+        "ring"
+      ],
+      "design_note": "提升攻击速度20%，几乎所有流派的万金油词缀，吸血流与点燃叠层流必备。保留原ID，槽位迁移到8部位体系。"
+    },
+    {
+      "id": "affix_crit_chance",
+      "display_name": "精准",
+      "type": "stat",
+      "tags": [
+        "crit",
+        "generic"
+      ],
+      "effect": {
+        "kind": "add_stat",
+        "stat": "crit_chance",
+        "value": 0.1
+      },
+      "value_range": {
+        "min": 0.05,
+        "max": 0.15
+      },
+      "tier": 1,
+      "applicable_slots": [
+        "weapon",
+        "gloves",
+        "ring",
+        "amulet"
+      ],
+      "design_note": "增加暴击率10%，暴击流的基础词缀，配合致命(暴伤)与游侠职业收益最高。"
+    },
+    {
+      "id": "affix_hp_regen",
+      "display_name": "再生",
+      "type": "stat",
+      "tags": [
+        "sustain",
+        "regen",
+        "generic"
+      ],
+      "effect": {
+        "kind": "add_stat",
+        "stat": "hp_regen",
+        "value": 2
+      },
+      "value_range": {
+        "min": 1,
+        "max": 4
+      },
+      "tier": 1,
+      "applicable_slots": [
+        "helmet",
+        "chest",
+        "legs",
+        "boots",
+        "amulet"
+      ],
+      "design_note": "每秒回复2点生命，持续续航，配合高血量坦克战士与骑士效果更好。保留原ID。"
+    },
+    {
+      "id": "affix_lifesteal",
+      "display_name": "嗜血",
+      "type": "effect",
+      "tags": [
+        "lifesteal",
+        "sustain",
+        "generic"
+      ],
+      "effect": {
+        "kind": "lifesteal",
+        "value": 0.15
+      },
+      "value_range": {
+        "min": 0.08,
+        "max": 0.2
+      },
+      "tier": 2,
+      "applicable_slots": [
+        "weapon",
+        "ring",
+        "amulet"
+      ],
+      "design_note": "攻击回复造成伤害的15%生命，续航割草流核心，配合迅捷高攻速最强。保留原ID。"
+    },
+    {
+      "id": "affix_vitality",
+      "display_name": "坚韧",
+      "type": "stat",
+      "tags": [
+        "defense",
+        "generic"
+      ],
+      "effect": {
+        "kind": "add_stat",
+        "stat": "max_hp",
+        "value": 30
+      },
+      "value_range": {
+        "min": 15,
+        "max": 60
+      },
+      "tier": 1,
+      "applicable_slots": [
+        "helmet",
+        "chest",
+        "legs",
+        "boots",
+        "amulet",
+        "ring"
+      ],
+      "design_note": "增加最大生命值，所有职业的基础生存词缀，坦克战士与骑士的堆叠地基。"
+    },
+    {
+      "id": "affix_crit_damage",
+      "display_name": "致命",
+      "type": "stat",
+      "tags": [
+        "crit",
+        "generic"
+      ],
+      "effect": {
+        "kind": "add_stat",
+        "stat": "crit_damage",
+        "value": 0.3
+      },
+      "value_range": {
+        "min": 0.15,
+        "max": 0.55
+      },
+      "tier": 2,
+      "applicable_slots": [
+        "weapon",
+        "gloves",
+        "ring",
+        "amulet"
+      ],
+      "design_note": "提升暴击伤害倍率，必须和精准(暴击率)搭配才出效果，游侠与刺客的爆发核心。"
+    },
+    {
+      "id": "affix_undying_thirst",
+      "display_name": "不朽渴血",
+      "type": "effect",
+      "tags": [
+        "undead",
+        "lifesteal",
+        "sustain"
+      ],
+      "effect": {
+        "kind": "lifesteal",
+        "value": 0.18
+      },
+      "value_range": {
+        "min": 0.1,
+        "max": 0.28
+      },
+      "tier": 3,
+      "applicable_slots": [
+        "weapon",
+        "ring"
+      ],
+      "design_note": "奈瑟拉的白骨吸取，比通用嗜血更强的亡灵流吸血，死灵师与白骨君王套(set_bone)主力续航词缀。"
+    },
+    {
+      "id": "affix_grave_strength",
+      "display_name": "尸骸之力",
+      "type": "stat",
+      "tags": [
+        "undead"
+      ],
+      "effect": {
+        "kind": "mult_stat",
+        "stat": "damage",
+        "value": 0.15
+      },
+      "value_range": {
+        "min": 0.08,
+        "max": 0.25
+      },
+      "tier": 2,
+      "applicable_slots": [
+        "weapon",
+        "gloves",
+        "amulet"
+      ],
+      "design_note": "亡灵之力灌注，百分比增伤，亡灵流的核心放大器，配合召唤伤害与吸血滚雪球。"
+    },
+    {
+      "id": "affix_bone_armor",
+      "display_name": "骸骨壁垒",
+      "type": "stat",
+      "tags": [
+        "undead",
+        "defense"
+      ],
+      "effect": {
+        "kind": "add_stat",
+        "stat": "armor",
+        "value": 15
+      },
+      "value_range": {
+        "min": 8,
+        "max": 32
+      },
+      "tier": 2,
+      "applicable_slots": [
+        "chest",
+        "legs",
+        "helmet"
+      ],
+      "design_note": "骨刺护甲，护甲值越高受击时的骨刺反伤越强(由护甲值换算)，亡灵坦克向词缀。"
+    },
+    {
+      "id": "affix_skeletal_call",
+      "display_name": "亡灵召唤",
+      "type": "effect",
+      "tags": [
+        "undead",
+        "summon"
+      ],
+      "effect": {
+        "kind": "add_damage",
+        "damage_type": "undead",
+        "value": 10
+      },
+      "value_range": {
+        "min": 5,
+        "max": 22
+      },
+      "tier": 3,
+      "applicable_slots": [
+        "weapon",
+        "amulet"
+      ],
+      "design_note": "召唤骷髅协同攻击，以附加亡灵伤害结算，死灵师召唤流的标志词缀，与尸骸之力联动。"
+    },
+    {
+      "id": "affix_grave_chill",
+      "display_name": "墓冢恐惧",
+      "type": "effect",
+      "tags": [
+        "undead",
+        "control"
+      ],
+      "effect": {
+        "kind": "on_hit_chance",
+        "chance": 0.12,
+        "sub_effect": {
+          "kind": "stun",
+          "duration": 1
+        }
+      },
+      "value_range": {
+        "min": 0.06,
+        "max": 0.2
+      },
+      "tier": 3,
+      "applicable_slots": [
+        "weapon",
+        "gloves"
+      ],
+      "design_note": "亡灵之触有几率让敌人陷入恐惧(眩晕)，控场向亡灵词缀，为爆发与召唤物创造输出窗口。"
+    },
+    {
+      "id": "affix_virulence",
+      "display_name": "恶疾",
+      "type": "effect",
+      "tags": [
+        "poison",
+        "dot",
+        "stack"
+      ],
+      "effect": {
+        "kind": "poison",
+        "dps": 6,
+        "duration": 4
+      },
+      "value_range": {
+        "min": 3,
+        "max": 12
+      },
+      "tier": 2,
+      "applicable_slots": [
+        "weapon",
+        "ring",
+        "gloves"
+      ],
+      "design_note": "古尔撒的基础中毒，可叠加层数，DoT流入门词缀，叠层越高单位时间伤害越爆炸。"
+    },
+    {
+      "id": "affix_plague_aura",
+      "display_name": "疫疠之雾",
+      "type": "effect",
+      "tags": [
+        "poison",
+        "dot",
+        "aura"
+      ],
+      "effect": {
+        "kind": "poison",
+        "dps": 4,
+        "duration": 6
+      },
+      "value_range": {
+        "min": 2,
+        "max": 9
+      },
+      "tier": 3,
+      "applicable_slots": [
+        "helmet",
+        "chest",
+        "amulet"
+      ],
+      "design_note": "致病光环，对周身敌人持续施加低dps长持续的中毒(以光环周期结算)，疫疠之主套(set_plague)群体腐蚀核心。"
+    },
+    {
+      "id": "affix_contagion",
+      "display_name": "瘟疫扩散",
+      "type": "effect",
+      "tags": [
+        "poison",
+        "dot",
+        "spread"
+      ],
+      "effect": {
+        "kind": "poison",
+        "dps": 8,
+        "duration": 5
+      },
+      "value_range": {
+        "min": 4,
+        "max": 16
+      },
+      "tier": 4,
+      "applicable_slots": [
+        "weapon",
+        "gloves"
+      ],
+      "design_note": "中毒目标死亡或受击时向相邻敌人扩散感染，刷怪流清屏神器，配合恶疾叠层产生链式爆炸。"
+    },
+    {
+      "id": "affix_festering",
+      "display_name": "溃烂",
+      "type": "stat",
+      "tags": [
+        "poison"
+      ],
+      "effect": {
+        "kind": "mult_stat",
+        "stat": "damage",
+        "value": 0.2
+      },
+      "value_range": {
+        "min": 0.1,
+        "max": 0.35
+      },
+      "tier": 3,
+      "applicable_slots": [
+        "weapon",
+        "amulet"
+      ],
+      "design_note": "对处于中毒/低生命(腐烂)状态的敌人额外增伤，毒系收割词缀，与持续DoT流派天然契合。"
+    },
+    {
+      "id": "affix_swarm",
+      "display_name": "虫群",
+      "type": "effect",
+      "tags": [
+        "poison",
+        "summon"
+      ],
+      "effect": {
+        "kind": "add_damage",
+        "damage_type": "poison",
+        "value": 6
+      },
+      "value_range": {
+        "min": 3,
+        "max": 15
+      },
+      "tier": 3,
+      "applicable_slots": [
+        "weapon",
+        "gloves"
+      ],
+      "design_note": "召唤千子之巢的虫群撕咬，以附加毒系伤害结算，毒系群攻补充，配合扩散与光环铺满全场。"
+    },
+    {
+      "id": "affix_fire_damage",
+      "display_name": "烈焰",
+      "type": "stat",
+      "tags": [
+        "fire",
+        "elemental"
+      ],
+      "effect": {
+        "kind": "add_damage",
+        "damage_type": "fire",
+        "value": 8
+      },
+      "value_range": {
+        "min": 5,
+        "max": 15
+      },
+      "tier": 1,
+      "applicable_slots": [
+        "weapon"
+      ],
+      "design_note": "为武器附加火焰伤害，火焰流的入门词缀。保留原ID。"
+    },
+    {
+      "id": "affix_ignite",
+      "display_name": "点燃",
+      "type": "effect",
+      "tags": [
+        "fire",
+        "elemental",
+        "dot"
+      ],
+      "effect": {
+        "kind": "ignite",
+        "dps": 5,
+        "duration": 3
+      },
+      "value_range": {
+        "min": 3,
+        "max": 8
+      },
+      "tier": 2,
+      "applicable_slots": [
+        "weapon"
+      ],
+      "design_note": "攻击有概率点燃敌人造成持续伤害，火焰流核心效果词缀，配合烈焰伤害触发流派。保留原ID。"
+    },
+    {
+      "id": "affix_pyroclasm",
+      "display_name": "过热爆发",
+      "type": "effect",
+      "tags": [
+        "fire",
+        "elemental",
+        "burst"
+      ],
+      "effect": {
+        "kind": "ignite",
+        "dps": 16,
+        "duration": 2
+      },
+      "value_range": {
+        "min": 8,
+        "max": 26
+      },
+      "tier": 4,
+      "applicable_slots": [
+        "weapon",
+        "amulet"
+      ],
+      "design_note": "伊格诺斯的过热爆发，高dps短持续的点燃式灼烧，点燃层数堆满时引爆，法师火焰流爆发顶点。"
+    },
+    {
+      "id": "affix_molten_pierce",
+      "display_name": "熔甲穿击",
+      "type": "stat",
+      "tags": [
+        "fire",
+        "elemental"
+      ],
+      "effect": {
+        "kind": "mult_stat",
+        "stat": "damage",
+        "value": 0.18
+      },
+      "value_range": {
+        "min": 0.1,
+        "max": 0.3
+      },
+      "tier": 3,
+      "applicable_slots": [
+        "weapon",
+        "gloves"
+      ],
+      "design_note": "熔火灼穿护甲后造成增伤(护甲穿透向)，对高护甲精英与BOSS收益突出，火焰流破防词缀。"
+    },
+    {
+      "id": "affix_chain_fireball",
+      "display_name": "连锁火球",
+      "type": "effect",
+      "tags": [
+        "fire",
+        "elemental"
+      ],
+      "effect": {
+        "kind": "add_damage",
+        "damage_type": "fire",
+        "value": 10
+      },
+      "value_range": {
+        "min": 5,
+        "max": 22
+      },
+      "tier": 3,
+      "applicable_slots": [
+        "weapon",
+        "helmet"
+      ],
+      "design_note": "命中触发连锁火球在敌群间跳跃，以附加火焰伤害结算，火焰流群清，配合点燃铺满燃烧层。"
+    },
+    {
+      "id": "affix_freeze",
+      "display_name": "冰封",
+      "type": "effect",
+      "tags": [
+        "frost",
+        "elemental",
+        "control"
+      ],
+      "effect": {
+        "kind": "on_hit_chance",
+        "chance": 0.15,
+        "sub_effect": {
+          "kind": "freeze",
+          "duration": 1.5
+        }
+      },
+      "value_range": {
+        "min": 0.08,
+        "max": 0.25
+      },
+      "tier": 3,
+      "applicable_slots": [
+        "weapon",
+        "gloves"
+      ],
+      "design_note": "克里斯塔的冰封几率，命中概率冻结敌人完全无法行动，冰霜控制流核心，DLC永冻王权套(set_frost)主轴。"
+    },
+    {
+      "id": "affix_chill",
+      "display_name": "霜缚",
+      "type": "effect",
+      "tags": [
+        "frost",
+        "elemental",
+        "control"
+      ],
+      "effect": {
+        "kind": "on_hit_chance",
+        "chance": 0.25,
+        "sub_effect": {
+          "kind": "slow",
+          "value": 0.3,
+          "duration": 2
+        }
+      },
+      "value_range": {
+        "min": 0.15,
+        "max": 0.4
+      },
+      "tier": 2,
+      "applicable_slots": [
+        "weapon",
+        "boots",
+        "gloves"
+      ],
+      "design_note": "命中概率减速敌人移动与攻击，风筝与拉开身位的基础冰霜词缀，为冰封叠加创造命中机会。"
+    },
+    {
+      "id": "affix_mana_shield",
+      "display_name": "法力护盾",
+      "type": "stat",
+      "tags": [
+        "frost",
+        "defense"
+      ],
+      "effect": {
+        "kind": "add_stat",
+        "stat": "max_hp",
+        "value": 50
+      },
+      "value_range": {
+        "min": 25,
+        "max": 100
+      },
+      "tier": 3,
+      "applicable_slots": [
+        "chest",
+        "amulet"
+      ],
+      "design_note": "凝结法力护盾提供额外有效生命(以最大生命结算)，法师冰霜流脆皮保命词缀，避免被秒。"
+    },
+    {
+      "id": "affix_frostburst",
+      "display_name": "霜爆",
+      "type": "effect",
+      "tags": [
+        "frost",
+        "elemental"
+      ],
+      "effect": {
+        "kind": "add_damage",
+        "damage_type": "frost",
+        "value": 12
+      },
+      "value_range": {
+        "min": 6,
+        "max": 24
+      },
+      "tier": 4,
+      "applicable_slots": [
+        "weapon",
+        "amulet"
+      ],
+      "design_note": "击中已冰冻/减速目标时触发霜爆附加范围冰霜伤害，与冰封、霜缚联动放大冰霜流爆发。"
+    },
+    {
+      "id": "affix_crystal_armor",
+      "display_name": "冰晶甲",
+      "type": "stat",
+      "tags": [
+        "frost",
+        "defense"
+      ],
+      "effect": {
+        "kind": "add_stat",
+        "stat": "armor",
+        "value": 12
+      },
+      "value_range": {
+        "min": 6,
+        "max": 26
+      },
+      "tier": 2,
+      "applicable_slots": [
+        "chest",
+        "legs",
+        "helmet"
+      ],
+      "design_note": "覆盖冰晶硬化护甲，冰霜流的基础减伤词缀，与法力护盾互补构成冰系生存底板。"
+    },
+    {
+      "id": "affix_chaos_crit",
+      "display_name": "混沌暴击",
+      "type": "stat",
+      "tags": [
+        "void",
+        "crit"
+      ],
+      "effect": {
+        "kind": "add_stat",
+        "stat": "crit_chance",
+        "value": 0.12
+      },
+      "value_range": {
+        "min": 0.06,
+        "max": 0.22
+      },
+      "tier": 4,
+      "applicable_slots": [
+        "weapon",
+        "ring",
+        "gloves"
+      ],
+      "design_note": "虚空之子的随机暴击，暴击率上浮但伴随随机波动，高方差高上限，刺客与虚空裂界套(set_void)的赌博式输出。"
+    },
+    {
+      "id": "affix_void_damage",
+      "display_name": "虚空侵蚀",
+      "type": "stat",
+      "tags": [
+        "void"
+      ],
+      "effect": {
+        "kind": "add_damage",
+        "damage_type": "void",
+        "value": 14
+      },
+      "value_range": {
+        "min": 7,
+        "max": 28
+      },
+      "tier": 3,
+      "applicable_slots": [
+        "weapon",
+        "amulet"
+      ],
+      "design_note": "附加无视常规抗性的混沌(虚空)伤害，对任何敌人都稳定生效，虚空流通用伤害底座。"
+    },
+    {
+      "id": "affix_rule_break",
+      "display_name": "规则突破",
+      "type": "stat",
+      "tags": [
+        "void"
+      ],
+      "effect": {
+        "kind": "mult_stat",
+        "stat": "damage",
+        "value": 0.35
+      },
+      "value_range": {
+        "min": 0.2,
+        "max": 0.6
+      },
+      "tier": 5,
+      "applicable_slots": [
+        "weapon",
+        "ring",
+        "amulet"
+      ],
+      "design_note": "突破常规数值上限的巨幅百分比增伤(红传奇mythic倾向)，虚空流终极放大器，代价是极稀有且常伴随负面随机性。"
+    },
+    {
+      "id": "affix_affix_mutation",
+      "display_name": "词缀变异",
+      "type": "stat",
+      "tags": [
+        "void"
+      ],
+      "effect": {
+        "kind": "add_stat",
+        "stat": "crit_damage",
+        "value": 0.4
+      },
+      "value_range": {
+        "min": 0.2,
+        "max": 0.8
+      },
+      "tier": 5,
+      "applicable_slots": [
+        "helmet",
+        "amulet",
+        "ring"
+      ],
+      "design_note": "虚空污染使词缀产生变异，刷新时随机强化(此处以暴伤为基底)，构筑的高风险变量，mythic红传奇专属。"
+    },
+    {
+      "id": "affix_void_siphon",
+      "display_name": "虚空抽取",
+      "type": "effect",
+      "tags": [
+        "void",
+        "lifesteal"
+      ],
+      "effect": {
+        "kind": "lifesteal",
+        "value": 0.12
+      },
+      "value_range": {
+        "min": 0.06,
+        "max": 0.2
+      },
+      "tier": 4,
+      "applicable_slots": [
+        "weapon",
+        "ring"
+      ],
+      "design_note": "从虚空裂隙抽取生命，按混沌伤害百分比回血的吸血变体，让虚空爆发流在高方差输出中保持续航。"
+    }
+  ]
+}

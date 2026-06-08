@@ -1,0 +1,1556 @@
+{
+  "enemies": [
+    {
+      "id": "enemy_skeleton",
+      "display_name": "骷髅兵",
+      "rank": "normal",
+      "region": "crypt",
+      "tags": [
+        "undead",
+        "melee"
+      ],
+      "base_stats": {
+        "max_hp": 20,
+        "damage": 5,
+        "move_speed": 60,
+        "attack_speed": 1,
+        "attack_range": 30
+      },
+      "behavior": {
+        "movement": "chase",
+        "attack": "melee_contact"
+      },
+      "abilities": [],
+      "drop_table": {
+        "exp": 3,
+        "gold": {
+          "min": 1,
+          "max": 3
+        },
+        "equipment_drop_chance": 0.02
+      },
+      "sprite_region": [
+        510,
+        425,
+        16,
+        16
+      ],
+      "spawn_level": 1,
+      "design_note": "枯骨王陵最基础的杂兵，是奈瑟拉白骨之力催动的无名骸骨。成群冲锋，割草主力，营造割草爽感。"
+    },
+    {
+      "id": "enemy_zombie",
+      "display_name": "僵尸",
+      "rank": "normal",
+      "region": "crypt",
+      "tags": [
+        "undead",
+        "melee",
+        "slow"
+      ],
+      "base_stats": {
+        "max_hp": 50,
+        "damage": 8,
+        "move_speed": 40,
+        "attack_speed": 0.8,
+        "attack_range": 30
+      },
+      "behavior": {
+        "movement": "chase",
+        "attack": "melee_contact"
+      },
+      "abilities": [],
+      "drop_table": {
+        "exp": 5,
+        "gold": {
+          "min": 2,
+          "max": 5
+        },
+        "equipment_drop_chance": 0.03
+      },
+      "sprite_region": [
+        527,
+        425,
+        16,
+        16
+      ],
+      "spawn_level": 1,
+      "design_note": "被奈瑟拉腐蚀而无法安息的黎明堡逝者。移速慢但耐打，与骷髅兵混合生成制造节奏变化。"
+    },
+    {
+      "id": "enemy_crypt_bat",
+      "display_name": "墓穴蝙蝠",
+      "rank": "normal",
+      "region": "crypt",
+      "tags": [
+        "undead",
+        "flying",
+        "swarm"
+      ],
+      "base_stats": {
+        "max_hp": 16,
+        "damage": 4,
+        "move_speed": 110,
+        "attack_speed": 1.6,
+        "attack_range": 25
+      },
+      "behavior": {
+        "movement": "erratic_flight",
+        "attack": "melee_contact"
+      },
+      "abilities": [
+        "dive_swoop"
+      ],
+      "drop_table": {
+        "exp": 3,
+        "gold": {
+          "min": 1,
+          "max": 3
+        },
+        "equipment_drop_chance": 0.02
+      },
+      "sprite_region": [
+        442,
+        408,
+        16,
+        16
+      ],
+      "spawn_level": 1,
+      "design_note": "盘踞王陵穹顶的食腐群蝠，被白骨之母的死气唤醒。高速俯冲、脆皮成群，迫使玩家在割草中也要分神走位。"
+    },
+    {
+      "id": "elite_bone_knight",
+      "display_name": "骸骨骑士",
+      "rank": "elite",
+      "region": "crypt",
+      "tags": [
+        "undead",
+        "melee",
+        "armored"
+      ],
+      "base_stats": {
+        "max_hp": 150,
+        "damage": 15,
+        "move_speed": 70,
+        "attack_speed": 1.2,
+        "attack_range": 40,
+        "armor": 10
+      },
+      "behavior": {
+        "movement": "charge",
+        "attack": "melee_swing"
+      },
+      "abilities": [
+        "charge_dash"
+      ],
+      "drop_table": {
+        "exp": 20,
+        "gold": {
+          "min": 10,
+          "max": 20
+        },
+        "equipment_drop_chance": 0.15
+      },
+      "sprite_region": [
+        544,
+        425,
+        16,
+        16
+      ],
+      "spawn_level": 3,
+      "design_note": "生前是守陵的黎明堡骑士，死后被奈瑟拉收编。冲锋攻击、掉落好，定期出现制造小高潮，测试玩家构筑强度。"
+    },
+    {
+      "id": "elite_grave_priest",
+      "display_name": "墓园祭司",
+      "rank": "elite",
+      "region": "crypt",
+      "tags": [
+        "undead",
+        "ranged",
+        "summoner",
+        "support"
+      ],
+      "base_stats": {
+        "max_hp": 180,
+        "damage": 18,
+        "move_speed": 55,
+        "attack_speed": 0.9,
+        "attack_range": 280,
+        "armor": 8
+      },
+      "behavior": {
+        "movement": "ranged_keep_distance",
+        "attack": "ranged_projectile"
+      },
+      "abilities": [
+        "raise_dead",
+        "unholy_heal",
+        "bone_bolt"
+      ],
+      "drop_table": {
+        "exp": 26,
+        "gold": {
+          "min": 14,
+          "max": 26
+        },
+        "equipment_drop_chance": 0.18
+      },
+      "sprite_region": [
+        459,
+        408,
+        16,
+        16
+      ],
+      "spawn_level": 4,
+      "design_note": "诵念奈瑟拉黑色经文的堕落教团祭司，会复活已死骷髅并治疗友军。优先级目标，逼玩家做集火决策。"
+    },
+    {
+      "id": "boss_bone_lord",
+      "display_name": "白骨领主",
+      "rank": "boss",
+      "region": "crypt",
+      "tags": [
+        "undead",
+        "boss",
+        "summoner"
+      ],
+      "base_stats": {
+        "max_hp": 1000,
+        "damage": 25,
+        "move_speed": 50,
+        "attack_speed": 0.8,
+        "attack_range": 50,
+        "armor": 20
+      },
+      "behavior": {
+        "movement": "summon_stay",
+        "attack": "aoe_ground"
+      },
+      "abilities": [
+        "summon_skeletons:周期性从地面召唤3-5只骷髅兵补充战场",
+        "bone_spikes:地面预警后升起骨刺造成范围伤害",
+        "enrage_50percent:血量低于50%进入狂暴，召唤频率翻倍、攻速提升"
+      ],
+      "drop_table": {
+        "exp": 100,
+        "gold": {
+          "min": 50,
+          "max": 100
+        },
+        "equipment_drop_chance": 0.5,
+        "guaranteed_rarity": "rare"
+      },
+      "sprite_region": [
+        561,
+        425,
+        16,
+        16
+      ],
+      "spawn_level": 1,
+      "design_note": "枯骨王陵的统治者，奈瑟拉意志在人间的爪牙。双阶段机制：常态召唤骷髅加地刺，50%血狂暴召唤翻倍，是玩家的第一个副本记忆点。"
+    },
+    {
+      "id": "enemy_plague_walker",
+      "display_name": "疫病行尸",
+      "rank": "normal",
+      "region": "swamp",
+      "tags": [
+        "undead",
+        "melee",
+        "poison"
+      ],
+      "base_stats": {
+        "max_hp": 65,
+        "damage": 10,
+        "move_speed": 45,
+        "attack_speed": 0.9,
+        "attack_range": 30
+      },
+      "behavior": {
+        "movement": "chase",
+        "attack": "melee_contact"
+      },
+      "abilities": [
+        "death_explosion_poison"
+      ],
+      "drop_table": {
+        "exp": 6,
+        "gold": {
+          "min": 3,
+          "max": 6
+        },
+        "equipment_drop_chance": 0.04
+      },
+      "sprite_region": [
+        408,
+        408,
+        16,
+        16
+      ],
+      "spawn_level": 2,
+      "design_note": "古尔撒瘟疫吹拂下肿胀的行尸，死亡时炸开毒云。逼玩家保持距离击杀，呼应腐沼的毒系DoT流派。"
+    },
+    {
+      "id": "enemy_maggot_swarm",
+      "display_name": "蛆群",
+      "rank": "normal",
+      "region": "swamp",
+      "tags": [
+        "beast",
+        "swarm",
+        "poison"
+      ],
+      "base_stats": {
+        "max_hp": 14,
+        "damage": 4,
+        "move_speed": 85,
+        "attack_speed": 1.5,
+        "attack_range": 25
+      },
+      "behavior": {
+        "movement": "chase",
+        "attack": "melee_contact"
+      },
+      "abilities": [
+        "poison_bite"
+      ],
+      "drop_table": {
+        "exp": 2,
+        "gold": {
+          "min": 1,
+          "max": 2
+        },
+        "equipment_drop_chance": 0.02
+      },
+      "sprite_region": [
+        425,
+        408,
+        16,
+        16
+      ],
+      "spawn_level": 2,
+      "design_note": "古尔撒千子之巢溢出的幼体，极脆但海量、附毒。是范围清屏的练习靶，也是孵化者的召唤产物。"
+    },
+    {
+      "id": "enemy_swamp_wasp",
+      "display_name": "沼泽巨蜂",
+      "rank": "normal",
+      "region": "swamp",
+      "tags": [
+        "beast",
+        "flying",
+        "poison"
+      ],
+      "base_stats": {
+        "max_hp": 30,
+        "damage": 9,
+        "move_speed": 100,
+        "attack_speed": 1.2,
+        "attack_range": 35
+      },
+      "behavior": {
+        "movement": "erratic_flight",
+        "attack": "melee_contact"
+      },
+      "abilities": [
+        "poison_sting"
+      ],
+      "drop_table": {
+        "exp": 5,
+        "gold": {
+          "min": 2,
+          "max": 5
+        },
+        "equipment_drop_chance": 0.03
+      },
+      "sprite_region": [
+        476,
+        408,
+        16,
+        16
+      ],
+      "spawn_level": 3,
+      "design_note": "被瘟疫催肥的飞虫，蜇刺叠加毒层。飞行走位刁钻，对近战职业构成额外压力。"
+    },
+    {
+      "id": "elite_plague_cantor",
+      "display_name": "疫病祷者",
+      "rank": "elite",
+      "region": "swamp",
+      "tags": [
+        "humanoid",
+        "ranged",
+        "support",
+        "poison"
+      ],
+      "base_stats": {
+        "max_hp": 200,
+        "damage": 16,
+        "move_speed": 55,
+        "attack_speed": 0.7,
+        "attack_range": 320,
+        "armor": 6
+      },
+      "behavior": {
+        "movement": "ranged_keep_distance",
+        "attack": "ranged_projectile"
+      },
+      "abilities": [
+        "plague_chant",
+        "poison_pool",
+        "weaken_curse"
+      ],
+      "drop_table": {
+        "exp": 28,
+        "gold": {
+          "min": 18,
+          "max": 30
+        },
+        "equipment_drop_chance": 0.18
+      },
+      "sprite_region": [
+        493,
+        408,
+        16,
+        16
+      ],
+      "spawn_level": 4,
+      "design_note": "向古尔撒献唱的堕落教团祷者，铺设毒池并强化周围虫群。是控场威胁，需优先处理。"
+    },
+    {
+      "id": "elite_brood_hatcher",
+      "display_name": "孵化者",
+      "rank": "elite",
+      "region": "swamp",
+      "tags": [
+        "beast",
+        "summoner",
+        "poison"
+      ],
+      "base_stats": {
+        "max_hp": 260,
+        "damage": 14,
+        "move_speed": 40,
+        "attack_speed": 1,
+        "attack_range": 40,
+        "armor": 8
+      },
+      "behavior": {
+        "movement": "summon_stay",
+        "attack": "aoe_ground"
+      },
+      "abilities": [
+        "spawn_maggots",
+        "toxic_burst",
+        "incubate_armor"
+      ],
+      "drop_table": {
+        "exp": 32,
+        "gold": {
+          "min": 20,
+          "max": 35
+        },
+        "equipment_drop_chance": 0.2
+      },
+      "sprite_region": [
+        578,
+        408,
+        16,
+        16
+      ],
+      "spawn_level": 5,
+      "design_note": "腹中孕育古尔撒之子的肿胀巢虫，持续吐出蛆群淹没战场。拖延越久越危险，考验玩家的爆发节奏。"
+    },
+    {
+      "id": "boss_brood_mother",
+      "display_name": "巢母莫拉戈斯",
+      "rank": "boss",
+      "region": "swamp",
+      "tags": [
+        "undead",
+        "boss",
+        "summoner",
+        "poison"
+      ],
+      "base_stats": {
+        "max_hp": 1500,
+        "damage": 30,
+        "move_speed": 40,
+        "attack_speed": 0.7,
+        "attack_range": 60,
+        "armor": 25
+      },
+      "behavior": {
+        "movement": "summon_stay",
+        "attack": "aoe_ground"
+      },
+      "abilities": [
+        "poison_breath:扇形吐息喷出剧毒云，附加持续毒层",
+        "summon_swarm:撕裂卵囊召唤大量蛆群与沼泽巨蜂",
+        "egg_burst_phase2:阶段二她亲手击毁未孵化的卵，暴露虚弱点供玩家集火",
+        "enrage_50percent:血量过半后毒池铺满全场，移动空间被压缩"
+      ],
+      "drop_table": {
+        "exp": 150,
+        "gold": {
+          "min": 80,
+          "max": 150
+        },
+        "equipment_drop_chance": 0.55,
+        "guaranteed_rarity": "epic"
+      },
+      "sprite_region": [
+        595,
+        408,
+        16,
+        16
+      ],
+      "spawn_level": 1,
+      "design_note": "原黎明堡疫病修女艾尔莎，献祭自身成为古尔撒的代孕子宫。她保留人性最后一丝，阶段二会主动毁卵自戕，玩家可顺势输出，悲剧机制呼应世界观。"
+    },
+    {
+      "id": "enemy_ember_fiend",
+      "display_name": "烬血恶魔",
+      "rank": "normal",
+      "region": "forge",
+      "tags": [
+        "demon",
+        "melee",
+        "fire"
+      ],
+      "base_stats": {
+        "max_hp": 35,
+        "damage": 10,
+        "move_speed": 95,
+        "attack_speed": 1.3,
+        "attack_range": 30
+      },
+      "behavior": {
+        "movement": "charge",
+        "attack": "melee_contact"
+      },
+      "abilities": [
+        "fire_dash"
+      ],
+      "drop_table": {
+        "exp": 7,
+        "gold": {
+          "min": 3,
+          "max": 6
+        },
+        "equipment_drop_chance": 0.04
+      },
+      "sprite_region": [
+        408,
+        425,
+        16,
+        16
+      ],
+      "spawn_level": 4,
+      "design_note": "伊格诺斯熔火中诞生的小恶魔，高速火焰冲撞。脆但灵活，制造熔火深渊的进攻压迫感。"
+    },
+    {
+      "id": "enemy_lava_thrall",
+      "display_name": "熔岩奴工",
+      "rank": "normal",
+      "region": "forge",
+      "tags": [
+        "construct",
+        "melee",
+        "fire",
+        "slow"
+      ],
+      "base_stats": {
+        "max_hp": 80,
+        "damage": 14,
+        "move_speed": 40,
+        "attack_speed": 0.8,
+        "attack_range": 45
+      },
+      "behavior": {
+        "movement": "chase",
+        "attack": "melee_swing"
+      },
+      "abilities": [
+        "molten_slam"
+      ],
+      "drop_table": {
+        "exp": 9,
+        "gold": {
+          "min": 4,
+          "max": 9
+        },
+        "equipment_drop_chance": 0.05
+      },
+      "sprite_region": [
+        442,
+        425,
+        16,
+        16
+      ],
+      "spawn_level": 4,
+      "design_note": "被锻心之主役使、永世搬运熔铁的躯壳。慢速肉盾，挥击落地溅起岩浆，承担前排压制角色。"
+    },
+    {
+      "id": "enemy_fire_bat",
+      "display_name": "火蝠",
+      "rank": "normal",
+      "region": "forge",
+      "tags": [
+        "beast",
+        "flying",
+        "fire"
+      ],
+      "base_stats": {
+        "max_hp": 28,
+        "damage": 8,
+        "move_speed": 115,
+        "attack_speed": 1.5,
+        "attack_range": 25
+      },
+      "behavior": {
+        "movement": "erratic_flight",
+        "attack": "melee_contact"
+      },
+      "abilities": [
+        "ignite_bite"
+      ],
+      "drop_table": {
+        "exp": 6,
+        "gold": {
+          "min": 3,
+          "max": 5
+        },
+        "equipment_drop_chance": 0.03
+      },
+      "sprite_region": [
+        459,
+        425,
+        16,
+        16
+      ],
+      "spawn_level": 5,
+      "design_note": "栖息熔岩裂缝的燃翼群蝠，啃咬点燃目标。高速骚扰型，强迫玩家分配火力优先级。"
+    },
+    {
+      "id": "elite_forgemaster",
+      "display_name": "熔铸者",
+      "rank": "elite",
+      "region": "forge",
+      "tags": [
+        "demon",
+        "melee",
+        "fire",
+        "support"
+      ],
+      "base_stats": {
+        "max_hp": 240,
+        "damage": 22,
+        "move_speed": 55,
+        "attack_speed": 1,
+        "attack_range": 50,
+        "armor": 12
+      },
+      "behavior": {
+        "movement": "charge",
+        "attack": "melee_swing"
+      },
+      "abilities": [
+        "forge_hammer_slam",
+        "summon_lava_pool",
+        "weapon_buff"
+      ],
+      "drop_table": {
+        "exp": 35,
+        "gold": {
+          "min": 22,
+          "max": 40
+        },
+        "equipment_drop_chance": 0.2
+      },
+      "sprite_region": [
+        476,
+        425,
+        16,
+        16
+      ],
+      "spawn_level": 6,
+      "design_note": "为伊格诺斯锻造恶魔兵器的扭曲工匠，能强化己方武器并铺设岩浆地带。控场加增益的双重威胁。"
+    },
+    {
+      "id": "elite_pyre_guardian",
+      "display_name": "刑炉守卫",
+      "rank": "elite",
+      "region": "forge",
+      "tags": [
+        "construct",
+        "melee",
+        "fire",
+        "armored"
+      ],
+      "base_stats": {
+        "max_hp": 300,
+        "damage": 26,
+        "move_speed": 45,
+        "attack_speed": 0.8,
+        "attack_range": 45,
+        "armor": 18
+      },
+      "behavior": {
+        "movement": "charge",
+        "attack": "melee_swing"
+      },
+      "abilities": [
+        "fire_charge",
+        "immolation_aura",
+        "molten_armor"
+      ],
+      "drop_table": {
+        "exp": 40,
+        "gold": {
+          "min": 25,
+          "max": 45
+        },
+        "equipment_drop_chance": 0.22
+      },
+      "sprite_region": [
+        493,
+        425,
+        16,
+        16
+      ],
+      "spawn_level": 7,
+      "design_note": "守护着抑制伊格诺斯的半成品神剑的重甲魔像，全身环绕焚烧光环。高护甲高伤，逼玩家围绕灼烧区域走位输出。"
+    },
+    {
+      "id": "boss_ember_lord",
+      "display_name": "燃烬之主瓦尔卡兹",
+      "rank": "boss",
+      "region": "forge",
+      "tags": [
+        "demon",
+        "boss",
+        "fire"
+      ],
+      "base_stats": {
+        "max_hp": 2200,
+        "damage": 40,
+        "move_speed": 50,
+        "attack_speed": 0.8,
+        "attack_range": 80,
+        "armor": 35
+      },
+      "behavior": {
+        "movement": "summon_stay",
+        "attack": "aoe_ground"
+      },
+      "abilities": [
+        "meteor_rain:天降陨石轰击多个预警地块",
+        "summon_ember_fiends:召唤烬血恶魔包夹玩家",
+        "fire_aura:贴身灼烧光环，限制近战停留时间",
+        "molten_floor_phase2:阶段二地面逐步熔化为岩浆，安全区不断收缩",
+        "enrage_30percent:血量低于30%进入终极狂暴，攻速与陨石频率飙升"
+      ],
+      "drop_table": {
+        "exp": 250,
+        "gold": {
+          "min": 150,
+          "max": 300
+        },
+        "equipment_drop_chance": 0.65,
+        "guaranteed_rarity": "epic"
+      },
+      "sprite_region": [
+        578,
+        425,
+        16,
+        16
+      ],
+      "spawn_level": 1,
+      "design_note": "矮人锻造大师杜林以恶魔之心铸剑成功，却被伊格诺斯每次锻造重铸一次，终至人形尽失。多阶段地形杀机制，是熔火深渊的高潮战。"
+    },
+    {
+      "id": "enemy_frost_wraith",
+      "display_name": "冰魂",
+      "rank": "normal",
+      "region": "ice",
+      "tags": [
+        "spirit",
+        "ranged",
+        "frost"
+      ],
+      "base_stats": {
+        "max_hp": 45,
+        "damage": 12,
+        "move_speed": 80,
+        "attack_speed": 0.8,
+        "attack_range": 300
+      },
+      "behavior": {
+        "movement": "ranged_keep_distance",
+        "attack": "ranged_projectile"
+      },
+      "abilities": [
+        "frost_bolt"
+      ],
+      "drop_table": {
+        "exp": 8,
+        "gold": {
+          "min": 4,
+          "max": 8
+        },
+        "equipment_drop_chance": 0.05
+      },
+      "sprite_region": [
+        408,
+        434,
+        16,
+        16
+      ],
+      "spawn_level": 6,
+      "design_note": "在克里斯塔永冻中徘徊的亡魂，远程冰弹附带减速。逼迫玩家在低速debuff下硬走位，呼应冰封王座的控制流。"
+    },
+    {
+      "id": "enemy_frost_wolf",
+      "display_name": "霜狼",
+      "rank": "normal",
+      "region": "ice",
+      "tags": [
+        "beast",
+        "melee",
+        "frost"
+      ],
+      "base_stats": {
+        "max_hp": 70,
+        "damage": 15,
+        "move_speed": 110,
+        "attack_speed": 1.2,
+        "attack_range": 40
+      },
+      "behavior": {
+        "movement": "charge",
+        "attack": "melee_swing"
+      },
+      "abilities": [
+        "frost_pounce"
+      ],
+      "drop_table": {
+        "exp": 9,
+        "gold": {
+          "min": 4,
+          "max": 9
+        },
+        "equipment_drop_chance": 0.05
+      },
+      "sprite_region": [
+        425,
+        434,
+        16,
+        16
+      ],
+      "spawn_level": 6,
+      "design_note": "成群游猎冰封王座的霜毛巨狼，扑击命中短暂冻足。高速近战压迫，与冰魂远近搭配形成夹击。"
+    },
+    {
+      "id": "enemy_ice_golem_lesser",
+      "display_name": "冰晶傀儡",
+      "rank": "normal",
+      "region": "ice",
+      "tags": [
+        "construct",
+        "melee",
+        "frost",
+        "slow"
+      ],
+      "base_stats": {
+        "max_hp": 80,
+        "damage": 16,
+        "move_speed": 35,
+        "attack_speed": 0.7,
+        "attack_range": 45
+      },
+      "behavior": {
+        "movement": "chase",
+        "attack": "melee_swing"
+      },
+      "abilities": [
+        "frost_nova_onhit"
+      ],
+      "drop_table": {
+        "exp": 10,
+        "gold": {
+          "min": 5,
+          "max": 10
+        },
+        "equipment_drop_chance": 0.06
+      },
+      "sprite_region": [
+        442,
+        434,
+        16,
+        16
+      ],
+      "spawn_level": 7,
+      "design_note": "由永冻寒冰凝聚的傀儡，受击时炸开冰霜新星减速四周。慢速肉盾，惩罚贴脸输出的玩家。"
+    },
+    {
+      "id": "elite_frost_priest",
+      "display_name": "寒冰祭司",
+      "rank": "elite",
+      "region": "ice",
+      "tags": [
+        "humanoid",
+        "ranged",
+        "support",
+        "frost"
+      ],
+      "base_stats": {
+        "max_hp": 220,
+        "damage": 20,
+        "move_speed": 55,
+        "attack_speed": 0.7,
+        "attack_range": 340,
+        "armor": 8
+      },
+      "behavior": {
+        "movement": "ranged_keep_distance",
+        "attack": "ranged_projectile"
+      },
+      "abilities": [
+        "blizzard",
+        "ice_shield",
+        "freeze"
+      ],
+      "drop_table": {
+        "exp": 36,
+        "gold": {
+          "min": 22,
+          "max": 40
+        },
+        "equipment_drop_chance": 0.2
+      },
+      "sprite_region": [
+        459,
+        434,
+        16,
+        16
+      ],
+      "spawn_level": 8,
+      "design_note": "侍奉冰封女王克里斯塔的祭司，召唤暴风雪并为自己罩上冰盾。能短暂冻结玩家，是控场核心威胁。"
+    },
+    {
+      "id": "elite_frozen_knight",
+      "display_name": "冰封骑士",
+      "rank": "elite",
+      "region": "ice",
+      "tags": [
+        "undead",
+        "melee",
+        "frost",
+        "armored"
+      ],
+      "base_stats": {
+        "max_hp": 290,
+        "damage": 24,
+        "move_speed": 60,
+        "attack_speed": 1,
+        "attack_range": 45,
+        "armor": 20
+      },
+      "behavior": {
+        "movement": "charge",
+        "attack": "melee_swing"
+      },
+      "abilities": [
+        "ice_charge",
+        "frost_armor_reflect",
+        "shatter_strike"
+      ],
+      "drop_table": {
+        "exp": 40,
+        "gold": {
+          "min": 25,
+          "max": 45
+        },
+        "equipment_drop_chance": 0.22
+      },
+      "sprite_region": [
+        476,
+        434,
+        16,
+        16
+      ],
+      "spawn_level": 8,
+      "design_note": "永世守卫冰封王座的封冻战士，霜甲会反弹部分伤害。高护甲与反伤双重压力，惩罚无脑爆发。"
+    },
+    {
+      "id": "boss_frost_lich",
+      "display_name": "冰霜巫妖艾莉珊德拉",
+      "rank": "boss",
+      "region": "ice",
+      "tags": [
+        "undead",
+        "boss",
+        "frost",
+        "summoner"
+      ],
+      "base_stats": {
+        "max_hp": 3000,
+        "damage": 45,
+        "move_speed": 60,
+        "attack_speed": 0.9,
+        "attack_range": 90,
+        "armor": 30
+      },
+      "behavior": {
+        "movement": "ranged_keep_distance",
+        "attack": "ranged_projectile"
+      },
+      "abilities": [
+        "ice_storm:全场范围降下冰锥，需躲入安全缝隙",
+        "freeze_zone:在地面布下冻结地带，踏入即被定身",
+        "summon_ice_shards:召唤环绕自身的冰晶碎片进行齐射",
+        "glacial_prison:将玩家封入冰棺，需快速挣脱或被队友打破",
+        "enrage_25percent:残血时永冻全场加速，控制链密度提升"
+      ],
+      "drop_table": {
+        "exp": 350,
+        "gold": {
+          "min": 200,
+          "max": 400
+        },
+        "equipment_drop_chance": 0.7,
+        "guaranteed_rarity": "legendary"
+      },
+      "sprite_region": [
+        493,
+        434,
+        16,
+        16
+      ],
+      "spawn_level": 1,
+      "design_note": "曾是黎明堡奠基者之一，为求永生投向冰封女王克里斯塔而成巫妖。DLC1终幕Boss，远程控场型，强调走位与解控节奏。"
+    },
+    {
+      "id": "enemy_void_crawler",
+      "display_name": "虚空爬行者",
+      "rank": "normal",
+      "region": "void",
+      "tags": [
+        "void",
+        "melee",
+        "chaos"
+      ],
+      "base_stats": {
+        "max_hp": 55,
+        "damage": 14,
+        "move_speed": 90,
+        "attack_speed": 1.3,
+        "attack_range": 30
+      },
+      "behavior": {
+        "movement": "chase",
+        "attack": "melee_contact"
+      },
+      "abilities": [
+        "phase_blink"
+      ],
+      "drop_table": {
+        "exp": 10,
+        "gold": {
+          "min": 5,
+          "max": 10
+        },
+        "equipment_drop_chance": 0.06
+      },
+      "sprite_region": [
+        510,
+        434,
+        16,
+        16
+      ],
+      "spawn_level": 9,
+      "design_note": "从虚空裂隙渗出的多足造物，能短距相位闪烁拉近距离。突进难以预判，呼应虚空之子的规则突破主题。"
+    },
+    {
+      "id": "enemy_shadow_shard",
+      "display_name": "碎影",
+      "rank": "normal",
+      "region": "void",
+      "tags": [
+        "void",
+        "melee",
+        "chaos",
+        "swarm"
+      ],
+      "base_stats": {
+        "max_hp": 40,
+        "damage": 16,
+        "move_speed": 120,
+        "attack_speed": 1.6,
+        "attack_range": 30
+      },
+      "behavior": {
+        "movement": "chase",
+        "attack": "melee_contact"
+      },
+      "abilities": [
+        "split_on_death"
+      ],
+      "drop_table": {
+        "exp": 9,
+        "gold": {
+          "min": 4,
+          "max": 9
+        },
+        "equipment_drop_chance": 0.05
+      },
+      "sprite_region": [
+        527,
+        434,
+        16,
+        16
+      ],
+      "spawn_level": 9,
+      "design_note": "破碎现实投下的影之残片，被击杀时分裂成两个更小的个体。考验玩家的范围清场与目标管理。"
+    },
+    {
+      "id": "enemy_chaos_eye",
+      "display_name": "混沌眼",
+      "rank": "normal",
+      "region": "void",
+      "tags": [
+        "void",
+        "ranged",
+        "chaos",
+        "flying"
+      ],
+      "base_stats": {
+        "max_hp": 50,
+        "damage": 18,
+        "move_speed": 65,
+        "attack_speed": 0.7,
+        "attack_range": 380
+      },
+      "behavior": {
+        "movement": "ranged_keep_distance",
+        "attack": "ranged_projectile"
+      },
+      "abilities": [
+        "chaos_bolt"
+      ],
+      "drop_table": {
+        "exp": 11,
+        "gold": {
+          "min": 5,
+          "max": 11
+        },
+        "equipment_drop_chance": 0.06
+      },
+      "sprite_region": [
+        544,
+        434,
+        16,
+        16
+      ],
+      "spawn_level": 10,
+      "design_note": "悬浮的虚空之眼，发射随机附带异常状态的混沌弹。不可预测的debuff，制造高风险的远程压制。"
+    },
+    {
+      "id": "elite_void_ritualist",
+      "display_name": "虚空仪式师",
+      "rank": "elite",
+      "region": "void",
+      "tags": [
+        "humanoid",
+        "ranged",
+        "summoner",
+        "void"
+      ],
+      "base_stats": {
+        "max_hp": 250,
+        "damage": 24,
+        "move_speed": 55,
+        "attack_speed": 0.7,
+        "attack_range": 360,
+        "armor": 10
+      },
+      "behavior": {
+        "movement": "summon_stay",
+        "attack": "ranged_projectile"
+      },
+      "abilities": [
+        "summon_void_minions",
+        "reality_distort",
+        "shield_channel"
+      ],
+      "drop_table": {
+        "exp": 42,
+        "gold": {
+          "min": 28,
+          "max": 50
+        },
+        "equipment_drop_chance": 0.22
+      },
+      "sprite_region": [
+        561,
+        434,
+        16,
+        16
+      ],
+      "spawn_level": 11,
+      "design_note": "试图引虚空之子降临的堕落教团高阶仪式师，召唤虚空爪牙并扭曲战场规则。打断其引导是关键。"
+    },
+    {
+      "id": "elite_riftbreaker",
+      "display_name": "裂界者",
+      "rank": "elite",
+      "region": "void",
+      "tags": [
+        "void",
+        "melee",
+        "chaos",
+        "armored"
+      ],
+      "base_stats": {
+        "max_hp": 300,
+        "damage": 30,
+        "move_speed": 75,
+        "attack_speed": 1.1,
+        "attack_range": 50,
+        "armor": 18
+      },
+      "behavior": {
+        "movement": "charge",
+        "attack": "melee_swing"
+      },
+      "abilities": [
+        "void_rift_teleport",
+        "gravity_crush",
+        "phase_shift"
+      ],
+      "drop_table": {
+        "exp": 48,
+        "gold": {
+          "min": 30,
+          "max": 55
+        },
+        "equipment_drop_chance": 0.25
+      },
+      "sprite_region": [
+        578,
+        434,
+        16,
+        16
+      ],
+      "spawn_level": 11,
+      "design_note": "撕裂空间近身的虚空精英，能瞬移到玩家身后并施加重力压制。机动性极高，惩罚站桩输出。"
+    },
+    {
+      "id": "boss_void_child",
+      "display_name": "虚空之子",
+      "rank": "boss",
+      "region": "void",
+      "tags": [
+        "void",
+        "boss",
+        "chaos",
+        "summoner"
+      ],
+      "base_stats": {
+        "max_hp": 5000,
+        "damage": 55,
+        "move_speed": 70,
+        "attack_speed": 1,
+        "attack_range": 100,
+        "armor": 50
+      },
+      "behavior": {
+        "movement": "summon_stay",
+        "attack": "aoe_ground"
+      },
+      "abilities": [
+        "void_portal:开启传送门持续吐出碎影与虚空爬行者",
+        "phase_shift:相位转移使自身短暂无敌并重定位",
+        "reality_break:全屏规则突破，反转玩家操作或屏蔽技能",
+        "gravity_collapse:制造引力坍缩点将玩家拉向中心后爆发",
+        "summon_void_minions:召唤精英级虚空爪牙助战",
+        "enrage_multiphase:三阶段递进，每阶段解锁更高强度机制组合"
+      ],
+      "drop_table": {
+        "exp": 500,
+        "gold": {
+          "min": 300,
+          "max": 600
+        },
+        "equipment_drop_chance": 0.8,
+        "guaranteed_rarity": "mythic"
+      },
+      "sprite_region": [
+        595,
+        434,
+        16,
+        16
+      ],
+      "spawn_level": 1,
+      "design_note": "终极古神，混沌与规则之外的存在，是前四位古神的父亲。DLC2虚空裂隙终幕Boss与主线终章，多阶段规则突破战，剧情迎来反转。"
+    },
+    {
+      "id": "enemy_corrupted_wolf",
+      "display_name": "腐化狼",
+      "rank": "normal",
+      "region": "field",
+      "tags": [
+        "beast",
+        "melee",
+        "corrupted"
+      ],
+      "base_stats": {
+        "max_hp": 45,
+        "damage": 12,
+        "move_speed": 115,
+        "attack_speed": 1.3,
+        "attack_range": 40
+      },
+      "behavior": {
+        "movement": "charge",
+        "attack": "melee_swing"
+      },
+      "abilities": [
+        "pack_hunt"
+      ],
+      "drop_table": {
+        "exp": 5,
+        "gold": {
+          "min": 2,
+          "max": 5
+        },
+        "equipment_drop_chance": 0.03
+      },
+      "sprite_region": [
+        510,
+        408,
+        16,
+        16
+      ],
+      "spawn_level": 2,
+      "design_note": "黑暗纪元蔓延的腐化侵蚀荒原野兽，成群结队围猎。野区机动威胁，玩家在据点间转移时的常见遭遇。"
+    },
+    {
+      "id": "enemy_wasteland_bandit",
+      "display_name": "荒野盗匪",
+      "rank": "normal",
+      "region": "field",
+      "tags": [
+        "humanoid",
+        "melee"
+      ],
+      "base_stats": {
+        "max_hp": 55,
+        "damage": 14,
+        "move_speed": 70,
+        "attack_speed": 1,
+        "attack_range": 35
+      },
+      "behavior": {
+        "movement": "chase",
+        "attack": "melee_swing"
+      },
+      "abilities": [
+        "throw_dagger",
+        "loot_steal"
+      ],
+      "drop_table": {
+        "exp": 7,
+        "gold": {
+          "min": 5,
+          "max": 12
+        },
+        "equipment_drop_chance": 0.05
+      },
+      "sprite_region": [
+        527,
+        408,
+        16,
+        16
+      ],
+      "spawn_level": 3,
+      "design_note": "在末世荒原劫掠的流民，会投掷飞刀并偷取金币。掉金更高，是拾荒者行会与之争夺资源的活靶子。"
+    },
+    {
+      "id": "enemy_wandering_corpse",
+      "display_name": "游荡尸",
+      "rank": "normal",
+      "region": "field",
+      "tags": [
+        "undead",
+        "melee",
+        "slow"
+      ],
+      "base_stats": {
+        "max_hp": 60,
+        "damage": 10,
+        "move_speed": 40,
+        "attack_speed": 0.8,
+        "attack_range": 30
+      },
+      "behavior": {
+        "movement": "chase",
+        "attack": "melee_contact"
+      },
+      "abilities": [],
+      "drop_table": {
+        "exp": 5,
+        "gold": {
+          "min": 2,
+          "max": 5
+        },
+        "equipment_drop_chance": 0.03
+      },
+      "sprite_region": [
+        544,
+        408,
+        16,
+        16
+      ],
+      "spawn_level": 2,
+      "design_note": "枯骨王陵死气外溢后，飘荡到荒原的无主行尸。慢速耐打，提示玩家亡灵之祸早已越出陵墓边界。"
+    },
+    {
+      "id": "elite_cult_scout",
+      "display_name": "教团斥候",
+      "rank": "elite",
+      "region": "field",
+      "tags": [
+        "humanoid",
+        "ranged",
+        "cultist"
+      ],
+      "base_stats": {
+        "max_hp": 160,
+        "damage": 20,
+        "move_speed": 90,
+        "attack_speed": 1,
+        "attack_range": 320,
+        "armor": 8
+      },
+      "behavior": {
+        "movement": "ranged_keep_distance",
+        "attack": "ranged_projectile"
+      },
+      "abilities": [
+        "mark_target",
+        "smoke_bomb_evade",
+        "signal_flare"
+      ],
+      "drop_table": {
+        "exp": 30,
+        "gold": {
+          "min": 20,
+          "max": 35
+        },
+        "equipment_drop_chance": 0.2
+      },
+      "sprite_region": [
+        561,
+        408,
+        16,
+        16
+      ],
+      "spawn_level": 4,
+      "design_note": "堕落教团派往荒原的侦察兵，标记目标并放信号召唤增援。机动游走，逼玩家速杀以免战场失控。"
+    },
+    {
+      "id": "elite_mutant_bear",
+      "display_name": "变异熊",
+      "rank": "elite",
+      "region": "field",
+      "tags": [
+        "beast",
+        "melee",
+        "corrupted",
+        "armored"
+      ],
+      "base_stats": {
+        "max_hp": 280,
+        "damage": 28,
+        "move_speed": 65,
+        "attack_speed": 1,
+        "attack_range": 50,
+        "armor": 14
+      },
+      "behavior": {
+        "movement": "charge",
+        "attack": "melee_swing"
+      },
+      "abilities": [
+        "maul_combo",
+        "enrage_roar",
+        "ground_slam"
+      ],
+      "drop_table": {
+        "exp": 38,
+        "gold": {
+          "min": 24,
+          "max": 42
+        },
+        "equipment_drop_chance": 0.22
+      },
+      "sprite_region": [
+        425,
+        425,
+        16,
+        16
+      ],
+      "spawn_level": 5,
+      "design_note": "被腐化能量撑裂体型的荒原巨熊，连击撕咬并以怒吼自我强化。野区高血量精英，是检验玩家中期构筑的硬指标。"
+    },
+    {
+      "id": "field_boss_wasteland_warlord",
+      "display_name": "荒原霸主",
+      "rank": "field_boss",
+      "region": "field",
+      "tags": [
+        "humanoid",
+        "field_boss",
+        "summoner"
+      ],
+      "base_stats": {
+        "max_hp": 1200,
+        "damage": 35,
+        "move_speed": 65,
+        "attack_speed": 1,
+        "attack_range": 55,
+        "armor": 28
+      },
+      "behavior": {
+        "movement": "summon_stay",
+        "attack": "melee_swing"
+      },
+      "abilities": [
+        "summon_bandits:吹响号角召唤荒野盗匪援军",
+        "warlord_cleave:大范围横扫劈砍，命中击退玩家",
+        "battle_roar_buff:战吼提升自身与召唤物的攻速和伤害",
+        "enrage_40percent:血量低于40%狂暴，劈砍频率提升并无视部分位移"
+      ],
+      "drop_table": {
+        "exp": 180,
+        "gold": {
+          "min": 120,
+          "max": 220
+        },
+        "equipment_drop_chance": 0.55,
+        "guaranteed_rarity": "rare"
+      },
+      "sprite_region": [
+        595,
+        425,
+        16,
+        16
+      ],
+      "spawn_level": 6,
+      "design_note": "统合荒原盗匪与堕落流民、自立为王的野区霸主。作为可在地图遭遇的field_boss，掉落优于精英，是拾荒者行会悬赏的高价目标。"
+    }
+  ]
+}

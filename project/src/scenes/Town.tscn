@@ -1,0 +1,245 @@
+[gd_scene load_steps=3 format=3 uid="uid://town_scene"]
+
+[ext_resource type="Script" path="res://scripts/Town.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/roguelike/roguelikeSheet_transparent.png" id="2"]
+
+[node name="Town" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.1, 0.12, 0.08, 1)
+
+[node name="TopBar" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 80.0
+
+[node name="GoldLabel" type="Label" parent="TopBar"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 40.0
+offset_top = -20.0
+offset_right = 240.0
+offset_bottom = 20.0
+text = "金币: 0"
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 28
+
+[node name="ClassLabel" type="Label" parent="TopBar"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -150.0
+offset_top = 20.0
+offset_right = 150.0
+offset_bottom = 60.0
+text = "职业: -"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 28
+
+[node name="LevelLabel" type="Label" parent="TopBar"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -20.0
+offset_right = -40.0
+offset_bottom = 20.0
+text = "等级: 1"
+horizontal_alignment = 2
+theme_override_font_sizes/font_size = 28
+
+[node name="WorldMap" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 80.0
+offset_bottom = -120.0
+
+[node name="MapBackground" type="ColorRect" parent="WorldMap"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.15, 0.17, 0.12, 1)
+
+[node name="GridPattern" type="ColorRect" parent="WorldMap"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.2, 0.22, 0.17, 0.3)
+
+[node name="TownLabel" type="Label" parent="WorldMap"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 40.0
+offset_right = 200.0
+offset_bottom = 100.0
+text = "黎明堡 - 主城"
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1, 0.9, 0.6, 1)
+theme_override_font_sizes/font_size = 36
+
+[node name="PlayerMarker" type="Sprite2D" parent="WorldMap"]
+position = Vector2(960, 540)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(425, 408, 16, 16)
+
+[node name="Panels" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 80.0
+offset_bottom = -120.0
+mouse_filter = 2
+
+[node name="UpgradePanel" type="Panel" parent="Panels"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -300.0
+offset_right = 400.0
+offset_bottom = 300.0
+
+[node name="Title" type="Label" parent="Panels/UpgradePanel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 60.0
+text = "铁匠铺 - 永久强化"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_colors/font_color = Color(1, 0.7, 0.3, 1)
+theme_override_font_sizes/font_size = 32
+
+[node name="CloseButton" type="Button" parent="Panels/UpgradePanel"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -80.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 50.0
+text = "关闭"
+theme_override_font_sizes/font_size = 18
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Panels/UpgradePanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 70.0
+offset_right = -20.0
+offset_bottom = -20.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panels/UpgradePanel/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="DungeonPanel" type="Panel" parent="Panels"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -500.0
+offset_top = -350.0
+offset_right = 500.0
+offset_bottom = 350.0
+
+[node name="Title" type="Label" parent="Panels/DungeonPanel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 60.0
+text = "副本选择 - 城外野区"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_colors/font_color = Color(0.7, 0.4, 1, 1)
+theme_override_font_sizes/font_size = 32
+
+[node name="CloseButton" type="Button" parent="Panels/DungeonPanel"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -80.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 50.0
+text = "关闭"
+theme_override_font_sizes/font_size = 18
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Panels/DungeonPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 70.0
+offset_right = -20.0
+offset_bottom = -20.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panels/DungeonPanel/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="BottomBar" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -120.0
+
+[node name="InfoLabel" type="RichTextLabel" parent="BottomBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = 20.0
+offset_right = -40.0
+offset_bottom = -20.0
+bbcode_enabled = true
+text = "[center]欢迎来到黎明堡[/center]"
+fit_content = true
+theme_override_font_sizes/normal_font_size = 24
+
+[connection signal="pressed" from="Panels/UpgradePanel/CloseButton" to="." method="_on_close_upgrade_panel"]
+[connection signal="pressed" from="Panels/DungeonPanel/CloseButton" to="." method="_on_close_dungeon_panel"]

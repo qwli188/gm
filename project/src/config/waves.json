@@ -1,0 +1,2503 @@
+{
+  "wave_sets": [
+    {
+      "id": "waveset_crypt_1",
+      "display_name": "枯骨王陵 波次1",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 0.6
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 0.9
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 0.4
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.1
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 1.3
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 0.7
+            },
+            {
+              "enemy_id": "enemy_crypt_bat",
+              "rate": 0.4
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 1.8
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 1
+            },
+            {
+              "enemy_id": "enemy_crypt_bat",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.3
+            },
+            {
+              "enemy_id": "elite_grave_priest",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 2.4
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 1.4
+            },
+            {
+              "enemy_id": "enemy_crypt_bat",
+              "rate": 0.9
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.4
+            },
+            {
+              "enemy_id": "elite_grave_priest",
+              "rate": 0.4
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "boss_bone_lord",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_crypt_2",
+      "display_name": "枯骨王陵 波次2",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 0.6
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 1
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 0.4
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.1
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 1.5
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 0.8
+            },
+            {
+              "enemy_id": "enemy_crypt_bat",
+              "rate": 0.4
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 2
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 1.1
+            },
+            {
+              "enemy_id": "enemy_crypt_bat",
+              "rate": 0.7
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.3
+            },
+            {
+              "enemy_id": "elite_grave_priest",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 2.7
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 1.6
+            },
+            {
+              "enemy_id": "enemy_crypt_bat",
+              "rate": 1
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.4
+            },
+            {
+              "enemy_id": "elite_grave_priest",
+              "rate": 0.4
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "boss_bone_lord",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_crypt_3",
+      "display_name": "枯骨王陵 波次3",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 0.7
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 1.1
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.1
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 1.6
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 0.9
+            },
+            {
+              "enemy_id": "enemy_crypt_bat",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 2.2
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 1.2
+            },
+            {
+              "enemy_id": "enemy_crypt_bat",
+              "rate": 0.7
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.4
+            },
+            {
+              "enemy_id": "elite_grave_priest",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 3
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 1.7
+            },
+            {
+              "enemy_id": "enemy_crypt_bat",
+              "rate": 1.1
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_grave_priest",
+              "rate": 0.4
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "boss_bone_lord",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_crypt_4",
+      "display_name": "枯骨王陵 波次4",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 0.7
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 1.2
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 1.8
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 1
+            },
+            {
+              "enemy_id": "enemy_crypt_bat",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 2.4
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 1.4
+            },
+            {
+              "enemy_id": "enemy_crypt_bat",
+              "rate": 0.8
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.4
+            },
+            {
+              "enemy_id": "elite_grave_priest",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 3.3
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 1.9
+            },
+            {
+              "enemy_id": "enemy_crypt_bat",
+              "rate": 1.2
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_grave_priest",
+              "rate": 0.5
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "boss_bone_lord",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_crypt_5",
+      "display_name": "枯骨王陵 波次5",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 0.8
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 1.3
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 1.9
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 1
+            },
+            {
+              "enemy_id": "enemy_crypt_bat",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 2.7
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 1.5
+            },
+            {
+              "enemy_id": "enemy_crypt_bat",
+              "rate": 0.9
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.4
+            },
+            {
+              "enemy_id": "elite_grave_priest",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_skeleton",
+              "rate": 3.6
+            },
+            {
+              "enemy_id": "enemy_zombie",
+              "rate": 2.1
+            },
+            {
+              "enemy_id": "enemy_crypt_bat",
+              "rate": 1.3
+            },
+            {
+              "enemy_id": "elite_bone_knight",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_grave_priest",
+              "rate": 0.5
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "boss_bone_lord",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_swamp_1",
+      "display_name": "腐沼疫地 波次1",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 0.7
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 1.1
+            },
+            {
+              "enemy_id": "enemy_maggot_swarm",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_plague_cantor",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 1.6
+            },
+            {
+              "enemy_id": "enemy_maggot_swarm",
+              "rate": 0.9
+            },
+            {
+              "enemy_id": "enemy_swamp_wasp",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_plague_cantor",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 2.3
+            },
+            {
+              "enemy_id": "enemy_maggot_swarm",
+              "rate": 1.3
+            },
+            {
+              "enemy_id": "enemy_swamp_wasp",
+              "rate": 0.8
+            },
+            {
+              "enemy_id": "elite_plague_cantor",
+              "rate": 0.4
+            },
+            {
+              "enemy_id": "elite_brood_hatcher",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 3
+            },
+            {
+              "enemy_id": "enemy_maggot_swarm",
+              "rate": 1.8
+            },
+            {
+              "enemy_id": "enemy_swamp_wasp",
+              "rate": 1.1
+            },
+            {
+              "enemy_id": "elite_plague_cantor",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_brood_hatcher",
+              "rate": 0.4
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "boss_brood_mother",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_swamp_2",
+      "display_name": "腐沼疫地 波次2",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 0.8
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 1.3
+            },
+            {
+              "enemy_id": "enemy_maggot_swarm",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_plague_cantor",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 1.8
+            },
+            {
+              "enemy_id": "enemy_maggot_swarm",
+              "rate": 1
+            },
+            {
+              "enemy_id": "enemy_swamp_wasp",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_plague_cantor",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 2.5
+            },
+            {
+              "enemy_id": "enemy_maggot_swarm",
+              "rate": 1.4
+            },
+            {
+              "enemy_id": "enemy_swamp_wasp",
+              "rate": 0.8
+            },
+            {
+              "enemy_id": "elite_plague_cantor",
+              "rate": 0.4
+            },
+            {
+              "enemy_id": "elite_brood_hatcher",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 3.4
+            },
+            {
+              "enemy_id": "enemy_maggot_swarm",
+              "rate": 2
+            },
+            {
+              "enemy_id": "enemy_swamp_wasp",
+              "rate": 1.3
+            },
+            {
+              "enemy_id": "elite_plague_cantor",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_brood_hatcher",
+              "rate": 0.5
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "boss_brood_mother",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_swamp_3",
+      "display_name": "腐沼疫地 波次3",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 0.8
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 1.4
+            },
+            {
+              "enemy_id": "enemy_maggot_swarm",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_plague_cantor",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 2
+            },
+            {
+              "enemy_id": "enemy_maggot_swarm",
+              "rate": 1.1
+            },
+            {
+              "enemy_id": "enemy_swamp_wasp",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_plague_cantor",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 2.8
+            },
+            {
+              "enemy_id": "enemy_maggot_swarm",
+              "rate": 1.6
+            },
+            {
+              "enemy_id": "enemy_swamp_wasp",
+              "rate": 0.9
+            },
+            {
+              "enemy_id": "elite_plague_cantor",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_brood_hatcher",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 3.7
+            },
+            {
+              "enemy_id": "enemy_maggot_swarm",
+              "rate": 2.2
+            },
+            {
+              "enemy_id": "enemy_swamp_wasp",
+              "rate": 1.4
+            },
+            {
+              "enemy_id": "elite_plague_cantor",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_brood_hatcher",
+              "rate": 0.5
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "boss_brood_mother",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_swamp_4",
+      "display_name": "腐沼疫地 波次4",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 0.8
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 1.5
+            },
+            {
+              "enemy_id": "enemy_maggot_swarm",
+              "rate": 0.7
+            },
+            {
+              "enemy_id": "elite_plague_cantor",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 2.2
+            },
+            {
+              "enemy_id": "enemy_maggot_swarm",
+              "rate": 1.2
+            },
+            {
+              "enemy_id": "enemy_swamp_wasp",
+              "rate": 0.7
+            },
+            {
+              "enemy_id": "elite_plague_cantor",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 3.1
+            },
+            {
+              "enemy_id": "enemy_maggot_swarm",
+              "rate": 1.7
+            },
+            {
+              "enemy_id": "enemy_swamp_wasp",
+              "rate": 1
+            },
+            {
+              "enemy_id": "elite_plague_cantor",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_brood_hatcher",
+              "rate": 0.4
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_plague_walker",
+              "rate": 4.1
+            },
+            {
+              "enemy_id": "enemy_maggot_swarm",
+              "rate": 2.4
+            },
+            {
+              "enemy_id": "enemy_swamp_wasp",
+              "rate": 1.5
+            },
+            {
+              "enemy_id": "elite_plague_cantor",
+              "rate": 0.7
+            },
+            {
+              "enemy_id": "elite_brood_hatcher",
+              "rate": 0.6
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "boss_brood_mother",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_forge_1",
+      "display_name": "熔火深渊 波次1",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 0.8
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 1.3
+            },
+            {
+              "enemy_id": "enemy_lava_thrall",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_forgemaster",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 1.9
+            },
+            {
+              "enemy_id": "enemy_lava_thrall",
+              "rate": 1
+            },
+            {
+              "enemy_id": "enemy_fire_bat",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_forgemaster",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 2.6
+            },
+            {
+              "enemy_id": "enemy_lava_thrall",
+              "rate": 1.5
+            },
+            {
+              "enemy_id": "enemy_fire_bat",
+              "rate": 0.9
+            },
+            {
+              "enemy_id": "elite_forgemaster",
+              "rate": 0.4
+            },
+            {
+              "enemy_id": "elite_pyre_guardian",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 3.5
+            },
+            {
+              "enemy_id": "enemy_lava_thrall",
+              "rate": 2
+            },
+            {
+              "enemy_id": "enemy_fire_bat",
+              "rate": 1.3
+            },
+            {
+              "enemy_id": "elite_forgemaster",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_pyre_guardian",
+              "rate": 0.5
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "boss_ember_lord",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_forge_2",
+      "display_name": "熔火深渊 波次2",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 0.8
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 1.5
+            },
+            {
+              "enemy_id": "enemy_lava_thrall",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_forgemaster",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 2.1
+            },
+            {
+              "enemy_id": "enemy_lava_thrall",
+              "rate": 1.1
+            },
+            {
+              "enemy_id": "enemy_fire_bat",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_forgemaster",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 2.9
+            },
+            {
+              "enemy_id": "enemy_lava_thrall",
+              "rate": 1.6
+            },
+            {
+              "enemy_id": "enemy_fire_bat",
+              "rate": 1
+            },
+            {
+              "enemy_id": "elite_forgemaster",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_pyre_guardian",
+              "rate": 0.4
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 3.9
+            },
+            {
+              "enemy_id": "enemy_lava_thrall",
+              "rate": 2.3
+            },
+            {
+              "enemy_id": "enemy_fire_bat",
+              "rate": 1.5
+            },
+            {
+              "enemy_id": "elite_forgemaster",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_pyre_guardian",
+              "rate": 0.6
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "boss_ember_lord",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_forge_3",
+      "display_name": "熔火深渊 波次3",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 0.8
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 1.6
+            },
+            {
+              "enemy_id": "enemy_lava_thrall",
+              "rate": 0.7
+            },
+            {
+              "enemy_id": "elite_forgemaster",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 2.3
+            },
+            {
+              "enemy_id": "enemy_lava_thrall",
+              "rate": 1.3
+            },
+            {
+              "enemy_id": "enemy_fire_bat",
+              "rate": 0.7
+            },
+            {
+              "enemy_id": "elite_forgemaster",
+              "rate": 0.4
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 3.2
+            },
+            {
+              "enemy_id": "enemy_lava_thrall",
+              "rate": 1.8
+            },
+            {
+              "enemy_id": "enemy_fire_bat",
+              "rate": 1.1
+            },
+            {
+              "enemy_id": "elite_forgemaster",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_pyre_guardian",
+              "rate": 0.4
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 4.3
+            },
+            {
+              "enemy_id": "enemy_lava_thrall",
+              "rate": 2.5
+            },
+            {
+              "enemy_id": "enemy_fire_bat",
+              "rate": 1.6
+            },
+            {
+              "enemy_id": "elite_forgemaster",
+              "rate": 0.7
+            },
+            {
+              "enemy_id": "elite_pyre_guardian",
+              "rate": 0.6
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "boss_ember_lord",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_forge_4",
+      "display_name": "熔火深渊 波次4",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 0.8
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 1.8
+            },
+            {
+              "enemy_id": "enemy_lava_thrall",
+              "rate": 0.8
+            },
+            {
+              "enemy_id": "elite_forgemaster",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 2.6
+            },
+            {
+              "enemy_id": "enemy_lava_thrall",
+              "rate": 1.4
+            },
+            {
+              "enemy_id": "enemy_fire_bat",
+              "rate": 0.8
+            },
+            {
+              "enemy_id": "elite_forgemaster",
+              "rate": 0.4
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 3.5
+            },
+            {
+              "enemy_id": "enemy_lava_thrall",
+              "rate": 2
+            },
+            {
+              "enemy_id": "enemy_fire_bat",
+              "rate": 1.2
+            },
+            {
+              "enemy_id": "elite_forgemaster",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_pyre_guardian",
+              "rate": 0.4
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_ember_fiend",
+              "rate": 4.7
+            },
+            {
+              "enemy_id": "enemy_lava_thrall",
+              "rate": 2.8
+            },
+            {
+              "enemy_id": "enemy_fire_bat",
+              "rate": 1.8
+            },
+            {
+              "enemy_id": "elite_forgemaster",
+              "rate": 0.8
+            },
+            {
+              "enemy_id": "elite_pyre_guardian",
+              "rate": 0.7
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "boss_ember_lord",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_ice_1",
+      "display_name": "冰封王座 波次1",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_frost_wraith",
+              "rate": 0.8
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_frost_wraith",
+              "rate": 1.5
+            },
+            {
+              "enemy_id": "enemy_frost_wolf",
+              "rate": 0.7
+            },
+            {
+              "enemy_id": "elite_frost_priest",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_frost_wraith",
+              "rate": 2.2
+            },
+            {
+              "enemy_id": "enemy_frost_wolf",
+              "rate": 1.2
+            },
+            {
+              "enemy_id": "enemy_ice_golem_lesser",
+              "rate": 0.7
+            },
+            {
+              "enemy_id": "elite_frost_priest",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_frost_wraith",
+              "rate": 3.1
+            },
+            {
+              "enemy_id": "enemy_frost_wolf",
+              "rate": 1.7
+            },
+            {
+              "enemy_id": "enemy_ice_golem_lesser",
+              "rate": 1
+            },
+            {
+              "enemy_id": "elite_frost_priest",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_frozen_knight",
+              "rate": 0.4
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_frost_wraith",
+              "rate": 4.1
+            },
+            {
+              "enemy_id": "enemy_frost_wolf",
+              "rate": 2.4
+            },
+            {
+              "enemy_id": "enemy_ice_golem_lesser",
+              "rate": 1.5
+            },
+            {
+              "enemy_id": "elite_frost_priest",
+              "rate": 0.7
+            },
+            {
+              "enemy_id": "elite_frozen_knight",
+              "rate": 0.6
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "boss_frost_lich",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_ice_2",
+      "display_name": "冰封王座 波次2",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_frost_wraith",
+              "rate": 0.8
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_frost_wraith",
+              "rate": 1.7
+            },
+            {
+              "enemy_id": "enemy_frost_wolf",
+              "rate": 0.8
+            },
+            {
+              "enemy_id": "elite_frost_priest",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_frost_wraith",
+              "rate": 2.5
+            },
+            {
+              "enemy_id": "enemy_frost_wolf",
+              "rate": 1.3
+            },
+            {
+              "enemy_id": "enemy_ice_golem_lesser",
+              "rate": 0.8
+            },
+            {
+              "enemy_id": "elite_frost_priest",
+              "rate": 0.4
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_frost_wraith",
+              "rate": 3.4
+            },
+            {
+              "enemy_id": "enemy_frost_wolf",
+              "rate": 1.9
+            },
+            {
+              "enemy_id": "enemy_ice_golem_lesser",
+              "rate": 1.1
+            },
+            {
+              "enemy_id": "elite_frost_priest",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_frozen_knight",
+              "rate": 0.4
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_frost_wraith",
+              "rate": 4.6
+            },
+            {
+              "enemy_id": "enemy_frost_wolf",
+              "rate": 2.7
+            },
+            {
+              "enemy_id": "enemy_ice_golem_lesser",
+              "rate": 1.7
+            },
+            {
+              "enemy_id": "elite_frost_priest",
+              "rate": 0.8
+            },
+            {
+              "enemy_id": "elite_frozen_knight",
+              "rate": 0.7
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "boss_frost_lich",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_ice_3",
+      "display_name": "冰封王座 波次3",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_frost_wraith",
+              "rate": 0.8
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_frost_wraith",
+              "rate": 1.9
+            },
+            {
+              "enemy_id": "enemy_frost_wolf",
+              "rate": 0.8
+            },
+            {
+              "enemy_id": "elite_frost_priest",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_frost_wraith",
+              "rate": 2.7
+            },
+            {
+              "enemy_id": "enemy_frost_wolf",
+              "rate": 1.5
+            },
+            {
+              "enemy_id": "enemy_ice_golem_lesser",
+              "rate": 0.8
+            },
+            {
+              "enemy_id": "elite_frost_priest",
+              "rate": 0.4
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_frost_wraith",
+              "rate": 3.8
+            },
+            {
+              "enemy_id": "enemy_frost_wolf",
+              "rate": 2.1
+            },
+            {
+              "enemy_id": "enemy_ice_golem_lesser",
+              "rate": 1.3
+            },
+            {
+              "enemy_id": "elite_frost_priest",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_frozen_knight",
+              "rate": 0.5
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_frost_wraith",
+              "rate": 5.1
+            },
+            {
+              "enemy_id": "enemy_frost_wolf",
+              "rate": 3
+            },
+            {
+              "enemy_id": "enemy_ice_golem_lesser",
+              "rate": 1.9
+            },
+            {
+              "enemy_id": "elite_frost_priest",
+              "rate": 0.8
+            },
+            {
+              "enemy_id": "elite_frozen_knight",
+              "rate": 0.7
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "boss_frost_lich",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_void_1",
+      "display_name": "虚空裂隙 波次1",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_void_crawler",
+              "rate": 0.8
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_void_crawler",
+              "rate": 1.8
+            },
+            {
+              "enemy_id": "enemy_shadow_shard",
+              "rate": 0.8
+            },
+            {
+              "enemy_id": "elite_void_ritualist",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_void_crawler",
+              "rate": 2.6
+            },
+            {
+              "enemy_id": "enemy_shadow_shard",
+              "rate": 1.4
+            },
+            {
+              "enemy_id": "enemy_chaos_eye",
+              "rate": 0.8
+            },
+            {
+              "enemy_id": "elite_void_ritualist",
+              "rate": 0.4
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_void_crawler",
+              "rate": 3.6
+            },
+            {
+              "enemy_id": "enemy_shadow_shard",
+              "rate": 2
+            },
+            {
+              "enemy_id": "enemy_chaos_eye",
+              "rate": 1.2
+            },
+            {
+              "enemy_id": "elite_void_ritualist",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_riftbreaker",
+              "rate": 0.4
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_void_crawler",
+              "rate": 4.8
+            },
+            {
+              "enemy_id": "enemy_shadow_shard",
+              "rate": 2.8
+            },
+            {
+              "enemy_id": "enemy_chaos_eye",
+              "rate": 1.8
+            },
+            {
+              "enemy_id": "elite_void_ritualist",
+              "rate": 0.8
+            },
+            {
+              "enemy_id": "elite_riftbreaker",
+              "rate": 0.7
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "boss_void_child",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_void_2",
+      "display_name": "虚空裂隙 波次2",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_void_crawler",
+              "rate": 0.8
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_void_crawler",
+              "rate": 2
+            },
+            {
+              "enemy_id": "enemy_shadow_shard",
+              "rate": 0.9
+            },
+            {
+              "enemy_id": "elite_void_ritualist",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_void_crawler",
+              "rate": 2.9
+            },
+            {
+              "enemy_id": "enemy_shadow_shard",
+              "rate": 1.6
+            },
+            {
+              "enemy_id": "enemy_chaos_eye",
+              "rate": 0.9
+            },
+            {
+              "enemy_id": "elite_void_ritualist",
+              "rate": 0.4
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_void_crawler",
+              "rate": 4
+            },
+            {
+              "enemy_id": "enemy_shadow_shard",
+              "rate": 2.2
+            },
+            {
+              "enemy_id": "enemy_chaos_eye",
+              "rate": 1.3
+            },
+            {
+              "enemy_id": "elite_void_ritualist",
+              "rate": 0.7
+            },
+            {
+              "enemy_id": "elite_riftbreaker",
+              "rate": 0.5
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_void_crawler",
+              "rate": 5.4
+            },
+            {
+              "enemy_id": "enemy_shadow_shard",
+              "rate": 3.1
+            },
+            {
+              "enemy_id": "enemy_chaos_eye",
+              "rate": 2
+            },
+            {
+              "enemy_id": "elite_void_ritualist",
+              "rate": 0.9
+            },
+            {
+              "enemy_id": "elite_riftbreaker",
+              "rate": 0.8
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "boss_void_child",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_field_1",
+      "display_name": "野外荒原 波次1",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_corrupted_wolf",
+              "rate": 0.6
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_corrupted_wolf",
+              "rate": 1
+            },
+            {
+              "enemy_id": "enemy_wasteland_bandit",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_cult_scout",
+              "rate": 0.1
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_corrupted_wolf",
+              "rate": 1.5
+            },
+            {
+              "enemy_id": "enemy_wasteland_bandit",
+              "rate": 0.8
+            },
+            {
+              "enemy_id": "enemy_wandering_corpse",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_cult_scout",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_corrupted_wolf",
+              "rate": 2.1
+            },
+            {
+              "enemy_id": "enemy_wasteland_bandit",
+              "rate": 1.2
+            },
+            {
+              "enemy_id": "enemy_wandering_corpse",
+              "rate": 0.7
+            },
+            {
+              "enemy_id": "elite_cult_scout",
+              "rate": 0.3
+            },
+            {
+              "enemy_id": "elite_mutant_bear",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_corrupted_wolf",
+              "rate": 2.8
+            },
+            {
+              "enemy_id": "enemy_wasteland_bandit",
+              "rate": 1.6
+            },
+            {
+              "enemy_id": "enemy_wandering_corpse",
+              "rate": 1
+            },
+            {
+              "enemy_id": "elite_cult_scout",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_mutant_bear",
+              "rate": 0.4
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "field_boss_wasteland_warlord",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_field_2",
+      "display_name": "野外荒原 波次2",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_corrupted_wolf",
+              "rate": 0.7
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_corrupted_wolf",
+              "rate": 1.2
+            },
+            {
+              "enemy_id": "enemy_wasteland_bandit",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_cult_scout",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_corrupted_wolf",
+              "rate": 1.7
+            },
+            {
+              "enemy_id": "enemy_wasteland_bandit",
+              "rate": 0.9
+            },
+            {
+              "enemy_id": "enemy_wandering_corpse",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_cult_scout",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_corrupted_wolf",
+              "rate": 2.3
+            },
+            {
+              "enemy_id": "enemy_wasteland_bandit",
+              "rate": 1.3
+            },
+            {
+              "enemy_id": "enemy_wandering_corpse",
+              "rate": 0.8
+            },
+            {
+              "enemy_id": "elite_cult_scout",
+              "rate": 0.4
+            },
+            {
+              "enemy_id": "elite_mutant_bear",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_corrupted_wolf",
+              "rate": 3.1
+            },
+            {
+              "enemy_id": "enemy_wasteland_bandit",
+              "rate": 1.8
+            },
+            {
+              "enemy_id": "enemy_wandering_corpse",
+              "rate": 1.2
+            },
+            {
+              "enemy_id": "elite_cult_scout",
+              "rate": 0.5
+            },
+            {
+              "enemy_id": "elite_mutant_bear",
+              "rate": 0.5
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "field_boss_wasteland_warlord",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveset_field_3",
+      "display_name": "野外荒原 波次3",
+      "waves": [
+        {
+          "start_time": 0,
+          "end_time": 30,
+          "spawns": [
+            {
+              "enemy_id": "enemy_corrupted_wolf",
+              "rate": 0.8
+            }
+          ]
+        },
+        {
+          "start_time": 30,
+          "end_time": 75,
+          "spawns": [
+            {
+              "enemy_id": "enemy_corrupted_wolf",
+              "rate": 1.3
+            },
+            {
+              "enemy_id": "enemy_wasteland_bandit",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_cult_scout",
+              "rate": 0.2
+            }
+          ]
+        },
+        {
+          "start_time": 75,
+          "end_time": 120,
+          "spawns": [
+            {
+              "enemy_id": "enemy_corrupted_wolf",
+              "rate": 1.9
+            },
+            {
+              "enemy_id": "enemy_wasteland_bandit",
+              "rate": 1
+            },
+            {
+              "enemy_id": "enemy_wandering_corpse",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_cult_scout",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 120,
+          "end_time": 180,
+          "spawns": [
+            {
+              "enemy_id": "enemy_corrupted_wolf",
+              "rate": 2.6
+            },
+            {
+              "enemy_id": "enemy_wasteland_bandit",
+              "rate": 1.4
+            },
+            {
+              "enemy_id": "enemy_wandering_corpse",
+              "rate": 0.9
+            },
+            {
+              "enemy_id": "elite_cult_scout",
+              "rate": 0.4
+            },
+            {
+              "enemy_id": "elite_mutant_bear",
+              "rate": 0.3
+            }
+          ]
+        },
+        {
+          "start_time": 180,
+          "end_time": 240,
+          "spawns": [
+            {
+              "enemy_id": "enemy_corrupted_wolf",
+              "rate": 3.4
+            },
+            {
+              "enemy_id": "enemy_wasteland_bandit",
+              "rate": 2
+            },
+            {
+              "enemy_id": "enemy_wandering_corpse",
+              "rate": 1.3
+            },
+            {
+              "enemy_id": "elite_cult_scout",
+              "rate": 0.6
+            },
+            {
+              "enemy_id": "elite_mutant_bear",
+              "rate": 0.5
+            }
+          ]
+        },
+        {
+          "start_time": 240,
+          "end_time": 250,
+          "spawns": [
+            {
+              "enemy_id": "field_boss_wasteland_warlord",
+              "count": 1,
+              "burst": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2548 @@
+{
+  "version": "3.0.0",
+  "items": [
+    {
+      "id": "weapon_rusted_bone_cleaver_common",
+      "display_name": "锈蚀骨刀",
+      "slot": "weapon",
+      "category": "sword",
+      "rarity": "common",
+      "tags": [
+        "melee",
+        "physical",
+        "undead"
+      ],
+      "base_stats": {
+        "damage": 10,
+        "attack_speed": 1,
+        "crit_chance": 0.05
+      },
+      "affix_slots": 0,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "drop_level": 1,
+      "design_note": "枯骨王陵最常见的起步武器，由墓穴守卫的残骸打磨而成。纯基础属性，构筑起点。mult=1.0。"
+    },
+    {
+      "id": "weapon_grave_scythe_rare",
+      "display_name": "墓园镰刀",
+      "slot": "weapon",
+      "category": "scythe",
+      "rarity": "rare",
+      "tags": [
+        "melee",
+        "physical",
+        "undead"
+      ],
+      "base_stats": {
+        "damage": 20,
+        "attack_speed": 1.1,
+        "crit_chance": 0.08
+      },
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_grave_strength"
+      ],
+      "set_id": "",
+      "vfx_level": 1,
+      "drop_level": 2,
+      "design_note": "收割亡魂的镰刀，固定带尸骸之力强化亡灵流输出。damage=12*1.4*1.18≈20。"
+    },
+    {
+      "id": "weapon_bone_maul_epic",
+      "display_name": "枯骨巨锤",
+      "slot": "weapon",
+      "category": "mace",
+      "rarity": "epic",
+      "tags": [
+        "melee",
+        "physical",
+        "undead",
+        "control"
+      ],
+      "base_stats": {
+        "damage": 27,
+        "attack_speed": 0.85,
+        "crit_chance": 0.06
+      },
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_grave_chill"
+      ],
+      "set_id": "",
+      "vfx_level": 2,
+      "drop_level": 2,
+      "design_note": "慢速重击巨锤，固定墓冢恐惧附带控制。非套装紫装，set_id留空。damage=12*1.9*1.18≈27。"
+    },
+    {
+      "id": "weapon_bone_king_soul_scepter_legendary",
+      "display_name": "白骨君王·噬魂权杖",
+      "slot": "weapon",
+      "category": "scepter",
+      "rarity": "legendary",
+      "tags": [
+        "melee",
+        "physical",
+        "undead",
+        "lifesteal",
+        "set"
+      ],
+      "base_stats": {
+        "damage": 37,
+        "attack_speed": 1,
+        "crit_chance": 0.1
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_undying_thirst"
+      ],
+      "set_id": "set_bone",
+      "vfx_level": 3,
+      "drop_level": 2,
+      "design_note": "白骨君王套装核心武器，固定不朽渴血定义亡灵吸血流。damage=12*2.6*1.18≈37。"
+    },
+    {
+      "id": "helmet_bone_skullcap_common",
+      "display_name": "骸骨头盔",
+      "slot": "helmet",
+      "category": "bone",
+      "rarity": "common",
+      "tags": [
+        "defense",
+        "undead"
+      ],
+      "base_stats": {
+        "armor": 4,
+        "max_hp": 14
+      },
+      "affix_slots": 0,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "drop_level": 1,
+      "design_note": "拼接颅骨而成的基础头盔，提供少量防御。mult=1.0。"
+    },
+    {
+      "id": "helmet_grave_visage_rare",
+      "display_name": "亡者面甲",
+      "slot": "helmet",
+      "category": "bone",
+      "rarity": "rare",
+      "tags": [
+        "defense",
+        "undead"
+      ],
+      "base_stats": {
+        "armor": 7,
+        "max_hp": 23
+      },
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_bone_armor"
+      ],
+      "set_id": "",
+      "vfx_level": 1,
+      "drop_level": 2,
+      "design_note": "亡者的面甲，固定骸骨壁垒提升坦度。armor=4*1.4*1.18≈7,max_hp=14*1.4*1.18≈23。"
+    },
+    {
+      "id": "helmet_bone_king_crown_legendary",
+      "display_name": "白骨君王·王者颅冠",
+      "slot": "helmet",
+      "category": "bone",
+      "rarity": "legendary",
+      "tags": [
+        "defense",
+        "undead",
+        "summon",
+        "set"
+      ],
+      "base_stats": {
+        "armor": 12,
+        "max_hp": 43
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_skeletal_call"
+      ],
+      "set_id": "set_bone",
+      "vfx_level": 3,
+      "drop_level": 2,
+      "design_note": "白骨君王套装头部，固定亡灵召唤强化召唤流派。armor=4*2.6*1.18≈12,max_hp=14*2.6*1.18≈43。"
+    },
+    {
+      "id": "chest_tattered_shroud_common",
+      "display_name": "褴褛裹尸布",
+      "slot": "chest",
+      "category": "cloth",
+      "rarity": "common",
+      "tags": [
+        "defense",
+        "undead"
+      ],
+      "base_stats": {
+        "armor": 8,
+        "max_hp": 28
+      },
+      "affix_slots": 0,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "drop_level": 1,
+      "design_note": "从陵墓尸体上扒下的裹尸布，最基础的胸甲。mult=1.0。"
+    },
+    {
+      "id": "chest_bonemail_rare",
+      "display_name": "骸骨锁甲",
+      "slot": "chest",
+      "category": "plate",
+      "rarity": "rare",
+      "tags": [
+        "defense",
+        "undead",
+        "heavy"
+      ],
+      "base_stats": {
+        "armor": 13,
+        "max_hp": 46
+      },
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_vitality"
+      ],
+      "set_id": "",
+      "vfx_level": 1,
+      "drop_level": 2,
+      "design_note": "骨片编织的锁甲，固定坚韧增加血量。armor=8*1.4*1.18≈13,max_hp=28*1.4*1.18≈46。"
+    },
+    {
+      "id": "chest_revenant_plate_epic",
+      "display_name": "亡魂胸甲",
+      "slot": "chest",
+      "category": "plate",
+      "rarity": "epic",
+      "tags": [
+        "defense",
+        "undead",
+        "heavy"
+      ],
+      "base_stats": {
+        "armor": 18,
+        "max_hp": 63,
+        "move_speed": -0.05
+      },
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_bone_armor"
+      ],
+      "set_id": "",
+      "vfx_level": 2,
+      "drop_level": 2,
+      "design_note": "亡魂附身的重甲，高坦度但略降移速。非套装紫装，set_id留空。armor=8*1.9*1.18≈18。"
+    },
+    {
+      "id": "chest_bone_king_cuirass_legendary",
+      "display_name": "白骨君王·不朽胸甲",
+      "slot": "chest",
+      "category": "plate",
+      "rarity": "legendary",
+      "tags": [
+        "defense",
+        "undead",
+        "set"
+      ],
+      "base_stats": {
+        "armor": 25,
+        "max_hp": 86
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_grave_strength"
+      ],
+      "set_id": "set_bone",
+      "vfx_level": 3,
+      "drop_level": 2,
+      "design_note": "白骨君王套装核心胸甲，固定尸骸之力。armor=8*2.6*1.18≈25,max_hp=28*2.6*1.18≈86。"
+    },
+    {
+      "id": "legs_bone_greaves_common",
+      "display_name": "骨片护腿",
+      "slot": "legs",
+      "category": "bone",
+      "rarity": "common",
+      "tags": [
+        "defense",
+        "undead"
+      ],
+      "base_stats": {
+        "armor": 6,
+        "max_hp": 20
+      },
+      "affix_slots": 0,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "drop_level": 1,
+      "design_note": "捆扎的骨片护腿，基础腿甲。mult=1.0。"
+    },
+    {
+      "id": "legs_crypt_legguards_rare",
+      "display_name": "陵墓胫甲",
+      "slot": "legs",
+      "category": "plate",
+      "rarity": "rare",
+      "tags": [
+        "defense",
+        "undead"
+      ],
+      "base_stats": {
+        "armor": 10,
+        "max_hp": 33
+      },
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_vitality"
+      ],
+      "set_id": "",
+      "vfx_level": 1,
+      "drop_level": 2,
+      "design_note": "陵墓守卫的胫甲，固定坚韧。armor=6*1.4*1.18≈10,max_hp=20*1.4*1.18≈33。"
+    },
+    {
+      "id": "legs_bone_king_legplates_legendary",
+      "display_name": "白骨君王·枯荣腿铠",
+      "slot": "legs",
+      "category": "plate",
+      "rarity": "legendary",
+      "tags": [
+        "defense",
+        "undead",
+        "set"
+      ],
+      "base_stats": {
+        "armor": 18,
+        "max_hp": 61
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_bone_armor"
+      ],
+      "set_id": "set_bone",
+      "vfx_level": 3,
+      "drop_level": 2,
+      "design_note": "白骨君王套装腿部，固定骸骨壁垒。armor=6*2.6*1.18≈18,max_hp=20*2.6*1.18≈61。"
+    },
+    {
+      "id": "boots_bone_sandals_common",
+      "display_name": "骨履",
+      "slot": "boots",
+      "category": "bone",
+      "rarity": "common",
+      "tags": [
+        "defense",
+        "undead"
+      ],
+      "base_stats": {
+        "armor": 3,
+        "max_hp": 10,
+        "move_speed": 0.1
+      },
+      "affix_slots": 0,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "drop_level": 1,
+      "design_note": "骨片绑成的简陋鞋履，提供基础移速。mult=1.0。"
+    },
+    {
+      "id": "boots_graveward_treads_rare",
+      "display_name": "守墓人长靴",
+      "slot": "boots",
+      "category": "leather",
+      "rarity": "rare",
+      "tags": [
+        "defense",
+        "undead",
+        "speed"
+      ],
+      "base_stats": {
+        "armor": 5,
+        "max_hp": 17,
+        "move_speed": 0.13
+      },
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_hp_regen"
+      ],
+      "set_id": "",
+      "vfx_level": 1,
+      "drop_level": 2,
+      "design_note": "守墓人的长靴，固定再生提供续航。armor=3*1.4*1.18≈5,max_hp=10*1.4*1.18≈17。"
+    },
+    {
+      "id": "boots_bone_king_striders_legendary",
+      "display_name": "白骨君王·尸行战靴",
+      "slot": "boots",
+      "category": "leather",
+      "rarity": "legendary",
+      "tags": [
+        "defense",
+        "undead",
+        "control",
+        "set"
+      ],
+      "base_stats": {
+        "armor": 9,
+        "max_hp": 31,
+        "move_speed": 0.16
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_grave_chill"
+      ],
+      "set_id": "set_bone",
+      "vfx_level": 3,
+      "drop_level": 2,
+      "design_note": "白骨君王套装战靴，固定墓冢恐惧附带控制。armor=3*2.6*1.18≈9,max_hp=10*2.6*1.18≈31。"
+    },
+    {
+      "id": "gloves_bone_gauntlets_common",
+      "display_name": "骨爪手套",
+      "slot": "gloves",
+      "category": "bone",
+      "rarity": "common",
+      "tags": [
+        "defense",
+        "undead"
+      ],
+      "base_stats": {
+        "armor": 2,
+        "max_hp": 8,
+        "attack_speed": 0.05
+      },
+      "affix_slots": 0,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "drop_level": 1,
+      "design_note": "骨爪改制的手套，附带微弱攻速。mult=1.0。"
+    },
+    {
+      "id": "gloves_grasping_grips_rare",
+      "display_name": "亡握手甲",
+      "slot": "gloves",
+      "category": "leather",
+      "rarity": "rare",
+      "tags": [
+        "defense",
+        "undead",
+        "speed"
+      ],
+      "base_stats": {
+        "armor": 3,
+        "max_hp": 13,
+        "attack_speed": 0.08
+      },
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_attack_speed"
+      ],
+      "set_id": "",
+      "vfx_level": 1,
+      "drop_level": 2,
+      "design_note": "亡者之握手甲，固定迅捷强化攻速流。armor=2*1.4*1.18≈3,max_hp=8*1.4*1.18≈13。"
+    },
+    {
+      "id": "gloves_bone_king_grips_legendary",
+      "display_name": "白骨君王·噬血之握",
+      "slot": "gloves",
+      "category": "leather",
+      "rarity": "legendary",
+      "tags": [
+        "defense",
+        "undead",
+        "lifesteal",
+        "set"
+      ],
+      "base_stats": {
+        "armor": 6,
+        "max_hp": 25,
+        "attack_speed": 0.12
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_undying_thirst"
+      ],
+      "set_id": "set_bone",
+      "vfx_level": 3,
+      "drop_level": 2,
+      "design_note": "白骨君王套装手部，固定不朽渴血强化吸血流。armor=2*2.6*1.18≈6,max_hp=8*2.6*1.18≈25。"
+    },
+    {
+      "id": "ring_bone_band_common",
+      "display_name": "骨指环",
+      "slot": "ring",
+      "category": "ring",
+      "rarity": "common",
+      "tags": [
+        "accessory",
+        "undead"
+      ],
+      "base_stats": {
+        "crit_chance": 0.04
+      },
+      "affix_slots": 0,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "drop_level": 1,
+      "design_note": "雕骨而成的指环，提供少量暴击。戒指无套装件。mult=1.0。"
+    },
+    {
+      "id": "ring_grave_signet_rare",
+      "display_name": "墓主印戒",
+      "slot": "ring",
+      "category": "ring",
+      "rarity": "rare",
+      "tags": [
+        "accessory",
+        "undead",
+        "lifesteal"
+      ],
+      "base_stats": {
+        "crit_chance": 0.06,
+        "max_hp": 10
+      },
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_lifesteal"
+      ],
+      "set_id": "",
+      "vfx_level": 1,
+      "drop_level": 2,
+      "design_note": "墓主的印戒，固定嗜血提供续航。crit=0.04*1.4≈0.06,max_hp=6*1.4*1.18≈10。"
+    },
+    {
+      "id": "amulet_bone_charm_common",
+      "display_name": "骨质护符",
+      "slot": "amulet",
+      "category": "amulet",
+      "rarity": "common",
+      "tags": [
+        "accessory",
+        "undead"
+      ],
+      "base_stats": {
+        "max_hp": 18
+      },
+      "affix_slots": 0,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "drop_level": 1,
+      "design_note": "刻满符文的骨片护符，提供基础生命。项链无套装件。mult=1.0。"
+    },
+    {
+      "id": "amulet_lich_phylactery_epic",
+      "display_name": "巫妖魂瓶",
+      "slot": "amulet",
+      "category": "amulet",
+      "rarity": "epic",
+      "tags": [
+        "accessory",
+        "undead",
+        "lifesteal",
+        "sustain"
+      ],
+      "base_stats": {
+        "max_hp": 40,
+        "hp_regen": 3
+      },
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_undying_thirst"
+      ],
+      "set_id": "",
+      "vfx_level": 2,
+      "drop_level": 2,
+      "design_note": "封存灵魂的巫妖魂瓶，固定不朽渴血。非套装紫装，set_id留空。max_hp=18*1.9*1.18≈40。"
+    },
+    {
+      "id": "weapon_mire_rare",
+      "display_name": "沼泽淬毒匕首",
+      "slot": "weapon",
+      "category": "dagger",
+      "rarity": "rare",
+      "base_stats": {
+        "damage": 50,
+        "attack_speed": 10.4,
+        "crit_chance": 7.6
+      },
+      "drop_level": 3,
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_attack_speed"
+      ],
+      "set_id": "",
+      "vfx_level": 1,
+      "tags": [
+        "generic",
+        "swamp"
+      ],
+      "design_note": "拾荒者在腐沼边缘淬毒打磨的轻刃，主打高攻速触发DoT。"
+    },
+    {
+      "id": "weapon_plague_epic",
+      "display_name": "疫疠收割之镰",
+      "slot": "weapon",
+      "category": "scythe",
+      "rarity": "epic",
+      "base_stats": {
+        "damage": 68,
+        "attack_speed": 13.4,
+        "crit_chance": 9.6
+      },
+      "drop_level": 3,
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_virulence"
+      ],
+      "set_id": "",
+      "vfx_level": 2,
+      "tags": [
+        "poison",
+        "dot",
+        "swamp"
+      ],
+      "design_note": "堕落教团瘟疫祭司的收割镰，命中叠加恶疾层数。"
+    },
+    {
+      "id": "helmet_scavenger_common",
+      "display_name": "拾荒者兜帽",
+      "slot": "helmet",
+      "category": "hood",
+      "rarity": "common",
+      "base_stats": {
+        "armor": 16,
+        "max_hp": 36
+      },
+      "drop_level": 2,
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "tags": [
+        "generic",
+        "swamp"
+      ],
+      "design_note": "粗布缝制的廉价兜帽，腐沼新手的标配。"
+    },
+    {
+      "id": "helmet_miasma_rare",
+      "display_name": "瘴气滤罩",
+      "slot": "helmet",
+      "category": "mask",
+      "rarity": "rare",
+      "base_stats": {
+        "armor": 22,
+        "max_hp": 50
+      },
+      "drop_level": 2,
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_vitality"
+      ],
+      "set_id": "",
+      "vfx_level": 1,
+      "tags": [
+        "poison",
+        "swamp"
+      ],
+      "design_note": "过滤毒雾的兽骨面罩，增强在疫地的生存力。"
+    },
+    {
+      "id": "chest_boghide_rare",
+      "display_name": "沼皮护胸",
+      "slot": "chest",
+      "category": "leather",
+      "rarity": "rare",
+      "base_stats": {
+        "armor": 59,
+        "max_hp": 126
+      },
+      "drop_level": 3,
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_hp_regen"
+      ],
+      "set_id": "",
+      "vfx_level": 1,
+      "tags": [
+        "generic",
+        "swamp"
+      ],
+      "design_note": "鞣制沼兽皮制成，潮湿环境下仍能持续回血。"
+    },
+    {
+      "id": "chest_pestilent_epic",
+      "display_name": "疫殍腐袍",
+      "slot": "chest",
+      "category": "robe",
+      "rarity": "epic",
+      "base_stats": {
+        "armor": 80,
+        "max_hp": 171
+      },
+      "drop_level": 3,
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_plague_aura"
+      ],
+      "set_id": "",
+      "vfx_level": 2,
+      "tags": [
+        "poison",
+        "dot",
+        "aura",
+        "swamp"
+      ],
+      "design_note": "浸透疫气的法袍，使穿戴者周身弥漫疫疠之雾。"
+    },
+    {
+      "id": "legs_tattered_common",
+      "display_name": "褴褛胫甲",
+      "slot": "legs",
+      "category": "leggings",
+      "rarity": "common",
+      "base_stats": {
+        "armor": 22,
+        "max_hp": 48
+      },
+      "drop_level": 2,
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "tags": [
+        "generic",
+        "swamp"
+      ],
+      "design_note": "破旧的护腿，勉强遮挡沼地中的尖刺。"
+    },
+    {
+      "id": "legs_contagion_epic",
+      "display_name": "蔓疫胫铠",
+      "slot": "legs",
+      "category": "greaves",
+      "rarity": "epic",
+      "base_stats": {
+        "armor": 63,
+        "max_hp": 137
+      },
+      "drop_level": 3,
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_contagion"
+      ],
+      "set_id": "",
+      "vfx_level": 2,
+      "tags": [
+        "poison",
+        "dot",
+        "spread",
+        "swamp"
+      ],
+      "design_note": "踏过之处疫病蔓延，助力瘟疫扩散流派。"
+    },
+    {
+      "id": "boots_muckwalker_common",
+      "display_name": "涉泥行靴",
+      "slot": "boots",
+      "category": "boots",
+      "rarity": "common",
+      "base_stats": {
+        "armor": 12,
+        "move_speed": 6
+      },
+      "drop_level": 2,
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "tags": [
+        "generic",
+        "swamp"
+      ],
+      "design_note": "宽底防陷的简陋长靴，适合泥沼跋涉。"
+    },
+    {
+      "id": "boots_swiftmire_rare",
+      "display_name": "疾沼涉水靴",
+      "slot": "boots",
+      "category": "boots",
+      "rarity": "rare",
+      "base_stats": {
+        "armor": 25,
+        "move_speed": 9
+      },
+      "drop_level": 3,
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_attack_speed"
+      ],
+      "set_id": "",
+      "vfx_level": 1,
+      "tags": [
+        "speed",
+        "swamp"
+      ],
+      "design_note": "轻量化处理的涉水靴，提升沼地机动与出手速度。"
+    },
+    {
+      "id": "gloves_grip_rare",
+      "display_name": "黏沼缚手",
+      "slot": "gloves",
+      "category": "gloves",
+      "rarity": "rare",
+      "base_stats": {
+        "armor": 17,
+        "attack_speed": 6.6
+      },
+      "drop_level": 2,
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_crit_chance"
+      ],
+      "set_id": "",
+      "vfx_level": 1,
+      "tags": [
+        "generic",
+        "swamp"
+      ],
+      "design_note": "增强握持的皮手套，提升暴击与攻速。"
+    },
+    {
+      "id": "gloves_venomgrasp_epic",
+      "display_name": "噬毒爪套",
+      "slot": "gloves",
+      "category": "gauntlets",
+      "rarity": "epic",
+      "base_stats": {
+        "armor": 34,
+        "attack_speed": 9.6
+      },
+      "drop_level": 3,
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_festering"
+      ],
+      "set_id": "",
+      "vfx_level": 2,
+      "tags": [
+        "poison",
+        "swamp"
+      ],
+      "design_note": "爪尖渗毒，攻击使伤口溃烂加深毒伤。"
+    },
+    {
+      "id": "ring_bogwart_common",
+      "display_name": "沼疣指环",
+      "slot": "ring",
+      "category": "ring",
+      "rarity": "common",
+      "base_stats": {
+        "poison_damage": 14,
+        "crit_chance": 5
+      },
+      "drop_level": 2,
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "tags": [
+        "poison",
+        "swamp"
+      ],
+      "design_note": "嵌入沼疣结晶的粗陋戒指，附带微量毒伤。"
+    },
+    {
+      "id": "ring_toxin_rare",
+      "display_name": "毒涎之戒",
+      "slot": "ring",
+      "category": "ring",
+      "rarity": "rare",
+      "base_stats": {
+        "poison_damage": 29,
+        "crit_chance": 7.6
+      },
+      "drop_level": 3,
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_virulence"
+      ],
+      "set_id": "",
+      "vfx_level": 1,
+      "tags": [
+        "poison",
+        "dot",
+        "swamp"
+      ],
+      "design_note": "凝结沼兽毒涎，强化毒系叠层伤害。"
+    },
+    {
+      "id": "amulet_charm_common",
+      "display_name": "避疫护符",
+      "slot": "amulet",
+      "category": "amulet",
+      "rarity": "common",
+      "base_stats": {
+        "max_hp": 44,
+        "poison_damage": 18
+      },
+      "drop_level": 2,
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "tags": [
+        "poison",
+        "swamp"
+      ],
+      "design_note": "黎明堡商队兜售的避疫小符，聊胜于无却也染上毒性。"
+    },
+    {
+      "id": "amulet_plaguebearer_epic",
+      "display_name": "携疫者圣徽",
+      "slot": "amulet",
+      "category": "amulet",
+      "rarity": "epic",
+      "base_stats": {
+        "max_hp": 125,
+        "poison_damage": 51
+      },
+      "drop_level": 3,
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_swarm"
+      ],
+      "set_id": "",
+      "vfx_level": 2,
+      "tags": [
+        "poison",
+        "summon",
+        "swarm",
+        "swamp"
+      ],
+      "design_note": "古尔撒信徒的圣徽，召出虫群代主散播瘟疫。"
+    },
+    {
+      "id": "weapon_plague_set",
+      "display_name": "疫疠之主·万疫之镰",
+      "slot": "weapon",
+      "category": "scythe",
+      "rarity": "legendary",
+      "base_stats": {
+        "damage": 94,
+        "attack_speed": 17.6,
+        "crit_chance": 12.4
+      },
+      "drop_level": 3,
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_virulence"
+      ],
+      "set_id": "set_plague",
+      "vfx_level": 3,
+      "tags": [
+        "poison",
+        "dot",
+        "set_plague",
+        "swamp"
+      ],
+      "design_note": "疫疠之主套装核心武器，每次挥砍叠加恶疾，DoT流的引擎。"
+    },
+    {
+      "id": "helmet_plague_set",
+      "display_name": "疫疠之主·腐面瘟冠",
+      "slot": "helmet",
+      "category": "mask",
+      "rarity": "legendary",
+      "base_stats": {
+        "armor": 62,
+        "max_hp": 140
+      },
+      "drop_level": 3,
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_festering"
+      ],
+      "set_id": "set_plague",
+      "vfx_level": 3,
+      "tags": [
+        "poison",
+        "set_plague",
+        "swamp"
+      ],
+      "design_note": "套装头部，强化溃烂效果使敌人毒伤承受递增。"
+    },
+    {
+      "id": "chest_plague_set",
+      "display_name": "疫疠之主·千疫法袍",
+      "slot": "chest",
+      "category": "robe",
+      "rarity": "legendary",
+      "base_stats": {
+        "armor": 109,
+        "max_hp": 234
+      },
+      "drop_level": 3,
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_plague_aura"
+      ],
+      "set_id": "set_plague",
+      "vfx_level": 3,
+      "tags": [
+        "poison",
+        "dot",
+        "aura",
+        "set_plague",
+        "swamp"
+      ],
+      "design_note": "套装胸甲，常驻疫疠之雾光环，持续灼蚀周围敌人。"
+    },
+    {
+      "id": "legs_plague_set",
+      "display_name": "疫疠之主·溃烂胫甲",
+      "slot": "legs",
+      "category": "greaves",
+      "rarity": "legendary",
+      "base_stats": {
+        "armor": 86,
+        "max_hp": 187
+      },
+      "drop_level": 3,
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_contagion"
+      ],
+      "set_id": "set_plague",
+      "vfx_level": 3,
+      "tags": [
+        "poison",
+        "dot",
+        "spread",
+        "set_plague",
+        "swamp"
+      ],
+      "design_note": "套装腿甲，使毒素在敌群间瘟疫扩散，覆盖成群目标。"
+    },
+    {
+      "id": "gloves_plague_set",
+      "display_name": "疫疠之主·孵虫爪",
+      "slot": "gloves",
+      "category": "gauntlets",
+      "rarity": "legendary",
+      "base_stats": {
+        "armor": 47,
+        "attack_speed": 12.4
+      },
+      "drop_level": 3,
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_swarm"
+      ],
+      "set_id": "set_plague",
+      "vfx_level": 3,
+      "tags": [
+        "poison",
+        "summon",
+        "swarm",
+        "set_plague",
+        "swamp"
+      ],
+      "design_note": "套装手部，孵化虫群协同作战，贴合虫群流核心。"
+    },
+    {
+      "id": "boots_plague_set",
+      "display_name": "疫疠之主·蔓疫疫行靴",
+      "slot": "boots",
+      "category": "boots",
+      "rarity": "legendary",
+      "base_stats": {
+        "armor": 47,
+        "move_speed": 15
+      },
+      "drop_level": 3,
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_virulence"
+      ],
+      "set_id": "set_plague",
+      "vfx_level": 3,
+      "tags": [
+        "poison",
+        "dot",
+        "set_plague",
+        "swamp"
+      ],
+      "design_note": "套装靴部，行进间播撒疫源并补足叠层速度，完成六件疫疠流闭环。"
+    },
+    {
+      "id": "weapon_emberblade_rare",
+      "display_name": "余烬弯刀",
+      "slot": "weapon",
+      "category": "sword",
+      "rarity": "rare",
+      "base_stats": {
+        "damage": 28,
+        "attack_speed": 1.05,
+        "crit_chance": 0.07
+      },
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_fire_damage"
+      ],
+      "set_id": "",
+      "tags": [
+        "fire",
+        "elemental",
+        "melee"
+      ],
+      "drop_level": 3,
+      "vfx_level": 1,
+      "design_note": "熔火深渊入门火武，固定烈焰词缀点燃流派起步。配合点燃/连锁火球做元素流。"
+    },
+    {
+      "id": "weapon_magma_epic",
+      "display_name": "熔岩裂解者",
+      "slot": "weapon",
+      "category": "axe",
+      "rarity": "epic",
+      "base_stats": {
+        "damage": 43,
+        "attack_speed": 1.15,
+        "crit_chance": 0.1
+      },
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_ignite"
+      ],
+      "set_id": "",
+      "tags": [
+        "fire",
+        "elemental",
+        "melee"
+      ],
+      "drop_level": 4,
+      "vfx_level": 2,
+      "design_note": "重型火斧，固定点燃提供持续灼烧。高单击伤害适合点燃叠层的法师/战士火流。"
+    },
+    {
+      "id": "helmet_scorch_common",
+      "display_name": "焦痕兜帽",
+      "slot": "helmet",
+      "category": "hood",
+      "rarity": "common",
+      "base_stats": {
+        "armor": 8,
+        "max_hp": 28
+      },
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "tags": [
+        "fire",
+        "defense"
+      ],
+      "drop_level": 3,
+      "vfx_level": 0,
+      "design_note": "深渊拾得的基础头盔，单词缀槽留给玩家自定义。火区起步过渡件。"
+    },
+    {
+      "id": "helmet_ironflame_rare",
+      "display_name": "炽铁面盔",
+      "slot": "helmet",
+      "category": "helm",
+      "rarity": "rare",
+      "base_stats": {
+        "armor": 11,
+        "max_hp": 39
+      },
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_vitality"
+      ],
+      "set_id": "",
+      "tags": [
+        "fire",
+        "defense"
+      ],
+      "drop_level": 3,
+      "vfx_level": 1,
+      "design_note": "炽热锻铁头盔,固定坚韧加强生存。贴脸火流的稳健头部选择。"
+    },
+    {
+      "id": "chest_cinder_common",
+      "display_name": "灼烬皮甲",
+      "slot": "chest",
+      "category": "leather",
+      "rarity": "common",
+      "base_stats": {
+        "armor": 16,
+        "max_hp": 50
+      },
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "tags": [
+        "fire",
+        "defense"
+      ],
+      "drop_level": 3,
+      "vfx_level": 0,
+      "design_note": "轻量皮制胸甲，基础护甲与血量。火区前期主力护甲。"
+    },
+    {
+      "id": "chest_slag_epic",
+      "display_name": "熔渣板甲",
+      "slot": "chest",
+      "category": "plate",
+      "rarity": "epic",
+      "base_stats": {
+        "armor": 34,
+        "max_hp": 106
+      },
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_vitality"
+      ],
+      "set_id": "",
+      "tags": [
+        "fire",
+        "defense",
+        "heavy"
+      ],
+      "drop_level": 4,
+      "vfx_level": 2,
+      "design_note": "熔渣浇铸重甲，高护甲高血量加固定坚韧。坦克向火流核心胸甲。"
+    },
+    {
+      "id": "legs_scorched_common",
+      "display_name": "焦土护腿",
+      "slot": "legs",
+      "category": "greaves",
+      "rarity": "common",
+      "base_stats": {
+        "armor": 11,
+        "max_hp": 38
+      },
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "tags": [
+        "fire",
+        "defense"
+      ],
+      "drop_level": 3,
+      "vfx_level": 0,
+      "design_note": "基础护腿，提供中段防御与生命。火区起步腿部件。"
+    },
+    {
+      "id": "legs_flame_rare",
+      "display_name": "炽焰胫甲",
+      "slot": "legs",
+      "category": "greaves",
+      "rarity": "rare",
+      "base_stats": {
+        "armor": 17,
+        "max_hp": 60
+      },
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_hp_regen"
+      ],
+      "set_id": "",
+      "tags": [
+        "fire",
+        "defense",
+        "sustain"
+      ],
+      "drop_level": 4,
+      "vfx_level": 1,
+      "design_note": "嵌火胫甲,固定再生提供持续回血。续航向火流腿部选择。"
+    },
+    {
+      "id": "boots_ember_rare",
+      "display_name": "余烬战靴",
+      "slot": "boots",
+      "category": "boots",
+      "rarity": "rare",
+      "base_stats": {
+        "armor": 8,
+        "max_hp": 25,
+        "move_speed": 0.11
+      },
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_attack_speed"
+      ],
+      "set_id": "",
+      "tags": [
+        "fire",
+        "speed"
+      ],
+      "drop_level": 3,
+      "vfx_level": 1,
+      "design_note": "灼热战靴,固定迅捷提升攻速与机动。走砍火流标配靴。"
+    },
+    {
+      "id": "boots_flowfire_epic",
+      "display_name": "流火疾靴",
+      "slot": "boots",
+      "category": "boots",
+      "rarity": "epic",
+      "base_stats": {
+        "armor": 13,
+        "max_hp": 38,
+        "move_speed": 0.13
+      },
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_crit_chance"
+      ],
+      "set_id": "",
+      "tags": [
+        "fire",
+        "speed",
+        "crit"
+      ],
+      "drop_level": 4,
+      "vfx_level": 2,
+      "design_note": "高机动疾靴,固定精准兼顾暴击与走位。游侠/刺客火暴流靴。"
+    },
+    {
+      "id": "gloves_sear_common",
+      "display_name": "灼手护套",
+      "slot": "gloves",
+      "category": "gloves",
+      "rarity": "common",
+      "base_stats": {
+        "armor": 5,
+        "max_hp": 16,
+        "attack_speed": 0.04
+      },
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "tags": [
+        "fire",
+        "speed"
+      ],
+      "drop_level": 3,
+      "vfx_level": 0,
+      "design_note": "基础护手,微量攻速。火区起步手部件。"
+    },
+    {
+      "id": "gloves_flameclaw_rare",
+      "display_name": "炽炎握爪",
+      "slot": "gloves",
+      "category": "gloves",
+      "rarity": "rare",
+      "base_stats": {
+        "armor": 8,
+        "max_hp": 25,
+        "attack_speed": 0.06
+      },
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_attack_speed"
+      ],
+      "set_id": "",
+      "tags": [
+        "fire",
+        "speed"
+      ],
+      "drop_level": 4,
+      "vfx_level": 1,
+      "design_note": "火爪护手,固定迅捷叠加攻速。高频触发点燃的输出手部件。"
+    },
+    {
+      "id": "ring_flametongue_rare",
+      "display_name": "火舌指环",
+      "slot": "ring",
+      "category": "ring",
+      "rarity": "rare",
+      "base_stats": {
+        "fire_damage": 8,
+        "crit_chance": 0.06
+      },
+      "affix_slots": 2,
+      "fixed_affixes": [
+        "affix_crit_chance"
+      ],
+      "set_id": "",
+      "tags": [
+        "fire",
+        "accessory",
+        "crit"
+      ],
+      "drop_level": 3,
+      "vfx_level": 1,
+      "design_note": "附火指环,固定精准。提供火伤与暴击,暴击火流入门饰品。"
+    },
+    {
+      "id": "ring_moltenheart_epic",
+      "display_name": "熔心戒",
+      "slot": "ring",
+      "category": "ring",
+      "rarity": "epic",
+      "base_stats": {
+        "fire_damage": 13,
+        "crit_chance": 0.08
+      },
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_fire_damage"
+      ],
+      "set_id": "",
+      "tags": [
+        "fire",
+        "accessory",
+        "elemental"
+      ],
+      "drop_level": 4,
+      "vfx_level": 2,
+      "design_note": "熔核戒指,固定烈焰叠加火伤。元素火流核心增伤饰品。"
+    },
+    {
+      "id": "amulet_warmth_common",
+      "display_name": "余温护符",
+      "slot": "amulet",
+      "category": "amulet",
+      "rarity": "common",
+      "base_stats": {
+        "max_hp": 30,
+        "fire_damage": 5
+      },
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "tags": [
+        "fire",
+        "accessory",
+        "sustain"
+      ],
+      "drop_level": 3,
+      "vfx_level": 0,
+      "design_note": "基础护符,血量与微量火伤。火区起步项链。"
+    },
+    {
+      "id": "amulet_blazeheart_epic",
+      "display_name": "烈炎之心",
+      "slot": "amulet",
+      "category": "amulet",
+      "rarity": "epic",
+      "base_stats": {
+        "max_hp": 64,
+        "fire_damage": 11
+      },
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_crit_damage"
+      ],
+      "set_id": "",
+      "tags": [
+        "fire",
+        "accessory",
+        "crit"
+      ],
+      "drop_level": 4,
+      "vfx_level": 2,
+      "design_note": "烈焰核心项链,固定致命放大暴击伤害。爆发火流的高价值饰品。"
+    },
+    {
+      "id": "weapon_emberlord_legendary",
+      "display_name": "燃烬·末日烬刃",
+      "slot": "weapon",
+      "category": "greatsword",
+      "rarity": "legendary",
+      "base_stats": {
+        "damage": 58,
+        "attack_speed": 1.25,
+        "crit_chance": 0.13
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_pyroclasm"
+      ],
+      "set_id": "set_ember",
+      "tags": [
+        "fire",
+        "elemental",
+        "melee",
+        "set"
+      ],
+      "drop_level": 4,
+      "vfx_level": 3,
+      "design_note": "燃烬战甲套核心武器,固定过热爆发提供火焰爆发。伊格诺斯火流构筑的输出基石。"
+    },
+    {
+      "id": "helmet_emberlord_legendary",
+      "display_name": "燃烬·炎魂之冠",
+      "slot": "helmet",
+      "category": "helm",
+      "rarity": "legendary",
+      "base_stats": {
+        "armor": 23,
+        "max_hp": 82
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_ignite"
+      ],
+      "set_id": "set_ember",
+      "tags": [
+        "fire",
+        "elemental",
+        "defense",
+        "set"
+      ],
+      "drop_level": 4,
+      "vfx_level": 3,
+      "design_note": "燃烬套头部,固定点燃强化灼烧触发。兼顾生存与火流DoT的套件头盔。"
+    },
+    {
+      "id": "chest_emberlord_legendary",
+      "display_name": "燃烬·熔核胸甲",
+      "slot": "chest",
+      "category": "plate",
+      "rarity": "legendary",
+      "base_stats": {
+        "armor": 47,
+        "max_hp": 146
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_fire_damage"
+      ],
+      "set_id": "set_ember",
+      "tags": [
+        "fire",
+        "elemental",
+        "defense",
+        "heavy",
+        "set"
+      ],
+      "drop_level": 4,
+      "vfx_level": 3,
+      "design_note": "燃烬套胸甲,固定烈焰叠火伤,高护甲高血量。火流套件的承伤核心。"
+    },
+    {
+      "id": "legs_emberlord_legendary",
+      "display_name": "燃烬·岩浆腿铠",
+      "slot": "legs",
+      "category": "greaves",
+      "rarity": "legendary",
+      "base_stats": {
+        "armor": 32,
+        "max_hp": 111
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_molten_pierce"
+      ],
+      "set_id": "set_ember",
+      "tags": [
+        "fire",
+        "elemental",
+        "defense",
+        "set"
+      ],
+      "drop_level": 4,
+      "vfx_level": 3,
+      "design_note": "燃烬套腿部,固定熔甲穿击提供破甲火伤。强化套件穿透输出。"
+    },
+    {
+      "id": "gloves_emberlord_legendary",
+      "display_name": "燃烬·焚世之握",
+      "slot": "gloves",
+      "category": "gauntlets",
+      "rarity": "legendary",
+      "base_stats": {
+        "armor": 15,
+        "max_hp": 47,
+        "attack_speed": 0.1
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_chain_fireball"
+      ],
+      "set_id": "set_ember",
+      "tags": [
+        "fire",
+        "elemental",
+        "speed",
+        "set"
+      ],
+      "drop_level": 4,
+      "vfx_level": 3,
+      "design_note": "燃烬套手部,固定连锁火球扩散火伤,高攻速触发。套件AOE扩散核心。"
+    },
+    {
+      "id": "ring_emberlord_legendary",
+      "display_name": "燃烬·永焰戒",
+      "slot": "ring",
+      "category": "ring",
+      "rarity": "legendary",
+      "base_stats": {
+        "fire_damage": 18,
+        "crit_chance": 0.1
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_fire_damage"
+      ],
+      "set_id": "set_ember",
+      "tags": [
+        "fire",
+        "elemental",
+        "accessory",
+        "set"
+      ],
+      "drop_level": 4,
+      "vfx_level": 3,
+      "design_note": "燃烬套饰品,固定烈焰叠加火伤上限。集齐套件触发燃烬流派质变的关键件。"
+    },
+    {
+      "id": "weapon_frost_legendary_winterend",
+      "display_name": "凛冬终焉",
+      "slot": "weapon",
+      "category": "staff",
+      "rarity": "legendary",
+      "tags": [
+        "frost",
+        "elemental",
+        "magic"
+      ],
+      "base_stats": {
+        "damage": 45,
+        "attack_speed": 1.3,
+        "crit_chance": 0.12
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_frostburst"
+      ],
+      "set_id": "",
+      "vfx_level": 3,
+      "drop_level": 4,
+      "design_note": "冰封王座招牌法杖，固定霜爆词缀提供爆发性冰霜溅射。frost法师爆发主手，搭配冰封控制链滚雪球。"
+    },
+    {
+      "id": "helmet_frost_epic_rimehelm",
+      "display_name": "霜寒面盔",
+      "slot": "helmet",
+      "category": "helm",
+      "rarity": "epic",
+      "tags": [
+        "frost",
+        "defense",
+        "control"
+      ],
+      "base_stats": {
+        "armor": 22,
+        "max_hp": 66,
+        "crit_chance": 0.08
+      },
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_freeze"
+      ],
+      "set_id": "",
+      "vfx_level": 2,
+      "drop_level": 4,
+      "design_note": "冰霜控制头盔，固定冰封词缀让受击者有概率被冻结。控制流前排起手件。"
+    },
+    {
+      "id": "chest_frost_legendary_everfrost",
+      "display_name": "永冻胸甲",
+      "slot": "chest",
+      "category": "plate",
+      "rarity": "legendary",
+      "tags": [
+        "frost",
+        "defense"
+      ],
+      "base_stats": {
+        "armor": 60,
+        "max_hp": 205
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_crystal_armor"
+      ],
+      "set_id": "",
+      "vfx_level": 3,
+      "drop_level": 4,
+      "design_note": "高护甲冰晶胸甲，固定冰晶甲叠加防御层。frost坦克核心生存件。"
+    },
+    {
+      "id": "legs_frost_epic_glacialgreaves",
+      "display_name": "冰封战裙",
+      "slot": "legs",
+      "category": "greaves",
+      "rarity": "epic",
+      "tags": [
+        "frost",
+        "defense"
+      ],
+      "base_stats": {
+        "armor": 30,
+        "max_hp": 105
+      },
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_mana_shield"
+      ],
+      "set_id": "",
+      "vfx_level": 2,
+      "drop_level": 4,
+      "design_note": "附带法力护盾的护腿，把法力转化为额外伤害吸收。法系frost过渡件。"
+    },
+    {
+      "id": "boots_frost_epic_froststep",
+      "display_name": "踏霜战靴",
+      "slot": "boots",
+      "category": "boots",
+      "rarity": "epic",
+      "tags": [
+        "frost",
+        "speed",
+        "control"
+      ],
+      "base_stats": {
+        "armor": 14,
+        "move_speed": 0.15
+      },
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_chill"
+      ],
+      "set_id": "",
+      "vfx_level": 2,
+      "drop_level": 4,
+      "design_note": "踏过之地霜缚减速，固定霜缚词缀。风筝走位与控场兼顾。"
+    },
+    {
+      "id": "gloves_frost_epic_rimegrip",
+      "display_name": "霜噬护手",
+      "slot": "gloves",
+      "category": "gloves",
+      "rarity": "epic",
+      "tags": [
+        "frost",
+        "elemental"
+      ],
+      "base_stats": {
+        "armor": 11,
+        "attack_speed": 0.12,
+        "damage": 14
+      },
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_frostburst"
+      ],
+      "set_id": "",
+      "vfx_level": 2,
+      "drop_level": 4,
+      "design_note": "提攻速并附霜爆的手套，攻击触发冰霜溅射。frost输出手件。"
+    },
+    {
+      "id": "ring_frost_legendary_polestar",
+      "display_name": "寒星指环",
+      "slot": "ring",
+      "category": "ring",
+      "rarity": "legendary",
+      "tags": [
+        "frost",
+        "crit",
+        "control"
+      ],
+      "base_stats": {
+        "crit_chance": 0.13,
+        "crit_damage": 0.35
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_freeze"
+      ],
+      "set_id": "",
+      "vfx_level": 3,
+      "drop_level": 4,
+      "design_note": "暴击与冰封双修戒指，暴击触发冻结。frost暴击控制流核心饰品。"
+    },
+    {
+      "id": "amulet_frost_legendary_polarheart",
+      "display_name": "极地之心",
+      "slot": "amulet",
+      "category": "amulet",
+      "rarity": "legendary",
+      "tags": [
+        "frost",
+        "sustain",
+        "defense"
+      ],
+      "base_stats": {
+        "max_hp": 98,
+        "hp_regen": 4.5
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_mana_shield"
+      ],
+      "set_id": "",
+      "vfx_level": 3,
+      "drop_level": 4,
+      "design_note": "高生命回复加法力护盾项链，frost续航坦的生存堆叠核心。"
+    },
+    {
+      "id": "weapon_frost_set_frostking_scepter",
+      "display_name": "永冻王权·权杖",
+      "slot": "weapon",
+      "category": "scepter",
+      "rarity": "epic",
+      "tags": [
+        "frost",
+        "elemental",
+        "magic"
+      ],
+      "base_stats": {
+        "damage": 33,
+        "attack_speed": 1.2,
+        "crit_chance": 0.09
+      },
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_frostburst"
+      ],
+      "set_id": "set_frost",
+      "vfx_level": 2,
+      "drop_level": 4,
+      "design_note": "永冻王权套装主手，凑套激活冰霜控制专属词条。set_frost 6件流派起点。"
+    },
+    {
+      "id": "helmet_frost_set_frostking_crown",
+      "display_name": "永冻王权·冠冕",
+      "slot": "helmet",
+      "category": "crown",
+      "rarity": "epic",
+      "tags": [
+        "frost",
+        "defense",
+        "control"
+      ],
+      "base_stats": {
+        "armor": 22,
+        "max_hp": 66
+      },
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_freeze"
+      ],
+      "set_id": "set_frost",
+      "vfx_level": 2,
+      "drop_level": 4,
+      "design_note": "永冻王权头部件，固定冰封强化控场。set_frost凑件部位。"
+    },
+    {
+      "id": "chest_frost_set_frostking_cuirass",
+      "display_name": "永冻王权·胸铠",
+      "slot": "chest",
+      "category": "plate",
+      "rarity": "epic",
+      "tags": [
+        "frost",
+        "defense"
+      ],
+      "base_stats": {
+        "armor": 44,
+        "max_hp": 150
+      },
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_crystal_armor"
+      ],
+      "set_id": "set_frost",
+      "vfx_level": 2,
+      "drop_level": 4,
+      "design_note": "永冻王权躯干件，冰晶甲叠防。set_frost生存基石。"
+    },
+    {
+      "id": "legs_frost_set_frostking_legguards",
+      "display_name": "永冻王权·腿甲",
+      "slot": "legs",
+      "category": "greaves",
+      "rarity": "epic",
+      "tags": [
+        "frost",
+        "defense"
+      ],
+      "base_stats": {
+        "armor": 30,
+        "max_hp": 105
+      },
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_mana_shield"
+      ],
+      "set_id": "set_frost",
+      "vfx_level": 2,
+      "drop_level": 4,
+      "design_note": "永冻王权腿部件，法力护盾续航。set_frost凑件部位。"
+    },
+    {
+      "id": "gloves_frost_set_frostking_gauntlets",
+      "display_name": "永冻王权·握甲",
+      "slot": "gloves",
+      "category": "gauntlets",
+      "rarity": "epic",
+      "tags": [
+        "frost",
+        "elemental",
+        "control"
+      ],
+      "base_stats": {
+        "armor": 11,
+        "attack_speed": 0.12,
+        "damage": 14
+      },
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_chill"
+      ],
+      "set_id": "set_frost",
+      "vfx_level": 2,
+      "drop_level": 4,
+      "design_note": "永冻王权手部件，攻击附霜缚减速。set_frost控场输出件。"
+    },
+    {
+      "id": "boots_frost_set_frostking_sabatons",
+      "display_name": "永冻王权·踏靴",
+      "slot": "boots",
+      "category": "boots",
+      "rarity": "epic",
+      "tags": [
+        "frost",
+        "speed",
+        "control"
+      ],
+      "base_stats": {
+        "armor": 14,
+        "move_speed": 0.15
+      },
+      "affix_slots": 3,
+      "fixed_affixes": [
+        "affix_chill"
+      ],
+      "set_id": "set_frost",
+      "vfx_level": 2,
+      "drop_level": 4,
+      "design_note": "永冻王权足部件，移动留下霜缚地带。set_frost 6件触发全屏冰封大招的最后一块。"
+    },
+    {
+      "id": "weapon_void_legendary_annihilation",
+      "display_name": "湮灭之触",
+      "slot": "weapon",
+      "category": "voidblade",
+      "rarity": "legendary",
+      "tags": [
+        "void",
+        "chaos"
+      ],
+      "base_stats": {
+        "damage": 50,
+        "attack_speed": 1.2,
+        "crit_chance": 0.14
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_void_damage"
+      ],
+      "set_id": "",
+      "vfx_level": 3,
+      "drop_level": 5,
+      "design_note": "虚空裂隙主手，固定虚空侵蚀附加无视抗性的虚空伤害。void混沌流核心输出武器。"
+    },
+    {
+      "id": "helmet_void_legendary_gazer",
+      "display_name": "窥界者头冠",
+      "slot": "helmet",
+      "category": "crown",
+      "rarity": "legendary",
+      "tags": [
+        "void",
+        "crit"
+      ],
+      "base_stats": {
+        "armor": 33,
+        "max_hp": 100,
+        "crit_chance": 0.1
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_chaos_crit"
+      ],
+      "set_id": "",
+      "vfx_level": 3,
+      "drop_level": 5,
+      "design_note": "固定混沌暴击的头冠，暴击结果随机化期望更高。void暴击流头件。"
+    },
+    {
+      "id": "chest_void_legendary_riftguard",
+      "display_name": "裂界护胸",
+      "slot": "chest",
+      "category": "voidplate",
+      "rarity": "legendary",
+      "tags": [
+        "void",
+        "defense"
+      ],
+      "base_stats": {
+        "armor": 67,
+        "max_hp": 230
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_rule_break"
+      ],
+      "set_id": "",
+      "vfx_level": 3,
+      "drop_level": 5,
+      "design_note": "固定规则突破的护胸，突破一条常规上限。void高风险高回报核心件。"
+    },
+    {
+      "id": "legs_void_legendary_chaosgreaves",
+      "display_name": "混沌腿铠",
+      "slot": "legs",
+      "category": "greaves",
+      "rarity": "legendary",
+      "tags": [
+        "void",
+        "chaos"
+      ],
+      "base_stats": {
+        "armor": 46,
+        "max_hp": 160
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_void_damage"
+      ],
+      "set_id": "",
+      "vfx_level": 3,
+      "drop_level": 5,
+      "design_note": "附虚空侵蚀的腿铠，补强混沌伤害堆叠。void输出腿件。"
+    },
+    {
+      "id": "boots_void_legendary_voidstride",
+      "display_name": "虚步之靴",
+      "slot": "boots",
+      "category": "boots",
+      "rarity": "legendary",
+      "tags": [
+        "void",
+        "speed",
+        "crit"
+      ],
+      "base_stats": {
+        "armor": 21,
+        "move_speed": 0.16
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_chaos_crit"
+      ],
+      "set_id": "",
+      "vfx_level": 3,
+      "drop_level": 5,
+      "design_note": "高机动虚空战靴附混沌暴击，走位输出两不误。void灵动暴击件。"
+    },
+    {
+      "id": "gloves_void_legendary_spelleater",
+      "display_name": "噬法手甲",
+      "slot": "gloves",
+      "category": "gauntlets",
+      "rarity": "legendary",
+      "tags": [
+        "void",
+        "lifesteal"
+      ],
+      "base_stats": {
+        "armor": 17,
+        "attack_speed": 0.13,
+        "damage": 21
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_void_siphon"
+      ],
+      "set_id": "",
+      "vfx_level": 3,
+      "drop_level": 5,
+      "design_note": "固定虚空抽取的手甲，造成虚空伤害的同时回血。void续航输出件。"
+    },
+    {
+      "id": "ring_void_legendary_chaoseye",
+      "display_name": "混沌之眼戒",
+      "slot": "ring",
+      "category": "ring",
+      "rarity": "legendary",
+      "tags": [
+        "void",
+        "crit"
+      ],
+      "base_stats": {
+        "crit_chance": 0.15,
+        "crit_damage": 0.45
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_chaos_crit"
+      ],
+      "set_id": "",
+      "vfx_level": 3,
+      "drop_level": 5,
+      "design_note": "暴击双高戒指附混沌暴击。void暴击流核心饰品。"
+    },
+    {
+      "id": "amulet_void_legendary_abysswhisper",
+      "display_name": "深渊低语坠",
+      "slot": "amulet",
+      "category": "amulet",
+      "rarity": "legendary",
+      "tags": [
+        "void",
+        "chaos"
+      ],
+      "base_stats": {
+        "max_hp": 108,
+        "hp_regen": 5
+      },
+      "affix_slots": 4,
+      "fixed_affixes": [
+        "affix_affix_mutation"
+      ],
+      "set_id": "",
+      "vfx_level": 3,
+      "drop_level": 5,
+      "design_note": "固定词缀变异的项链，随机重铸自身词缀强度。void玩法多变的赌博式饰品。"
+    },
+    {
+      "id": "weapon_void_set_riftrender_staff",
+      "display_name": "虚空裂界·湮灭杖",
+      "slot": "weapon",
+      "category": "voidstaff",
+      "rarity": "mythic",
+      "tags": [
+        "void",
+        "chaos",
+        "magic"
+      ],
+      "base_stats": {
+        "damage": 67,
+        "attack_speed": 1.2,
+        "crit_chance": 0.16
+      },
+      "affix_slots": 5,
+      "fixed_affixes": [
+        "affix_void_damage"
+      ],
+      "set_id": "set_void",
+      "vfx_level": 4,
+      "drop_level": 5,
+      "design_note": "虚空裂界套装主手，红传奇全屏特效。凑套激活规则突破系专属词条，set_void顶级流派核心。"
+    },
+    {
+      "id": "helmet_void_set_riftrender_crown",
+      "display_name": "虚空裂界·窥渊冠",
+      "slot": "helmet",
+      "category": "crown",
+      "rarity": "mythic",
+      "tags": [
+        "void",
+        "crit"
+      ],
+      "base_stats": {
+        "armor": 45,
+        "max_hp": 135,
+        "crit_chance": 0.12
+      },
+      "affix_slots": 5,
+      "fixed_affixes": [
+        "affix_chaos_crit"
+      ],
+      "set_id": "set_void",
+      "vfx_level": 4,
+      "drop_level": 5,
+      "design_note": "虚空裂界头部件，混沌暴击拉满期望。set_void凑件部位。"
+    },
+    {
+      "id": "chest_void_set_riftrender_carapace",
+      "display_name": "虚空裂界·裂界铠",
+      "slot": "chest",
+      "category": "voidplate",
+      "rarity": "mythic",
+      "tags": [
+        "void",
+        "defense"
+      ],
+      "base_stats": {
+        "armor": 90,
+        "max_hp": 310
+      },
+      "affix_slots": 5,
+      "fixed_affixes": [
+        "affix_rule_break"
+      ],
+      "set_id": "set_void",
+      "vfx_level": 4,
+      "drop_level": 5,
+      "design_note": "虚空裂界躯干件，规则突破强化生存与上限。set_void生存基石。"
+    },
+    {
+      "id": "legs_void_set_riftrender_greaves",
+      "display_name": "虚空裂界·噬空胫甲",
+      "slot": "legs",
+      "category": "greaves",
+      "rarity": "mythic",
+      "tags": [
+        "void",
+        "lifesteal",
+        "defense"
+      ],
+      "base_stats": {
+        "armor": 62,
+        "max_hp": 215
+      },
+      "affix_slots": 5,
+      "fixed_affixes": [
+        "affix_void_siphon"
+      ],
+      "set_id": "set_void",
+      "vfx_level": 4,
+      "drop_level": 5,
+      "design_note": "虚空裂界腿部件，虚空抽取提供续航。set_void凑件部位。"
+    },
+    {
+      "id": "gloves_void_set_riftrender_grips",
+      "display_name": "虚空裂界·乱序之握",
+      "slot": "gloves",
+      "category": "gauntlets",
+      "rarity": "mythic",
+      "tags": [
+        "void",
+        "chaos"
+      ],
+      "base_stats": {
+        "armor": 22,
+        "attack_speed": 0.14,
+        "damage": 28
+      },
+      "affix_slots": 5,
+      "fixed_affixes": [
+        "affix_affix_mutation"
+      ],
+      "set_id": "set_void",
+      "vfx_level": 4,
+      "drop_level": 5,
+      "design_note": "虚空裂界手部件，词缀变异让输出充满变数。set_void混沌输出件。"
+    },
+    {
+      "id": "boots_void_set_riftrender_treads",
+      "display_name": "虚空裂界·虚渡战靴",
+      "slot": "boots",
+      "category": "boots",
+      "rarity": "mythic",
+      "tags": [
+        "void",
+        "speed"
+      ],
+      "base_stats": {
+        "armor": 28,
+        "move_speed": 0.18
+      },
+      "affix_slots": 5,
+      "fixed_affixes": [
+        "affix_void_damage"
+      ],
+      "set_id": "set_void",
+      "vfx_level": 4,
+      "drop_level": 5,
+      "design_note": "虚空裂界足部件，高机动并附虚空侵蚀。set_void 6件触发全屏混沌大招的收尾件。"
+    },
+    {
+      "id": "weapon_common_iron_longsword",
+      "display_name": "铁铸长剑",
+      "slot": "weapon",
+      "category": "sword",
+      "rarity": "common",
+      "tags": [
+        "physical",
+        "melee",
+        "generic"
+      ],
+      "base_stats": {
+        "damage": 17,
+        "attack_speed": 1,
+        "crit_chance": 0.05
+      },
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "drop_level": 4,
+      "design_note": "拾荒者行会通用长剑，无套装无特效的基础主手，作为构筑起点与过渡。"
+    },
+    {
+      "id": "helmet_common_leather_hood",
+      "display_name": "皮革头巾",
+      "slot": "helmet",
+      "category": "leather",
+      "rarity": "common",
+      "tags": [
+        "defense",
+        "generic"
+      ],
+      "base_stats": {
+        "armor": 12,
+        "max_hp": 35
+      },
+      "affix_slots": 0,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "drop_level": 4,
+      "design_note": "通用皮革头部护具，纯基础防御，垫装位。"
+    },
+    {
+      "id": "chest_common_stitched_vest",
+      "display_name": "缝合胸甲",
+      "slot": "chest",
+      "category": "leather",
+      "rarity": "common",
+      "tags": [
+        "defense",
+        "generic"
+      ],
+      "base_stats": {
+        "armor": 23,
+        "max_hp": 80
+      },
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "drop_level": 4,
+      "design_note": "通用缝合皮胸甲，基础生存件，1词缀槽留作自定义。"
+    },
+    {
+      "id": "boots_common_traveler_boots",
+      "display_name": "旅人之靴",
+      "slot": "boots",
+      "category": "leather",
+      "rarity": "common",
+      "tags": [
+        "speed",
+        "generic"
+      ],
+      "base_stats": {
+        "armor": 7,
+        "move_speed": 0.1
+      },
+      "affix_slots": 0,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "drop_level": 4,
+      "design_note": "通用旅行靴，提供基础移速，任何流派都可临时使用。"
+    },
+    {
+      "id": "gloves_common_cloth_gloves",
+      "display_name": "粗布手套",
+      "slot": "gloves",
+      "category": "cloth",
+      "rarity": "common",
+      "tags": [
+        "generic"
+      ],
+      "base_stats": {
+        "armor": 6,
+        "attack_speed": 0.08
+      },
+      "affix_slots": 0,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "drop_level": 4,
+      "design_note": "通用粗布手套，微量护甲与攻速，基础垫装位。"
+    },
+    {
+      "id": "ring_common_brass_ring",
+      "display_name": "黄铜戒指",
+      "slot": "ring",
+      "category": "ring",
+      "rarity": "common",
+      "tags": [
+        "accessory",
+        "generic"
+      ],
+      "base_stats": {
+        "crit_chance": 0.05,
+        "max_hp": 15
+      },
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "vfx_level": 0,
+      "drop_level": 4,
+      "design_note": "通用黄铜戒指，少量暴击与生命，1词缀槽可按流派灌注。"
+    },
+    {
+      "id": "weapon_iron_sword",
+      "display_name": "铁剑",
+      "slot": "weapon",
+      "category": "sword",
+      "rarity": "common",
+      "tags": [
+        "melee",
+        "physical"
+      ],
+      "base_stats": {
+        "damage": 10,
+        "attack_speed": 1,
+        "crit_chance": 0.05
+      },
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "drop_level": 1,
+      "vfx_level": 0,
+      "design_note": "职业起手武器，新手起步装。"
+    },
+    {
+      "id": "weapon_hunting_bow",
+      "display_name": "猎弓",
+      "slot": "weapon",
+      "category": "bow",
+      "rarity": "common",
+      "tags": [
+        "ranged",
+        "physical"
+      ],
+      "base_stats": {
+        "damage": 8,
+        "attack_speed": 1.3,
+        "crit_chance": 0.05
+      },
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "drop_level": 1,
+      "vfx_level": 0,
+      "design_note": "职业起手武器，新手起步装。"
+    },
+    {
+      "id": "weapon_flame_staff",
+      "display_name": "烈焰法杖",
+      "slot": "weapon",
+      "category": "staff",
+      "rarity": "common",
+      "tags": [
+        "magic",
+        "fire",
+        "ranged"
+      ],
+      "base_stats": {
+        "damage": 12,
+        "attack_speed": 0.9,
+        "crit_chance": 0.05
+      },
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "drop_level": 1,
+      "vfx_level": 0,
+      "design_note": "职业起手武器，新手起步装。"
+    },
+    {
+      "id": "weapon_shadow_dagger",
+      "display_name": "暗影匕首",
+      "slot": "weapon",
+      "category": "dagger",
+      "rarity": "common",
+      "tags": [
+        "melee",
+        "physical",
+        "crit"
+      ],
+      "base_stats": {
+        "damage": 9,
+        "attack_speed": 1.5,
+        "crit_chance": 0.05
+      },
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "drop_level": 1,
+      "vfx_level": 0,
+      "design_note": "职业起手武器，新手起步装。"
+    },
+    {
+      "id": "weapon_holy_mace",
+      "display_name": "圣光锤",
+      "slot": "weapon",
+      "category": "mace",
+      "rarity": "common",
+      "tags": [
+        "melee",
+        "holy"
+      ],
+      "base_stats": {
+        "damage": 11,
+        "attack_speed": 0.9,
+        "crit_chance": 0.05
+      },
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "drop_level": 1,
+      "vfx_level": 0,
+      "design_note": "职业起手武器，新手起步装。"
+    },
+    {
+      "id": "weapon_bone_staff",
+      "display_name": "白骨法杖",
+      "slot": "weapon",
+      "category": "scepter",
+      "rarity": "common",
+      "tags": [
+        "magic",
+        "undead",
+        "summon"
+      ],
+      "base_stats": {
+        "damage": 9,
+        "attack_speed": 1,
+        "crit_chance": 0.05
+      },
+      "affix_slots": 1,
+      "fixed_affixes": [],
+      "set_id": "",
+      "drop_level": 1,
+      "vfx_level": 0,
+      "design_note": "职业起手武器，新手起步装。"
+    }
+  ]
+}

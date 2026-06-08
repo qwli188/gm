@@ -1,0 +1,942 @@
+{
+  "dungeons": [
+    {
+      "id": "dungeon_crypt_1",
+      "display_name": "安罗斯王陵·入口",
+      "region": "crypt",
+      "wave_set": "waveset_crypt_1",
+      "terrain": "crypt",
+      "environment": {
+        "bg_color": "#1a1a2e",
+        "ambient_sound": "requiem_whisper",
+        "fog": true,
+        "light_level": 0.35
+      },
+      "feature": "周期性死亡之雾：每30秒地图变暗并造成持续伤害，但雾中暴击率+50%，鼓励贴脸搏命。",
+      "set_drop": "set_bone",
+      "unlock_condition": "default",
+      "design_note": "第一幕开端。长老埃德温派玩家入王陵寻找古代粮仓，守墓人卡兰在入口示警。亡灵杂兵起步关，引入死亡之雾核心记忆点。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 1,
+          "enemy_dmg_mult": 1,
+          "drop_quality_bonus": 0,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 1.5,
+          "enemy_dmg_mult": 1.35,
+          "drop_quality_bonus": 0.1,
+          "unlock": "clear_dungeon_crypt_1_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 2.3,
+          "enemy_dmg_mult": 1.7,
+          "drop_quality_bonus": 0.25,
+          "unlock": "clear_dungeon_crypt_1_t2"
+        }
+      ]
+    },
+    {
+      "id": "dungeon_crypt_2",
+      "display_name": "千骨回廊",
+      "region": "crypt",
+      "wave_set": "waveset_crypt_2",
+      "terrain": "catacomb",
+      "environment": {
+        "bg_color": "#1a1a2e",
+        "ambient_sound": "bone_rattle",
+        "fog": true,
+        "light_level": 0.32
+      },
+      "feature": "骨堆地形：击杀敌人会堆积骨堆，踏入骨堆可召唤一只临时友方骷髅协战，呼应奈瑟拉的亡灵召唤之力。",
+      "set_drop": "set_bone",
+      "unlock_condition": "clear_dungeon_crypt_1",
+      "design_note": "第一幕推进。深入陵墓第二层，骨骸铺地的长廊，墓园祭司开始召唤亡灵，给亡灵召唤流玩家第一份套装碎片。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 1.15,
+          "enemy_dmg_mult": 1.1,
+          "drop_quality_bonus": 0,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 1.73,
+          "enemy_dmg_mult": 1.49,
+          "drop_quality_bonus": 0.1,
+          "unlock": "clear_dungeon_crypt_2_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 2.65,
+          "enemy_dmg_mult": 1.87,
+          "drop_quality_bonus": 0.25,
+          "unlock": "clear_dungeon_crypt_2_t2"
+        }
+      ]
+    },
+    {
+      "id": "dungeon_crypt_3",
+      "display_name": "被诅咒的加冕室",
+      "region": "crypt",
+      "wave_set": "waveset_crypt_3",
+      "terrain": "tomb",
+      "environment": {
+        "bg_color": "#1a1a2e",
+        "ambient_sound": "bone_rattle",
+        "fog": true,
+        "light_level": 0.3
+      },
+      "feature": "王陵陷阱：地面随机激活骨刺尖阵，踩中受重伤并被减速，但亡灵系敌人无视尖刺，逼迫玩家与亡灵抢身位。",
+      "set_drop": "set_bone",
+      "unlock_condition": "clear_dungeon_crypt_2",
+      "design_note": "第一幕推进。历代国王加冕之地，墙上血迹与抓痕暗示王朝覆灭。首次出现堕落教团祭司踪迹（伏笔：教团在王陵做什么）。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 1.3,
+          "enemy_dmg_mult": 1.2,
+          "drop_quality_bonus": 0,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 1.95,
+          "enemy_dmg_mult": 1.62,
+          "drop_quality_bonus": 0.1,
+          "unlock": "clear_dungeon_crypt_3_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 2.99,
+          "enemy_dmg_mult": 2.04,
+          "drop_quality_bonus": 0.25,
+          "unlock": "clear_dungeon_crypt_3_t2"
+        }
+      ]
+    },
+    {
+      "id": "dungeon_crypt_4",
+      "display_name": "镜子王座厅",
+      "region": "crypt",
+      "wave_set": "waveset_crypt_4",
+      "terrain": "crypt",
+      "environment": {
+        "bg_color": "#1a1a2e",
+        "ambient_sound": "throne_wind",
+        "fog": true,
+        "light_level": 0.28
+      },
+      "feature": "双月死雾：死亡之雾持续时间翻倍且范围扩大，雾中暴击同时回血，亡灵精英在雾中获得护盾，高风险高回报。",
+      "set_drop": "set_bone",
+      "unlock_condition": "clear_dungeon_crypt_3",
+      "design_note": "第一幕尾声前哨。空王座在风中呜咽，骸骨骑士成群守卫通往千骨大殿之路。死雾机制压力拉满，为Boss战预热。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 1.5,
+          "enemy_dmg_mult": 1.35,
+          "drop_quality_bonus": 0,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 2.25,
+          "enemy_dmg_mult": 1.82,
+          "drop_quality_bonus": 0.1,
+          "unlock": "clear_dungeon_crypt_4_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 3.45,
+          "enemy_dmg_mult": 2.3,
+          "drop_quality_bonus": 0.25,
+          "unlock": "clear_dungeon_crypt_4_t2"
+        }
+      ]
+    },
+    {
+      "id": "dungeon_crypt_5",
+      "display_name": "白骨王座·千骨大殿",
+      "region": "crypt",
+      "wave_set": "waveset_crypt_5",
+      "terrain": "throne_hall",
+      "environment": {
+        "bg_color": "#1a1a2e",
+        "ambient_sound": "throne_wind",
+        "fog": true,
+        "light_level": 0.25
+      },
+      "feature": "千骨大殿·白骨王领域：亡灵召唤流伤害+30%，Boss阶段二召唤历代国王亡灵助战，死雾与召唤潮叠加考验清场与走位。",
+      "set_drop": "set_bone",
+      "unlock_condition": "clear_dungeon_crypt_4",
+      "design_note": "第一幕高潮。决战白骨王奥斯瑞克（安罗斯末代仁君，被奈瑟拉困住灵魂）。临终独白'不是我让我变成怪物的……是地下的她'，玩家首次听到古神暗示。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 1.7,
+          "enemy_dmg_mult": 1.5,
+          "drop_quality_bonus": 0,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 2.55,
+          "enemy_dmg_mult": 2.03,
+          "drop_quality_bonus": 0.1,
+          "unlock": "clear_dungeon_crypt_5_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 3.91,
+          "enemy_dmg_mult": 2.55,
+          "drop_quality_bonus": 0.25,
+          "unlock": "clear_dungeon_crypt_5_t2"
+        }
+      ]
+    },
+    {
+      "id": "dungeon_swamp_1",
+      "display_name": "腐沼浅滩",
+      "region": "swamp",
+      "wave_set": "waveset_swamp_1",
+      "terrain": "swamp",
+      "environment": {
+        "bg_color": "#1a2e1a",
+        "ambient_sound": "fly_buzz",
+        "fog": true,
+        "light_level": 0.45
+      },
+      "feature": "沼泽水面减速30%，但毒系装备在水中触发率翻倍，中毒叠加层数上限提升，主推毒系DoT构筑。",
+      "set_drop": "set_plague",
+      "unlock_condition": "clear_dungeon_crypt_5",
+      "design_note": "第二幕开端。黎明堡爆发瘟疫，沼泽贤者维兰引玩家溯源至腐沼疫地。发绿水面与苍蝇嗡鸣，引入水面减速与毒触发机制。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 1.9,
+          "enemy_dmg_mult": 1.6,
+          "drop_quality_bonus": 0.05,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 2.85,
+          "enemy_dmg_mult": 2.16,
+          "drop_quality_bonus": 0.15,
+          "unlock": "clear_dungeon_swamp_1_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 4.37,
+          "enemy_dmg_mult": 2.72,
+          "drop_quality_bonus": 0.3,
+          "unlock": "clear_dungeon_swamp_1_t2"
+        }
+      ]
+    },
+    {
+      "id": "dungeon_swamp_2",
+      "display_name": "巨菌林沼",
+      "region": "swamp",
+      "wave_set": "waveset_swamp_2",
+      "terrain": "marsh",
+      "environment": {
+        "bg_color": "#1a2e1a",
+        "ambient_sound": "water_bubble",
+        "fog": true,
+        "light_level": 0.42
+      },
+      "feature": "孢子云：踩踏或击破巨型蘑菇释放扩散毒云，对敌持续毒伤但对玩家同样有毒，需借虫群与孢子连锁感染。",
+      "set_drop": "set_plague",
+      "unlock_condition": "clear_dungeon_swamp_1",
+      "design_note": "第二幕推进。巨型蘑菇林与缠绕尸体的藤蔓，孵化者持续召虫。环境叙事：树上悬挂疫病祷者的茧，教团祭祀痕迹渐显。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 2.1,
+          "enemy_dmg_mult": 1.75,
+          "drop_quality_bonus": 0.05,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 3.15,
+          "enemy_dmg_mult": 2.36,
+          "drop_quality_bonus": 0.15,
+          "unlock": "clear_dungeon_swamp_2_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 4.83,
+          "enemy_dmg_mult": 2.98,
+          "drop_quality_bonus": 0.3,
+          "unlock": "clear_dungeon_swamp_2_t2"
+        }
+      ]
+    },
+    {
+      "id": "dungeon_swamp_3",
+      "display_name": "沉没的钟楼",
+      "region": "swamp",
+      "wave_set": "waveset_swamp_3",
+      "terrain": "swamp",
+      "environment": {
+        "bg_color": "#1a2e1a",
+        "ambient_sound": "brood_chitter",
+        "fog": true,
+        "light_level": 0.4
+      },
+      "feature": "虫巢潮：周期性从淹没城市废墟涌出蛆群，清掉巢穴可获得额外掉落，放任则虫潮叠加包围玩家。",
+      "set_drop": "set_plague",
+      "unlock_condition": "clear_dungeon_swamp_2",
+      "design_note": "第二幕推进。维兰丁淹没的钟楼半浸水中，发现被绑架并变异的黎明堡村民。教团在加速古尔撒'心跳'的真相逐步揭开。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 2.3,
+          "enemy_dmg_mult": 1.9,
+          "drop_quality_bonus": 0.05,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 3.45,
+          "enemy_dmg_mult": 2.57,
+          "drop_quality_bonus": 0.15,
+          "unlock": "clear_dungeon_swamp_3_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 5.29,
+          "enemy_dmg_mult": 3.23,
+          "drop_quality_bonus": 0.3,
+          "unlock": "clear_dungeon_swamp_3_t2"
+        }
+      ]
+    },
+    {
+      "id": "dungeon_swamp_4",
+      "display_name": "巢母深井",
+      "region": "swamp",
+      "wave_set": "waveset_swamp_4",
+      "terrain": "sunken_temple",
+      "environment": {
+        "bg_color": "#1a2e1a",
+        "ambient_sound": "brood_chitter",
+        "fog": true,
+        "light_level": 0.38
+      },
+      "feature": "巢母深井：毒雾自边缘向中心逼近，中毒叠层无上限，Boss战周期性产卵，玩家须取舍打卵止增殖或集火Boss。",
+      "set_drop": "set_plague",
+      "unlock_condition": "clear_dungeon_swamp_3",
+      "design_note": "第二幕高潮。决战巢母莫拉戈斯（原疫病修女艾尔莎，1010年献祭古尔撒成为代孕子宫）。维兰摘面具露出半张腐脸，玩家首次正面认识古神与远古守护者。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 2.6,
+          "enemy_dmg_mult": 2.1,
+          "drop_quality_bonus": 0.05,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 3.9,
+          "enemy_dmg_mult": 2.84,
+          "drop_quality_bonus": 0.15,
+          "unlock": "clear_dungeon_swamp_4_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 5.98,
+          "enemy_dmg_mult": 3.57,
+          "drop_quality_bonus": 0.3,
+          "unlock": "clear_dungeon_swamp_4_t2"
+        }
+      ]
+    },
+    {
+      "id": "dungeon_forge_1",
+      "display_name": "熔火矿道",
+      "region": "forge",
+      "wave_set": "waveset_forge_1",
+      "terrain": "forge",
+      "environment": {
+        "bg_color": "#2e1a0e",
+        "ambient_sound": "bellows_roar",
+        "fog": false,
+        "light_level": 0.6
+      },
+      "feature": "熔岩格随机点亮：踩中持续灼烧，但火焰系装备在熔岩格上反而回血，奖励火焰流贴近熔岩输出。",
+      "set_drop": "set_ember",
+      "unlock_condition": "clear_dungeon_swamp_4",
+      "design_note": "第三幕开端。远古守护者锻心索林告知教团'虚空之钥'计划，玩家进入卡尔罗斯地下铁矿。烫红恶魔石像与风箱轰鸣，引入熔岩格机制。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 2.9,
+          "enemy_dmg_mult": 2.3,
+          "drop_quality_bonus": 0.1,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 4.35,
+          "enemy_dmg_mult": 3.11,
+          "drop_quality_bonus": 0.2,
+          "unlock": "clear_dungeon_forge_1_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 6.67,
+          "enemy_dmg_mult": 3.91,
+          "drop_quality_bonus": 0.35,
+          "unlock": "clear_dungeon_forge_1_t2"
+        }
+      ]
+    },
+    {
+      "id": "dungeon_forge_2",
+      "display_name": "熔岩脉心",
+      "region": "forge",
+      "wave_set": "waveset_forge_2",
+      "terrain": "lava_cavern",
+      "environment": {
+        "bg_color": "#2e1a0e",
+        "ambient_sound": "ash_rumble",
+        "fog": false,
+        "light_level": 0.65
+      },
+      "feature": "过热机制：连续输出累积热度条，满热触发一次范围爆燃高伤，但过热期间自身防御下降，呼应伊格诺斯'扭曲变强'。",
+      "set_drop": "set_ember",
+      "unlock_condition": "clear_dungeon_forge_1",
+      "design_note": "第三幕推进。熔岩脉深处悬空镣铐密布，熔铸者护甲极高需穿透应对。环境叙事：被烧红的恶魔之心碎片散落矿脉。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 3.2,
+          "enemy_dmg_mult": 2.5,
+          "drop_quality_bonus": 0.1,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 4.8,
+          "enemy_dmg_mult": 3.38,
+          "drop_quality_bonus": 0.2,
+          "unlock": "clear_dungeon_forge_2_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 7.36,
+          "enemy_dmg_mult": 4.25,
+          "drop_quality_bonus": 0.35,
+          "unlock": "clear_dungeon_forge_2_t2"
+        }
+      ]
+    },
+    {
+      "id": "dungeon_forge_3",
+      "display_name": "堕落锻造厅",
+      "region": "forge",
+      "wave_set": "waveset_forge_3",
+      "terrain": "forge_hall",
+      "environment": {
+        "bg_color": "#2e1a0e",
+        "ambient_sound": "hammer_clang",
+        "fog": false,
+        "light_level": 0.62
+      },
+      "feature": "锻造核心：场上分布可击碎的烧红铁砧，摧毁获得临时火焰增伤层，刑炉守卫投掷烈焰链封锁走位。",
+      "set_drop": "set_ember",
+      "unlock_condition": "clear_dungeon_forge_2",
+      "design_note": "第三幕推进。玩家在堕落锻造厅打断教团锻造'虚空之钥'的仪式。铁锤敲击与铜锣回荡，索林准备牺牲自己开启燃尽王座之路。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 3.5,
+          "enemy_dmg_mult": 2.7,
+          "drop_quality_bonus": 0.1,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 5.25,
+          "enemy_dmg_mult": 3.65,
+          "drop_quality_bonus": 0.2,
+          "unlock": "clear_dungeon_forge_3_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 8.05,
+          "enemy_dmg_mult": 4.59,
+          "drop_quality_bonus": 0.35,
+          "unlock": "clear_dungeon_forge_3_t2"
+        }
+      ]
+    },
+    {
+      "id": "dungeon_forge_4",
+      "display_name": "燃尽王座",
+      "region": "forge",
+      "wave_set": "waveset_forge_4",
+      "terrain": "throne_of_ash",
+      "environment": {
+        "bg_color": "#2e1a0e",
+        "ambient_sound": "ash_rumble",
+        "fog": false,
+        "light_level": 0.7
+      },
+      "feature": "燃尽王座·熔炉开启：阶段三熔炉敞开，玩家须摧毁锻造核心，否则Boss无限重生，熔岩格密集灼烧叠加爆发考验。",
+      "set_drop": "set_ember",
+      "unlock_condition": "clear_dungeon_forge_3",
+      "design_note": "第三幕高潮。决战燃烬之主瓦尔卡兹（矮人锻造大师杜林，身体成伊格诺斯容器）。击败后教团杀手抢走锻心之锤逃走，索林留言'去找北方'，指引DLC1。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 3.9,
+          "enemy_dmg_mult": 2.95,
+          "drop_quality_bonus": 0.1,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 5.85,
+          "enemy_dmg_mult": 3.98,
+          "drop_quality_bonus": 0.2,
+          "unlock": "clear_dungeon_forge_4_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 8.97,
+          "enemy_dmg_mult": 5.02,
+          "drop_quality_bonus": 0.35,
+          "unlock": "clear_dungeon_forge_4_t2"
+        }
+      ]
+    },
+    {
+      "id": "dungeon_ice_1",
+      "display_name": "永眠之渊·北径",
+      "region": "ice",
+      "wave_set": "waveset_ice_1",
+      "terrain": "ice_cave",
+      "environment": {
+        "bg_color": "#1a2a3e",
+        "ambient_sound": "frost_wind",
+        "fog": true,
+        "light_level": 0.7
+      },
+      "feature": "冰霜领域：全场移速降低，但冰霜系技能冷却减半，被冻结敌人受到的伤害提升，主推控制/减速流。",
+      "set_drop": "set_frost",
+      "unlock_condition": "clear_dungeon_forge_4",
+      "design_note": "第四幕开端（DLC1）。玩家追击教团北上永眠之渊，外围遇'艾莉珊德拉学徒'女巫加入（解锁冰霜女巫职业线索）。寒风呜咽，引入冰霜领域机制。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 4.3,
+          "enemy_dmg_mult": 3.2,
+          "drop_quality_bonus": 0.15,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 6.45,
+          "enemy_dmg_mult": 4.32,
+          "drop_quality_bonus": 0.28,
+          "unlock": "clear_dungeon_ice_1_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 9.89,
+          "enemy_dmg_mult": 5.44,
+          "drop_quality_bonus": 0.45,
+          "unlock": "clear_dungeon_ice_1_t2"
+        }
+      ]
+    },
+    {
+      "id": "dungeon_ice_2",
+      "display_name": "冰封回廊",
+      "region": "ice",
+      "wave_set": "waveset_ice_2",
+      "terrain": "glacier",
+      "environment": {
+        "bg_color": "#1a2a3e",
+        "ambient_sound": "ice_crack",
+        "fog": true,
+        "light_level": 0.72
+      },
+      "feature": "时间裂隙：每隔一段时间全场时停3秒，时停期间预埋的技能与弹道会在解冻瞬间一次性结算，奖励爆发布置。",
+      "set_drop": "set_frost",
+      "unlock_condition": "clear_dungeon_ice_1",
+      "design_note": "第四幕推进（DLC1）。被永久封印的法师议会回廊，冰封骑士与寒冰祭司守卫。环境叙事：冻结在冰中的议会法师，时停机制呼应克里斯塔的时间停滞之力。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 4.7,
+          "enemy_dmg_mult": 3.5,
+          "drop_quality_bonus": 0.15,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 7.05,
+          "enemy_dmg_mult": 4.73,
+          "drop_quality_bonus": 0.28,
+          "unlock": "clear_dungeon_ice_2_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 10.81,
+          "enemy_dmg_mult": 5.95,
+          "drop_quality_bonus": 0.45,
+          "unlock": "clear_dungeon_ice_2_t2"
+        }
+      ]
+    },
+    {
+      "id": "dungeon_ice_3",
+      "display_name": "冰封王座",
+      "region": "ice",
+      "wave_set": "waveset_ice_3",
+      "terrain": "frozen_throne",
+      "environment": {
+        "bg_color": "#1a2a3e",
+        "ambient_sound": "frozen_silence",
+        "fog": true,
+        "light_level": 0.68
+      },
+      "feature": "永冻王座：全场霜冻，玩家施加的控制效果时长翻倍，但Boss被打断时释放冰封反击，时停与霜爆交替施压。",
+      "set_drop": "set_frost",
+      "unlock_condition": "clear_dungeon_ice_2",
+      "design_note": "第四幕高潮（DLC1）。决战冰霜巫妖艾莉珊德拉（千年活体封印，封印克里斯塔）。反转揭示：古神并非主动作恶，真正推手是教团。留言'教团之首并非凡人'指引DLC2。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 5.2,
+          "enemy_dmg_mult": 3.8,
+          "drop_quality_bonus": 0.15,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 7.8,
+          "enemy_dmg_mult": 5.13,
+          "drop_quality_bonus": 0.28,
+          "unlock": "clear_dungeon_ice_3_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 11.96,
+          "enemy_dmg_mult": 6.46,
+          "drop_quality_bonus": 0.45,
+          "unlock": "clear_dungeon_ice_3_t2"
+        }
+      ]
+    },
+    {
+      "id": "dungeon_void_1",
+      "display_name": "虚空边界",
+      "region": "void",
+      "wave_set": "waveset_void_1",
+      "terrain": "void",
+      "environment": {
+        "bg_color": "#1e0e2e",
+        "ambient_sound": "chaos_drone",
+        "fog": true,
+        "light_level": 0.35
+      },
+      "feature": "规则扭曲：装备词缀效果随机变异，每60秒重掷一次，混沌伤害与随机暴击频发，奖励虚空/混合构筑的容错。",
+      "set_drop": "set_void",
+      "unlock_condition": "clear_dungeon_ice_3",
+      "design_note": "第五幕开端（DLC2）。玩家进入永眠之渊核心、深渊之力的真正源头。空间扭曲、异色裂痕遍布，碎影与混沌眼游荡，引入规则扭曲机制。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 5.8,
+          "enemy_dmg_mult": 4.2,
+          "drop_quality_bonus": 0.2,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 8.7,
+          "enemy_dmg_mult": 5.67,
+          "drop_quality_bonus": 0.35,
+          "unlock": "clear_dungeon_void_1_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 13.34,
+          "enemy_dmg_mult": 7.14,
+          "drop_quality_bonus": 0.55,
+          "unlock": "clear_dungeon_void_1_t2"
+        }
+      ]
+    },
+    {
+      "id": "dungeon_void_2",
+      "display_name": "虚空裂隙·核心",
+      "region": "void",
+      "wave_set": "waveset_void_2",
+      "terrain": "void_rift",
+      "environment": {
+        "bg_color": "#1e0e2e",
+        "ambient_sound": "void_whisper",
+        "fog": true,
+        "light_level": 0.3
+      },
+      "feature": "虚空核心：Boss随机复制前四幕Boss招式，现实扭曲会随机翻转移动/技能映射，规则突破词缀在此触发概率最高。",
+      "set_drop": "set_void",
+      "unlock_condition": "clear_dungeon_void_1",
+      "design_note": "第五幕终局（DLC2）。决战教皇卡西米尔——千年前故意失败仪式的首席祭司、虚空之子容器。其后虚空之子现身（模仿前四Boss招式），按前序选择走向黎明/轮回/堕落结局。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 6.5,
+          "enemy_dmg_mult": 4.7,
+          "drop_quality_bonus": 0.2,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 9.75,
+          "enemy_dmg_mult": 6.35,
+          "drop_quality_bonus": 0.35,
+          "unlock": "clear_dungeon_void_2_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 14.95,
+          "enemy_dmg_mult": 7.99,
+          "drop_quality_bonus": 0.55,
+          "unlock": "clear_dungeon_void_2_t2"
+        }
+      ]
+    },
+    {
+      "id": "field_wasteland",
+      "display_name": "黎明堡外·荒原",
+      "region": "field",
+      "wave_set": "waveset_field_1",
+      "terrain": "wasteland",
+      "environment": {
+        "bg_color": "#2e2a1a",
+        "ambient_sound": "wasteland_gale",
+        "fog": true,
+        "light_level": 0.65
+      },
+      "feature": "荒原沙暴：周期性沙暴降低视野与命中，荒野盗匪趁沙暴伏击，沙暴间隙是安全输出窗口。",
+      "set_drop": "",
+      "unlock_condition": "clear_dungeon_void_2",
+      "design_note": "拾荒者行会支线farming场。黎明堡城墙外的腐化荒原，混杂腐化狼、盗匪与游荡尸，无古神套装掉落但是稳定刷材料金币的开阔地。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 2,
+          "enemy_dmg_mult": 1.7,
+          "drop_quality_bonus": 0.05,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 3,
+          "enemy_dmg_mult": 2.3,
+          "drop_quality_bonus": 0.15,
+          "unlock": "clear_field_wasteland_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 4.6,
+          "enemy_dmg_mult": 2.89,
+          "drop_quality_bonus": 0.3,
+          "unlock": "clear_field_wasteland_t2"
+        }
+      ]
+    },
+    {
+      "id": "field_forest",
+      "display_name": "腐化森林",
+      "region": "field",
+      "wave_set": "waveset_field_2",
+      "terrain": "forest",
+      "environment": {
+        "bg_color": "#2e2a1a",
+        "ambient_sound": "wind_howl",
+        "fog": true,
+        "light_level": 0.55
+      },
+      "feature": "腐化藤蔓：场地藤蔓缠绕减速，砍除藤蔓掉落补给与短时增益，变异熊在密林中突进伏击。",
+      "set_drop": "",
+      "unlock_condition": "clear_field_wasteland",
+      "design_note": "拾荒者行会支线farming场。深渊之力侵蚀的扭曲森林，教团斥候在此巡逻（环境叙事：跨副本的教团踪迹）。中等强度的混合刷怪区。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 2.4,
+          "enemy_dmg_mult": 1.95,
+          "drop_quality_bonus": 0.05,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 3.6,
+          "enemy_dmg_mult": 2.63,
+          "drop_quality_bonus": 0.15,
+          "unlock": "clear_field_forest_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 5.52,
+          "enemy_dmg_mult": 3.32,
+          "drop_quality_bonus": 0.3,
+          "unlock": "clear_field_forest_t2"
+        }
+      ]
+    },
+    {
+      "id": "field_ruins",
+      "display_name": "废弃王国遗迹",
+      "region": "field",
+      "wave_set": "waveset_field_3",
+      "terrain": "ruins",
+      "environment": {
+        "bg_color": "#2e2a1a",
+        "ambient_sound": "ruin_echo",
+        "fog": false,
+        "light_level": 0.6
+      },
+      "feature": "遗迹回响：废墟中游荡尸成群刷新，连续击杀积累拾荒者宝箱掉率，最终触发荒原霸主精英Boss刷新。",
+      "set_drop": "",
+      "unlock_condition": "clear_field_forest",
+      "design_note": "拾荒者行会支线farming场。三大王国覆灭后的地表废墟，破碎王冠与锈蚀盔甲诉说往日辉煌。野区精英Boss荒原霸主在此坐镇，是地表最高强度的刷宝点。",
+      "difficulty_tiers": [
+        {
+          "tier": 1,
+          "display_name": "普通",
+          "enemy_hp_mult": 2.8,
+          "enemy_dmg_mult": 2.2,
+          "drop_quality_bonus": 0.05,
+          "unlock": "default"
+        },
+        {
+          "tier": 2,
+          "display_name": "困难",
+          "enemy_hp_mult": 4.2,
+          "enemy_dmg_mult": 2.97,
+          "drop_quality_bonus": 0.15,
+          "unlock": "clear_field_ruins_t1"
+        },
+        {
+          "tier": 3,
+          "display_name": "噩梦",
+          "enemy_hp_mult": 6.44,
+          "enemy_dmg_mult": 3.74,
+          "drop_quality_bonus": 0.3,
+          "unlock": "clear_field_ruins_t2"
+        }
+      ]
+    }
+  ],
+  "towns": [
+    {
+      "id": "town_newbie",
+      "display_name": "新手村",
+      "type": "tutorial",
+      "environment": {
+        "bg_color": "#2e2a1a",
+        "ambient_sound": "wind_howl",
+        "fog": false,
+        "light_level": 0.7
+      },
+      "npcs": [
+        "拾荒者行会教官"
+      ],
+      "design_note": "教学场景，无战斗。拾荒者行会的'试炼'地（对应入会试炼设定），引导玩家熟悉移动、攻击、拾取与装备穿戴，通关后正式踏入黎明堡。"
+    },
+    {
+      "id": "town_dawnskeep",
+      "display_name": "黎明堡",
+      "type": "hub",
+      "environment": {
+        "bg_color": "#2e2a1a",
+        "ambient_sound": "dawn_bell",
+        "fog": false,
+        "light_level": 0.85
+      },
+      "npcs": [
+        "长老埃德温",
+        "铁匠格雷森",
+        "商人莉莉安",
+        "图书管理员塞拉斯"
+      ],
+      "design_note": "局外成长中心，人类最后的要塞。日出时古阵光辉短暂驱散亡灵。埃德温发布主线与解锁副本，格雷森强化装备，莉莉安买卖道具，塞拉斯管理图鉴与成就。"
+    }
+  ]
+}

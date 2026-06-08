@@ -1,0 +1,126 @@
+{
+  "version": "1.0.0",
+  "level_curve": {
+    "description": "局内升级所需经验",
+    "formula": "base * (growth ^ (level-1))",
+    "base_exp": 10,
+    "growth": 1.15,
+    "max_level": 50,
+    "design_note": "前期快速升级（每10-20秒），后期渐慢。Growth 1.15 是温和曲线。"
+  },
+  "damage_formula": {
+    "description": "最终伤害 = (基础+附加) * 增益 * 暴击 * 抗性系数",
+    "crit_multiplier_base": 1.5,
+    "resistance_formula": "damage * (1 - armor/(armor+100))",
+    "design_note": "暴击默认1.5倍，可被词缀和技能提升。抗性用边际递减，避免堆抗无敌。"
+  },
+  "meta_progression": {
+    "description": "局外永久强化（金币升级）",
+    "stats": [
+      {
+        "id": "perm_hp",
+        "display_name": "体魄",
+        "per_level": 10,
+        "max_level": 20,
+        "cost_curve": {
+          "base": 50,
+          "growth": 1.3
+        },
+        "design_note": "每级+10血，最高20级共+200血。成本指数增长，控制成长速度。"
+      },
+      {
+        "id": "perm_damage",
+        "display_name": "力量",
+        "per_level": 2,
+        "max_level": 20,
+        "cost_curve": {
+          "base": 50,
+          "growth": 1.3
+        },
+        "design_note": "每级+2伤害，最高20级共+40伤害。"
+      },
+      {
+        "id": "perm_attack_speed",
+        "display_name": "敏捷",
+        "per_level": 0.05,
+        "max_level": 10,
+        "cost_curve": {
+          "base": 100,
+          "growth": 1.4
+        },
+        "design_note": "每级+5%攻速，最高10级共+50%攻速。攻速影响大，升级贵且上限低。"
+      },
+      {
+        "id": "perm_crit_chance",
+        "display_name": "精准",
+        "per_level": 0.01,
+        "max_level": 10,
+        "cost_curve": {
+          "base": 80,
+          "growth": 1.35
+        },
+        "design_note": "每级+1%暴击率，最高10级共+10%暴击。"
+      },
+      {
+        "id": "perm_move_speed",
+        "display_name": "迅捷",
+        "per_level": 0.05,
+        "max_level": 10,
+        "cost_curve": {
+          "base": 60,
+          "growth": 1.3
+        },
+        "design_note": "每级+5%移速，最高10级共+50%移速。"
+      }
+    ]
+  },
+  "drop_rates": {
+    "description": "装备掉落与品质权重(5档:白/蓝/紫/金/红传奇)",
+    "base_equipment_drop": 0.03,
+    "rarity_weights": {
+      "common": 50,
+      "rare": 28,
+      "epic": 14,
+      "legendary": 6,
+      "mythic": 2
+    },
+    "drop_level_scaling": {
+      "description": "更高副本层数提升稀有度权重",
+      "rare_boost_per_level": 0.02,
+      "epic_boost_per_level": 0.01
+    },
+    "design_note": "基础3%掉率，稀有度权重确保common最常见。高层副本提升稀有度，驱动挑战高难度。"
+  },
+  "skill_choice": {
+    "description": "升级三选一抽取规则",
+    "choices_count": 3,
+    "rarity_weights": {
+      "common": 60,
+      "uncommon": 25,
+      "rare": 12,
+      "legendary": 3
+    },
+    "synergy_boost": 1.5,
+    "design_note": "每次升级随机3个技能。已选某流派标签时，同标签技能权重*1.5，引导成型Build。"
+  },
+  "combat_balance": {
+    "description": "战斗手感参数",
+    "player_base_stats": {
+      "max_hp": 100,
+      "damage": 10,
+      "attack_speed": 1,
+      "move_speed": 200,
+      "crit_chance": 0.05,
+      "crit_damage": 1.5
+    },
+    "knockback_enabled": true,
+    "iframes_duration": 0.5,
+    "design_note": "玩家基础属性。受击后0.5秒无敌帧，避免瞬间暴毙。"
+  },
+  "economy": {
+    "description": "金币经济",
+    "gold_per_enemy_base": 2,
+    "gold_on_death_keep_percent": 0.5,
+    "design_note": "敌人掉金币，阵亡保留50%。确保失败也有收获，驱动'再来一局'。"
+  }
+}

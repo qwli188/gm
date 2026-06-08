@@ -1,0 +1,185 @@
+{
+  "classes": [
+    {
+      "id": "class_warrior",
+      "display_name": "战士",
+      "title": "铁甲卫士",
+      "description": "黎明堡城墙上最坚实的盾。近战坦克，依靠厚血与护甲在堕落教团的潮水中屹立不倒，越是浴血越是凶猛。",
+      "core_mechanic": "怒气机制：受击与命中积攒怒气，怒气满槽时解放强力旋斩并短暂提升伤害与减伤，鼓励正面贴脸搏杀。",
+      "god_affinity": "黎明堡",
+      "favored_tags": [
+        "melee",
+        "physical",
+        "tank"
+      ],
+      "sprite_region": [
+        425,
+        408,
+        16,
+        16
+      ],
+      "base_stats": {
+        "max_hp": 120,
+        "damage": 12,
+        "attack_speed": 1,
+        "move_speed": 280,
+        "crit_chance": 0.05,
+        "crit_damage": 1.5,
+        "armor": 5
+      },
+      "starting_weapon": "weapon_iron_sword",
+      "starting_skill": "skill_whirlwind"
+    },
+    {
+      "id": "class_ranger",
+      "display_name": "游侠",
+      "title": "暗影猎手",
+      "description": "拾荒者行会的眼睛与远箭。高攻速高暴击的远程输出，血薄如纸却能在敌人靠近前将其钉死，靠风筝与精准取胜。",
+      "core_mechanic": "精准射击：连续命中同一目标叠加精准层数，层数越高暴击率与暴伤越强，保持距离与点射可滚雪球式爆发。",
+      "god_affinity": "拾荒者行会",
+      "favored_tags": [
+        "ranged",
+        "crit",
+        "swift"
+      ],
+      "sprite_region": [
+        442,
+        408,
+        16,
+        16
+      ],
+      "base_stats": {
+        "max_hp": 80,
+        "damage": 8,
+        "attack_speed": 1.5,
+        "move_speed": 320,
+        "crit_chance": 0.15,
+        "crit_damage": 1.8,
+        "armor": 0
+      },
+      "starting_weapon": "weapon_hunting_bow",
+      "starting_skill": "skill_precise_shot"
+    },
+    {
+      "id": "class_mage",
+      "display_name": "法师",
+      "title": "烈焰术士",
+      "description": "汲取伊格诺斯锻心炉火的元素行者。高伤害低血量的法术核心，一次连锁爆发足以清空整片战场，但被近身便岌岌可危。",
+      "core_mechanic": "法力连锁：施放法术消耗法力，命中后法术可在敌群间弹射连锁，连锁数随法力充沛度提升，奖励聚怪与持续输出。",
+      "god_affinity": "伊格诺斯",
+      "favored_tags": [
+        "magic",
+        "fire",
+        "aoe"
+      ],
+      "sprite_region": [
+        459,
+        408,
+        16,
+        16
+      ],
+      "base_stats": {
+        "max_hp": 70,
+        "damage": 15,
+        "attack_speed": 0.8,
+        "move_speed": 300,
+        "crit_chance": 0.08,
+        "crit_damage": 2,
+        "armor": 0
+      },
+      "starting_weapon": "weapon_flame_staff",
+      "starting_skill": "skill_fireball"
+    },
+    {
+      "id": "class_assassin",
+      "display_name": "刺客",
+      "title": "无声之刃",
+      "description": "游走于黑暗纪元阴影里的猎杀者。极高暴击与移速、中低血量，靠潜行接近从背后一击致命，得手即走绝不恋战。",
+      "core_mechanic": "潜行背刺：脱离战斗短时后进入潜行，潜行状态下的首次攻击为必定暴击的背刺并造成额外伤害，奖励切入切出的游击节奏。",
+      "god_affinity": "拾荒者行会",
+      "favored_tags": [
+        "melee",
+        "crit",
+        "stealth"
+      ],
+      "sprite_region": [
+        476,
+        408,
+        16,
+        16
+      ],
+      "base_stats": {
+        "max_hp": 75,
+        "damage": 11,
+        "attack_speed": 1.3,
+        "move_speed": 320,
+        "crit_chance": 0.2,
+        "crit_damage": 2,
+        "armor": 2
+      },
+      "starting_weapon": "weapon_shadow_dagger",
+      "starting_skill": "skill_backstab"
+    },
+    {
+      "id": "class_knight",
+      "display_name": "骑士",
+      "title": "黎明圣骑",
+      "description": "黎明堡受神光加护的重甲战士。极高护甲与血量，以圣盾抵御并反弹伤害，是队伍最前排不可逾越的光之壁垒。",
+      "core_mechanic": "圣盾反伤：蓄能展开圣盾吸收伤害，盾存续期间将所受伤害的一部分以神圣伤害反弹给攻击者，奖励主动承伤与卡盾时机。",
+      "god_affinity": "黎明堡",
+      "favored_tags": [
+        "melee",
+        "holy",
+        "tank",
+        "defense"
+      ],
+      "sprite_region": [
+        493,
+        408,
+        16,
+        16
+      ],
+      "base_stats": {
+        "max_hp": 130,
+        "damage": 10,
+        "attack_speed": 0.9,
+        "move_speed": 260,
+        "crit_chance": 0.05,
+        "crit_damage": 1.5,
+        "armor": 8
+      },
+      "starting_weapon": "weapon_holy_mace",
+      "starting_skill": "skill_holy_shield"
+    },
+    {
+      "id": "class_necromancer",
+      "display_name": "死灵师",
+      "title": "白骨低语者",
+      "description": "向白骨之母奈瑟拉立誓的死亡支配者。低血中伤，本体脆弱却能驱使成群亡灵代为厮杀，以尸山填路。",
+      "core_mechanic": "召唤亡灵与尸体爆炸：消耗法力召唤骷髅随从持续作战，亦可引爆战场上的尸体造成范围亡灵伤害，奖励控场与尸体资源运营。",
+      "god_affinity": "奈瑟拉",
+      "favored_tags": [
+        "undead",
+        "summon",
+        "death"
+      ],
+      "sprite_region": [
+        510,
+        408,
+        16,
+        16
+      ],
+      "base_stats": {
+        "max_hp": 70,
+        "damage": 10,
+        "attack_speed": 0.9,
+        "move_speed": 290,
+        "crit_chance": 0.06,
+        "crit_damage": 1.6,
+        "armor": 1
+      },
+      "starting_weapon": "weapon_bone_staff",
+      "starting_skill": "skill_raise_skeleton"
+    }
+  ]
+}

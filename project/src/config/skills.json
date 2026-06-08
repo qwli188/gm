@@ -1,0 +1,1568 @@
+{
+  "version": "3.0.0",
+  "skills": [
+    {
+      "id": "skill_whirlwind",
+      "display_name": "旋风斩",
+      "class": "class_warrior",
+      "type": "active",
+      "tags": [
+        "melee",
+        "physical",
+        "aoe",
+        "rage"
+      ],
+      "effect": {
+        "kind": "melee_swing",
+        "damage": 20,
+        "arc": 360,
+        "cooldown": 3
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "damage_per_level": 8,
+        "arc_fixed": 360,
+        "cooldown_reduction_at": [
+          3,
+          5
+        ],
+        "note": "每级+8基础伤害，3/5级各-0.5s冷却"
+      },
+      "rarity": "common",
+      "icon": "res://assets/icons/skills/whirlwind.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "physical",
+        "bonus": "武器物理伤害与攻速词缀直接乘进每段旋转，怒气满槽时由skill_rampage接管转为无冷却持续旋斩"
+      },
+      "design_note": "战士核心AOE与怒气出口。melee_swing伤害吃武器add_damage(physical)与mult_stat(damage)，攻速词缀缩短挥砍间隔变相提DPS；与set_bone吸血或affix_lifesteal搭配可在怪群中边转边回血，是怒气贴脸流的清场主轴。"
+    },
+    {
+      "id": "skill_rampage",
+      "display_name": "狂怒爆发",
+      "class": "class_warrior",
+      "type": "active",
+      "tags": [
+        "rage",
+        "buff",
+        "melee",
+        "berserk"
+      ],
+      "effect": {
+        "kind": "buff",
+        "stat": "damage",
+        "value": 0.4,
+        "duration": 6,
+        "cooldown": 14
+      },
+      "max_level": 3,
+      "level_scaling": {
+        "value_per_level": 0.2,
+        "duration_per_level": 1,
+        "note": "每级+20%伤害增益、+1s持续；满级期间附带20%减伤"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/rampage.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "lifesteal",
+        "bonus": "增益期间提升的伤害放大affix_lifesteal回血量，越打越肉"
+      },
+      "design_note": "对接职业怒气机制：怒气满槽手动解放，短时间mult_stat(damage)叠加并提供减伤窗口。期间施放skill_whirlwind或skill_execute收益最大化，配合affix_lifesteal/affix_attack_speed把爆发窗口变成续航窗口，是怒气坦克流的节奏开关。"
+    },
+    {
+      "id": "skill_seismic_slam",
+      "display_name": "震地猛击",
+      "class": "class_warrior",
+      "type": "active",
+      "tags": [
+        "melee",
+        "physical",
+        "aoe",
+        "control"
+      ],
+      "effect": {
+        "kind": "melee_swing",
+        "damage": 45,
+        "arc": 160,
+        "cooldown": 6
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "damage_per_level": 15,
+        "arc_per_level": 10,
+        "note": "每级+15伤害、扇形+10度，3级起命中附带短暂击退/眩晕"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/seismic_slam.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "tank",
+        "bonus": "高armor时配合减伤可无视反击强开团，eqp护甲越高越敢贴脸砸"
+      },
+      "design_note": "前向重击型melee_swing，单段高伤+控场。吃crit_chance/crit_damage词缀时可作为暴击爆发起手，先震地控住再接旋风；与骑士/战士的高armor、set_bone坦度装搭配形成开团-控场-清场的连段。"
+    },
+    {
+      "id": "skill_execute",
+      "display_name": "处决",
+      "class": "class_warrior",
+      "type": "active",
+      "tags": [
+        "melee",
+        "physical",
+        "execute",
+        "rage"
+      ],
+      "effect": {
+        "kind": "execute",
+        "threshold": 0.3,
+        "bonus_mult": 3,
+        "cooldown": 5
+      },
+      "max_level": 3,
+      "level_scaling": {
+        "threshold_per_level": 0.05,
+        "bonus_mult_per_level": 1,
+        "note": "每级斩杀线+5%血量、倍率+1.0；满级对45%血以下目标5倍伤害"
+      },
+      "rarity": "epic",
+      "icon": "res://assets/icons/skills/execute.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "crit",
+        "bonus": "斩杀倍率与暴击词缀相乘，对精英残血可触发超高暴击数字"
+      },
+      "design_note": "斩杀技：对低于阈值血量的目标以bonus_mult放大伤害，秒杀精英与BOSS收尾。倍率乘在最终伤害上，因此crit_damage词缀与skill_rampage增益叠加收益爆炸；怒气流用skill_seismic_slam压血、skill_execute收人头形成处决循环。"
+    },
+    {
+      "id": "skill_iron_will",
+      "display_name": "不屈意志",
+      "class": "class_warrior",
+      "type": "passive",
+      "tags": [
+        "defense",
+        "tank",
+        "armor"
+      ],
+      "effect": {
+        "kind": "add_stat",
+        "stat": "armor",
+        "value": 4
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "value_per_level": 3,
+        "note": "每级+4护甲，满级+16护甲"
+      },
+      "rarity": "common",
+      "icon": "res://assets/icons/skills/iron_will.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "tank",
+        "bonus": "与装备armor词缀线性叠加，堆到高位后减伤收益显著，支撑贴脸旋风"
+      },
+      "design_note": "纯减伤被动，add_stat(armor)。让战士能稳定吃住堕落教团的潮水以维持怒气积攒。与set_bone坦度套、affix_hp_regen续航词缀搭配构成怒气坦克的生存底盘，越肉越能持续施放高怒气技能。"
+    },
+    {
+      "id": "skill_bloodthirst",
+      "display_name": "浴血",
+      "class": "class_warrior",
+      "type": "passive",
+      "tags": [
+        "lifesteal",
+        "sustain",
+        "melee",
+        "rage"
+      ],
+      "effect": {
+        "kind": "add_stat",
+        "stat": "lifesteal",
+        "value": 0.08
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "value_per_level": 0.04,
+        "note": "每级+8%吸血，满级近战命中回复造成伤害的24%"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/bloodthirst.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "lifesteal",
+        "bonus": "与affix_lifesteal叠加，旋风多段命中触发大量回血,实现无伤清场"
+      },
+      "design_note": "续航被动，add_stat(lifesteal)与武器affix_lifesteal同源叠加。skill_whirlwind的360度多段命中让吸血量随怪群密度线性放大，配合skill_rampage增伤进一步抬高单次回血，是怒气吸血流的核心，越是怪海越无敌。"
+    },
+    {
+      "id": "skill_unbreakable",
+      "display_name": "百战之躯",
+      "class": "class_warrior",
+      "type": "passive",
+      "tags": [
+        "defense",
+        "tank",
+        "sustain"
+      ],
+      "effect": {
+        "kind": "mult_stat",
+        "stat": "max_hp",
+        "value": 0.15
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "value_per_level": 0.1,
+        "note": "每级+15%最大生命,满级+55%总血量"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/unbreakable.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "sustain",
+        "bonus": "百分比放大装备add_stat(max_hp)与affix_hp_regen的回复基数,堆血流滚雪球"
+      },
+      "design_note": "mult_stat(max_hp)百分比血量被动,与skill_iron_skin等固定加血先后乘算,血池越大百分比收益越高。配合affix_hp_regen每秒回复与skill_bloodthirst吸血形成厚血+高回的坦克底座,支撑skill_execute残血换血的激进打法。"
+    },
+    {
+      "id": "skill_precise_shot",
+      "display_name": "精准射击",
+      "class": "class_ranger",
+      "type": "active",
+      "tags": [
+        "ranged",
+        "physical",
+        "crit",
+        "single_target"
+      ],
+      "effect": {
+        "kind": "projectile",
+        "damage_type": "physical",
+        "base_damage": 22,
+        "cooldown": 1.2,
+        "projectile_count": 1
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "damage_per_level": 7,
+        "cooldown_reduction_at": [
+          3,
+          5
+        ],
+        "note": "每级+7伤害,3/5级各-0.2s冷却,满级首发必暴"
+      },
+      "rarity": "common",
+      "icon": "res://assets/icons/skills/precise_shot.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "crit",
+        "bonus": "对接精准层数机制,连续命中同目标叠层提升crit_chance/crit_damage,单体爆发滚雪球"
+      },
+      "design_note": "游侠起手单体输出,projectile吃crit_chance/crit_damage词缀。配合职业精准射击机制,点射同一目标累积精准层数把暴击拉满,是钉死高血量精英的主力;与affix_crit_chance、set_void穿透流搭配可打出超高单点。"
+    },
+    {
+      "id": "skill_multishot",
+      "display_name": "多重射击",
+      "class": "class_ranger",
+      "type": "active",
+      "tags": [
+        "ranged",
+        "physical",
+        "aoe",
+        "pierce"
+      ],
+      "effect": {
+        "kind": "projectile",
+        "damage_type": "physical",
+        "base_damage": 14,
+        "cooldown": 2.5,
+        "projectile_count": 3,
+        "extra": {
+          "pierce": 1
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "damage_per_level": 5,
+        "extra_projectile_at": [
+          2,
+          4
+        ],
+        "pierce_at": [
+          3,
+          5
+        ],
+        "note": "2/4级各+1发,3/5级各+1穿透,满级5发穿3"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/multishot.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "pierce",
+        "bonus": "穿透使每支箭命中整条直线上的敌人,一次施放对密集敌群造成成倍总伤"
+      },
+      "design_note": "游侠扇形清场核心:多发projectile+穿透,projectile_count与pierce随等级一起涨。每支箭独立结算暴击与穿透,因此crit与穿透词缀收益翻倍;配合affix_attack_speed缩短冷却、set_void强化穿透,对走廊与聚怪是最高效率AOE。"
+    },
+    {
+      "id": "skill_evasive_roll",
+      "display_name": "闪避翻滚",
+      "class": "class_ranger",
+      "type": "active",
+      "tags": [
+        "mobility",
+        "swift",
+        "defense"
+      ],
+      "effect": {
+        "kind": "dash",
+        "distance": 220,
+        "cooldown": 4,
+        "damage": 0
+      },
+      "max_level": 3,
+      "level_scaling": {
+        "cooldown_reduction_per_level": 0.7,
+        "invuln_at": [
+          2,
+          3
+        ],
+        "note": "每级-0.7s冷却,2级起翻滚附带短无敌帧,3级落地刷新一次精准层"
+      },
+      "rarity": "common",
+      "icon": "res://assets/icons/skills/evasive_roll.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "swift",
+        "bonus": "与move_speed词缀叠加拉开风筝距离,薄血游侠靠位移规避近身"
+      },
+      "design_note": "保命位移dash,无伤害但带无敌帧。游侠血薄(80)依赖走位,翻滚拉开距离维持精准射击的安全输出环境;与affix_attack_speed/move_speed词缀组成风筝套,2级起的无敌帧可硬吃BOSS技能再反打。"
+    },
+    {
+      "id": "skill_rapid_fire",
+      "display_name": "急速连射",
+      "class": "class_ranger",
+      "type": "active",
+      "tags": [
+        "ranged",
+        "buff",
+        "swift",
+        "crit"
+      ],
+      "effect": {
+        "kind": "buff",
+        "stat": "attack_speed",
+        "value": 0.6,
+        "duration": 5,
+        "cooldown": 12
+      },
+      "max_level": 3,
+      "level_scaling": {
+        "value_per_level": 0.3,
+        "duration_per_level": 1,
+        "note": "每级+30%攻速、+1s持续,满级期间精准层不衰减"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/rapid_fire.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "crit",
+        "bonus": "攻速暴涨快速叠满精准层,在窗口内把crit_chance推到上限打爆发"
+      },
+      "design_note": "爆发增益buff,临时mult_stat(attack_speed)。攻速直接提升skill_precise_shot/skill_multishot的施放频率与精准叠层速度,与affix_attack_speed叠加可在5秒内倾泻大量暴击箭雨;是游侠对BOSS集火的核心爆发键。"
+    },
+    {
+      "id": "skill_eagle_eye",
+      "display_name": "鹰眼",
+      "class": "class_ranger",
+      "type": "passive",
+      "tags": [
+        "crit",
+        "ranged",
+        "damage"
+      ],
+      "effect": {
+        "kind": "mult_stat",
+        "stat": "crit_damage",
+        "value": 0.4
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "value_per_level": 0.25,
+        "note": "每级+40%暴伤,满级+1.4倍暴击伤害"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/eagle_eye.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "crit",
+        "bonus": "暴伤越高,精准层叠满后的每箭暴击数字越夸张,是暴击流的伤害天花板"
+      },
+      "design_note": "暴击伤害被动,mult_stat(crit_damage)。只在暴击时生效,因此需先靠skill_deadeye/affix_crit_chance把暴击率拉高才发挥价值;与职业精准层、skill_rapid_fire爆发窗口形成高暴率×高暴伤的乘算,是游侠暴击流的核心倍率位。"
+    },
+    {
+      "id": "skill_deadeye",
+      "display_name": "夺命之眼",
+      "class": "class_ranger",
+      "type": "passive",
+      "tags": [
+        "crit",
+        "ranged"
+      ],
+      "effect": {
+        "kind": "add_stat",
+        "stat": "crit_chance",
+        "value": 0.08
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "value_per_level": 0.05,
+        "note": "每级+8%暴击率,满级+28%暴击率"
+      },
+      "rarity": "common",
+      "icon": "res://assets/icons/skills/deadeye.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "crit",
+        "bonus": "与affix_crit_chance及精准层叠加,逼近100%暴击率后所有箭矢稳定吃满skill_eagle_eye暴伤"
+      },
+      "design_note": "暴击率被动,add_stat(crit_chance)。与skill_eagle_eye互补:本技能负责暴击触发频率,鹰眼负责暴击倍率。两者搭配affix_crit_chance词缀让游侠先把暴率堆到上限再无脑堆暴伤,是暴击流构筑的地基。"
+    },
+    {
+      "id": "skill_fireball",
+      "display_name": "火球术",
+      "class": "class_mage",
+      "type": "active",
+      "tags": [
+        "fire",
+        "magic",
+        "ranged"
+      ],
+      "effect": {
+        "kind": "projectile",
+        "damage_type": "fire",
+        "base_damage": 15,
+        "cooldown": 2,
+        "projectile_count": 1,
+        "extra": {
+          "ignite_on_hit": false
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "damage_per_level": 5,
+        "extra_projectile_at": [
+          3,
+          5
+        ],
+        "note": "每级+5伤害,3/5级各+1发,满级命中自带点燃"
+      },
+      "rarity": "common",
+      "icon": "res://assets/icons/skills/fireball.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "fire",
+        "bonus": "命中点燃敌人触发affix_ignite持续伤害,装备烈焰词缀越多基础火伤越高"
+      },
+      "design_note": "法师火系入门输出,projectile(fire)。满级自带点燃,与affix_ignite/affix_fire_damage词缀和set_ember套构成火焰流入口;基础命中即可触发法力连锁机制,在敌群间弹射点燃,为skill_chain_flame铺设燃烧场。"
+    },
+    {
+      "id": "skill_chain_flame",
+      "display_name": "烈焰连锁",
+      "class": "class_mage",
+      "type": "active",
+      "tags": [
+        "fire",
+        "magic",
+        "chain",
+        "aoe"
+      ],
+      "effect": {
+        "kind": "projectile",
+        "damage_type": "fire",
+        "base_damage": 18,
+        "cooldown": 3,
+        "projectile_count": 1,
+        "extra": {
+          "chain_count": 3,
+          "chain_falloff": 0.85
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "damage_per_level": 6,
+        "chain_per_level": 1,
+        "note": "每级+6伤害、+1连锁目标,满级弹射8个目标且衰减降至0.92"
+      },
+      "rarity": "epic",
+      "icon": "res://assets/icons/skills/chain_flame.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "fire",
+        "bonus": "每次弹射独立判定点燃,聚怪越密连锁覆盖越广,affix_ignite叠满全场DoT"
+      },
+      "design_note": "法师法力连锁机制的招牌技:火焰projectile在敌群间弹射,chain_count随等级与法力充沛度提升。每跳独立结算点燃,配合affix_ignite可让整片战场持续燃烧;聚怪后一发清场,是set_ember火焰连锁流的核心输出,法力越满连锁越长。"
+    },
+    {
+      "id": "skill_meteor",
+      "display_name": "陨石术",
+      "class": "class_mage",
+      "type": "active",
+      "tags": [
+        "fire",
+        "magic",
+        "aoe",
+        "burst"
+      ],
+      "effect": {
+        "kind": "projectile",
+        "damage_type": "fire",
+        "base_damage": 60,
+        "cooldown": 7,
+        "projectile_count": 1,
+        "extra": {
+          "impact_radius": 120,
+          "ignite_on_hit": true
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "damage_per_level": 20,
+        "radius_per_level": 15,
+        "note": "每级+20伤害、+15落点半径,满级落点残留燃烧地面"
+      },
+      "rarity": "epic",
+      "icon": "res://assets/icons/skills/meteor.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "fire",
+        "bonus": "落点高额火伤直接触发点燃,与affix_fire_damage乘算打出全屏爆发数字"
+      },
+      "design_note": "范围爆发型火焰projectile,落点AOE并必定点燃。单发高伤吃crit_damage与mult_stat(damage),适合开团瞬间削掉一片杂兵;满级残留燃烧地面与skill_chain_flame的持续DoT叠加,是法师火焰爆发流的核按钮。"
+    },
+    {
+      "id": "skill_flame_nova",
+      "display_name": "烈焰新星",
+      "class": "class_mage",
+      "type": "active",
+      "tags": [
+        "fire",
+        "magic",
+        "aoe",
+        "control"
+      ],
+      "effect": {
+        "kind": "aura",
+        "radius": 140,
+        "tick_damage": 8,
+        "damage_type": "fire",
+        "cooldown": 6,
+        "duration": 4
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "tick_damage_per_level": 3,
+        "radius_per_level": 15,
+        "note": "每级+3每跳伤害、+15半径,满级身周持续燃烧并减速近身敌人"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/flame_nova.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "fire",
+        "bonus": "持续aura反复触发点燃刷新,把贴近的敌人锁在燃烧+减速里护住脆皮法师"
+      },
+      "design_note": "自身周身aura(fire),持续tick伤害兼防身。法师血薄,新星在近身敌人靠近时反复点燃并减速,争取施法空间;tick伤害吃mult_stat(damage)与affix_ignite刷新,与skill_chain_flame配合让全场持续处于燃烧DoT覆盖。"
+    },
+    {
+      "id": "skill_arcane_power",
+      "display_name": "奥术之力",
+      "class": "class_mage",
+      "type": "passive",
+      "tags": [
+        "magic",
+        "damage",
+        "fire"
+      ],
+      "effect": {
+        "kind": "mult_stat",
+        "stat": "damage",
+        "value": 0.2
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "value_per_level": 0.12,
+        "note": "每级+20%法术伤害,满级+68%总伤害"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/arcane_power.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "fire",
+        "bonus": "百分比放大所有火系技能与affix_fire_damage基础值,堆法强后连锁/陨石全面增伤"
+      },
+      "design_note": "法术增伤被动,mult_stat(damage)。作为乘区放大全部火焰技能基础伤害,与affix_fire_damage的固定加值先加后乘收益最高;法师堆法强的核心,配合set_ember套与skill_ignite_mastery让点燃DoT也水涨船高。"
+    },
+    {
+      "id": "skill_ignite_mastery",
+      "display_name": "点燃精通",
+      "class": "class_mage",
+      "type": "passive",
+      "tags": [
+        "fire",
+        "dot",
+        "magic"
+      ],
+      "effect": {
+        "kind": "add_stat",
+        "stat": "ignite_dps",
+        "value": 4
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "value_per_level": 3,
+        "duration_bonus_at": [
+          3,
+          5
+        ],
+        "note": "每级点燃+4每秒伤害,3/5级各+1s点燃持续"
+      },
+      "rarity": "epic",
+      "icon": "res://assets/icons/skills/ignite_mastery.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "fire",
+        "bonus": "直接强化affix_ignite的dps与持续,让skill_chain_flame全场点燃变成主要伤害来源"
+      },
+      "design_note": "点燃DoT强化被动,add_stat叠加到affix_ignite的dps上。把火焰流从直伤转为燃烧流:skill_chain_flame铺满点燃后,本被动让DoT滚雪球;配合set_ember的点燃强化与skill_flame_nova的反复刷新,是法师燃烧流的伤害倍增器。"
+    },
+    {
+      "id": "skill_mana_barrier",
+      "display_name": "法力屏障",
+      "class": "class_mage",
+      "type": "passive",
+      "tags": [
+        "defense",
+        "magic",
+        "shield"
+      ],
+      "effect": {
+        "kind": "add_stat",
+        "stat": "max_hp",
+        "value": 40
+      },
+      "max_level": 3,
+      "level_scaling": {
+        "value_per_level": 30,
+        "absorb_at": [
+          2,
+          3
+        ],
+        "note": "每级+40等效护盾值,2/3级使部分法力可转化为伤害吸收盾"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/mana_barrier.png",
+      "unlock_condition": "default",
+      "synergy": {
+        "with_tag": "sustain",
+        "bonus": "与affix_hp_regen回复词缀叠加,屏障破后快速回盾维持脆皮法师生存"
+      },
+      "design_note": "防御被动,add_stat提供等效护盾血量。法师基础血仅70,屏障吸收一次性爆发避免秒杀,争取skill_flame_nova拉开距离;配合affix_hp_regen续航与set_frost控制流减少受击,补足火法脆弱的生存短板。"
+    },
+    {
+      "id": "skill_backstab",
+      "display_name": "背刺突袭",
+      "class": "class_assassin",
+      "type": "active",
+      "tags": [
+        "melee",
+        "crit",
+        "stealth",
+        "physical"
+      ],
+      "effect": {
+        "kind": "dash",
+        "distance": 180,
+        "cooldown": 4,
+        "damage": 30,
+        "damage_type": "physical",
+        "extra": {
+          "teleport_behind_target": true,
+          "guaranteed_crit_from_stealth": true,
+          "backstab_mult": 2.5
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "damage_per_level": 10,
+        "backstab_mult_per_level": 0.2,
+        "cooldown_reduction_at": [
+          3,
+          5
+        ]
+      },
+      "synergy": {
+        "with_tag": "crit",
+        "with_affix": "affix_crit_chance",
+        "with_set": "set_void",
+        "bonus": "潜行状态切入触发必定暴击，背刺倍率乘算在暴伤之上。叠暴击率/暴伤词缀时单刀爆发可达普攻的5倍以上，是刺客的核心起手技。"
+      },
+      "rarity": "common",
+      "icon": "res://assets/icons/skills/backstab.png",
+      "unlock_condition": "default",
+      "design_note": "刺客起手技。无暴击词缀时是普通的位移突进；一旦从潜行触发即必定暴击并吃满背刺倍率，因此与affix_crit_chance/暴伤词缀和潜行类技能（暗影斗篷）形成强联动。配合weapon_shadow_dagger与set_void的暴击溢出，可做斩首流。"
+    },
+    {
+      "id": "skill_shadow_cloak",
+      "display_name": "暗影斗篷",
+      "class": "class_assassin",
+      "type": "active",
+      "tags": [
+        "stealth",
+        "mobility",
+        "utility"
+      ],
+      "effect": {
+        "kind": "buff",
+        "stat": "move_speed",
+        "value": 0.4,
+        "duration": 3,
+        "cooldown": 12,
+        "extra": {
+          "enter_stealth": true,
+          "next_hit_is_backstab": true,
+          "break_on_attack": true
+        }
+      },
+      "max_level": 4,
+      "level_scaling": {
+        "duration_per_level": 0.5,
+        "cooldown_reduction_per_level": 1
+      },
+      "synergy": {
+        "with_skill": "skill_backstab",
+        "with_tag": "crit",
+        "bonus": "主动进入潜行并加速脱战，使下一次攻击或背刺突袭强制按潜行结算，必定暴击。是把所有'潜行触发'词条与技能重新拉满的开关。"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/shadow_cloak.png",
+      "unlock_condition": "default",
+      "design_note": "没有它时潜行只能靠脱战自然进入，节奏慢；有了它刺客可随时刷新潜行→必暴起手，配合skill_backstab/skill_assassinate做'切入-斩杀-隐身-再切入'的循环。移速加成也让它在无暴击词缀时仍是纯走位逃生工具。"
+    },
+    {
+      "id": "skill_envenom_blade",
+      "display_name": "淬毒之刃",
+      "class": "class_assassin",
+      "type": "passive",
+      "tags": [
+        "poison",
+        "dot",
+        "melee"
+      ],
+      "effect": {
+        "kind": "add_stat",
+        "stat": "poison_dps",
+        "value": 4,
+        "damage_type": "poison",
+        "extra": {
+          "applies_on_hit": true,
+          "duration": 3,
+          "stackable": true,
+          "max_stacks": 5
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "value_per_level": 2,
+        "max_stacks_at": [
+          3,
+          5
+        ]
+      },
+      "synergy": {
+        "with_tag": "poison",
+        "with_set": "set_plague",
+        "with_affix": "affix_lifesteal",
+        "bonus": "每次命中叠加中毒层数，攻速越高叠毒越快。与set_plague(疫疠之主)的毒系词条共享中毒上限和扩散，刺客可转型为高攻速毒DoT流。"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/envenom_blade.png",
+      "unlock_condition": "default",
+      "design_note": "把刺客的高攻速从纯暴击爆发转向毒系持续伤害的分支选项。单独使用是温和的额外伤害；与affix_attack_speed叠满后中毒铺得极快，再配set_plague的扩散感染就变成腐沼疫地流派的核心，体现古尔撒毒系玩法。"
+    },
+    {
+      "id": "skill_shadow_dash",
+      "display_name": "影袭",
+      "class": "class_assassin",
+      "type": "active",
+      "tags": [
+        "mobility",
+        "melee",
+        "physical"
+      ],
+      "effect": {
+        "kind": "dash",
+        "distance": 250,
+        "cooldown": 5,
+        "damage": 20,
+        "damage_type": "physical",
+        "extra": {
+          "invuln_duration": 0.3,
+          "refresh_stealth_on_dash": true,
+          "hits_all_in_path": true
+        }
+      },
+      "max_level": 4,
+      "level_scaling": {
+        "damage_per_level": 8,
+        "cooldown_reduction_per_level": 0.5,
+        "invuln_at": [
+          2,
+          4
+        ]
+      },
+      "synergy": {
+        "with_skill": "skill_shadow_cloak",
+        "with_tag": "swift",
+        "bonus": "穿身冲刺，途中短暂无敌并刷新潜行，使穿越后的首次攻击吃潜行必暴。是刺客的核心走位+伤害二合一技能。"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/shadow_dash.png",
+      "unlock_condition": "default",
+      "design_note": "与skill_backstab的'瞬移到身后'不同，影袭是直线穿透位移，主打躲技能+刷潜行。无敌帧让它在熔火/虚空副本躲AOE时是保命键；带暴击词缀时则是开背刺前的最佳进场手段。"
+    },
+    {
+      "id": "skill_lethality",
+      "display_name": "致命弱点",
+      "class": "class_assassin",
+      "type": "passive",
+      "tags": [
+        "crit",
+        "damage"
+      ],
+      "effect": {
+        "kind": "mult_stat",
+        "stat": "armor_penetration",
+        "value": 0.25,
+        "extra": {
+          "bonus_crit_chance_vs_full_hp": 0.15
+        }
+      },
+      "max_level": 3,
+      "level_scaling": {
+        "value_per_level": 0.15,
+        "bonus_crit_per_level": 0.05
+      },
+      "synergy": {
+        "with_tag": "crit",
+        "with_affix": "affix_crit_chance",
+        "bonus": "无视部分护甲，并对满血目标额外暴击率，确保背刺第一刀必然打满。对高护甲精英/Boss的收益远高于纯伤害词缀。"
+      },
+      "rarity": "epic",
+      "icon": "res://assets/icons/skills/lethality.png",
+      "unlock_condition": "default",
+      "design_note": "和已有的'致命一击(暴伤)'分工不同：致命弱点提供穿甲+满血暴击，专治高护甲单位。对杂兵收益一般，对骸骨骑士/Boss这类高护甲目标时与skill_backstab叠乘后伤害飙升，是斩首流的关键被动。"
+    },
+    {
+      "id": "skill_killing_spree",
+      "display_name": "杀戮节奏",
+      "class": "class_assassin",
+      "type": "passive",
+      "tags": [
+        "crit",
+        "swift",
+        "melee"
+      ],
+      "effect": {
+        "kind": "buff",
+        "stat": "attack_speed",
+        "value": 0.15,
+        "duration": 4,
+        "cooldown": 0,
+        "extra": {
+          "trigger": "on_kill",
+          "stackable": true,
+          "max_stacks": 5,
+          "also_move_speed": 0.05
+        }
+      },
+      "max_level": 4,
+      "level_scaling": {
+        "value_per_level": 0.05,
+        "max_stacks_at": [
+          2,
+          4
+        ]
+      },
+      "synergy": {
+        "with_tag": "swift",
+        "with_affix": "affix_attack_speed",
+        "bonus": "击杀刷新并叠加攻速与移速层数，越杀越快形成滚雪球。与刺客的精准/攻速词缀叠满后清场如风。"
+      },
+      "rarity": "epic",
+      "icon": "res://assets/icons/skills/killing_spree.png",
+      "unlock_condition": "default",
+      "design_note": "把刺客的单点爆发转化为连杀清场能力。在波次刷怪场景里(waves.json)收益最大；单挑Boss时几乎不触发，因此玩家需在'斩首单体'与'连杀群体'两条路线间用技能取舍，制造构筑分歧。"
+    },
+    {
+      "id": "skill_assassinate",
+      "display_name": "暗杀",
+      "class": "class_assassin",
+      "type": "active",
+      "tags": [
+        "execute",
+        "crit",
+        "stealth"
+      ],
+      "effect": {
+        "kind": "execute",
+        "threshold": 0.25,
+        "bonus_mult": 3,
+        "cooldown": 8,
+        "extra": {
+          "refund_cooldown_on_kill": true,
+          "reset_stealth_on_kill": true,
+          "damage_type": "physical"
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "threshold_per_level": 0.03,
+        "bonus_mult_per_level": 0.4
+      },
+      "synergy": {
+        "with_skill": "skill_shadow_cloak",
+        "with_set": "set_void",
+        "bonus": "对低血目标造成处决级伤害，击杀则返还冷却并重置潜行，连锁处决整批残血怪。配set_void的规则突破词条可拉高斩杀阈值。"
+      },
+      "rarity": "epic",
+      "icon": "res://assets/icons/skills/assassinate.png",
+      "unlock_condition": "default",
+      "design_note": "刺客的终结技。阈值默认25%，靠等级和set_void(虚空裂界)提高斩杀线；击杀返还冷却的设计让它在残血怪堆里能连环触发，与skill_killing_spree的攻速雪球叠加时清场极快。对满血Boss几乎无效，强迫玩家先用背刺压血。"
+    },
+    {
+      "id": "skill_holy_shield",
+      "display_name": "圣盾",
+      "class": "class_knight",
+      "type": "active",
+      "tags": [
+        "holy",
+        "defense",
+        "tank"
+      ],
+      "effect": {
+        "kind": "buff",
+        "stat": "shield",
+        "value": 80,
+        "duration": 5,
+        "cooldown": 10,
+        "extra": {
+          "reflect_pct": 0.3,
+          "reflect_damage_type": "holy",
+          "store_absorbed_for_nova": true
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "shield_per_level": 40,
+        "reflect_pct_per_level": 0.05,
+        "cooldown_reduction_at": [
+          3,
+          5
+        ]
+      },
+      "synergy": {
+        "with_tag": "holy",
+        "with_skill": "skill_radiant_nova",
+        "with_affix": "affix_hp_regen",
+        "bonus": "展开吸收护盾并把30%所受伤害以神圣反弹给攻击者。吸收的伤害可被圣光新星释放，护甲/生命词缀越高盾越肉。"
+      },
+      "rarity": "common",
+      "icon": "res://assets/icons/skills/holy_shield.png",
+      "unlock_condition": "default",
+      "design_note": "骑士起手技，承载'圣盾反伤'核心机制。盾量按等级和护甲/生命词缀成长；反伤百分比让骑士越被围殴越能输出，是反伤流的根。与skill_radiant_nova联动时把承受的伤害转为爆发，体现黎明堡光系正统玩法。"
+    },
+    {
+      "id": "skill_thorns_aegis",
+      "display_name": "棘刺反甲",
+      "class": "class_knight",
+      "type": "passive",
+      "tags": [
+        "defense",
+        "holy",
+        "reflect"
+      ],
+      "effect": {
+        "kind": "add_stat",
+        "stat": "thorns",
+        "value": 8,
+        "extra": {
+          "reflect_pct_of_armor": 0.5,
+          "reflect_damage_type": "holy"
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "value_per_level": 4,
+        "reflect_pct_of_armor_at": [
+          3,
+          5
+        ]
+      },
+      "synergy": {
+        "with_tag": "tank",
+        "with_affix": "affix_hp_regen",
+        "with_set": "set_frost",
+        "bonus": "受击自动反弹固定+护甲比例的神圣伤害，护甲堆得越高反伤越痛。与skill_holy_shield的主动反伤叠加形成全程反甲。"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/thorns_aegis.png",
+      "unlock_condition": "default",
+      "design_note": "把骑士的高护甲属性直接转化为输出。单独使用伤害有限；一旦堆叠护甲词缀(护腿/胸甲)并配guardian_vow的护甲乘算，反伤会随防御滚雪球，让骑士'站着不动也清场'。是被动反伤流的核心拼图。"
+    },
+    {
+      "id": "skill_consecration",
+      "display_name": "圣光裁决",
+      "class": "class_knight",
+      "type": "active",
+      "tags": [
+        "holy",
+        "aura",
+        "aoe"
+      ],
+      "effect": {
+        "kind": "aura",
+        "radius": 150,
+        "tick_damage": 6,
+        "damage_type": "holy",
+        "extra": {
+          "duration": 4,
+          "cooldown": 6,
+          "bonus_mult_vs_undead": 2,
+          "slows_enemies": 0.2
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "tick_damage_per_level": 3,
+        "radius_per_level": 20,
+        "duration_at": [
+          3,
+          5
+        ]
+      },
+      "synergy": {
+        "with_tag": "holy",
+        "with_set": "set_bone",
+        "bonus": "在脚下展开神圣领域持续灼烧，对亡灵(枯骨王陵敌群)双倍伤害并减速。穿戴神圣/光系装备时tick伤害提升。"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/consecration.png",
+      "unlock_condition": "default",
+      "design_note": "给以防御见长的骑士一个稳定AOE输出口。对undead双倍的设定让它在奈瑟拉的枯骨王陵(crypt)副本中表现爆炸，是'光克亡灵'的世界观映射；在其他区域则只是中庸的范围减速控场，鼓励按副本换技能。"
+    },
+    {
+      "id": "skill_bulwark",
+      "display_name": "壁垒之躯",
+      "class": "class_knight",
+      "type": "passive",
+      "tags": [
+        "tank",
+        "defense"
+      ],
+      "effect": {
+        "kind": "add_stat",
+        "stat": "armor",
+        "value": 6,
+        "extra": {
+          "also_max_hp": 40,
+          "block_chance": 0.1
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "value_per_level": 4,
+        "max_hp_per_level": 25,
+        "block_chance_at": [
+          3,
+          5
+        ]
+      },
+      "synergy": {
+        "with_tag": "defense",
+        "with_affix": "affix_hp_regen",
+        "bonus": "同时增加护甲、生命与格挡率，是反伤/坦克流的承伤地基。护甲越高，skill_thorns_aegis的反伤越强。"
+      },
+      "rarity": "common",
+      "icon": "res://assets/icons/skills/bulwark.png",
+      "unlock_condition": "default",
+      "design_note": "纯防御被动，本身不输出，但它堆出的护甲是thorns_aegis和guardian_vow的伤害来源。和再生/吸血词缀组合时让骑士进入'站桩反伤+自回'的不死循环，是反伤流必点的过渡件。"
+    },
+    {
+      "id": "skill_smite",
+      "display_name": "神圣痛击",
+      "class": "class_knight",
+      "type": "active",
+      "tags": [
+        "holy",
+        "melee",
+        "physical"
+      ],
+      "effect": {
+        "kind": "melee_swing",
+        "damage": 35,
+        "arc": 120,
+        "cooldown": 4,
+        "damage_type": "holy",
+        "extra": {
+          "bonus_mult_vs_undead": 2,
+          "knockback": true,
+          "bonus_damage_per_shield_pct": 0.5
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "damage_per_level": 12,
+        "arc_at": [
+          3,
+          5
+        ],
+        "cooldown_reduction_at": [
+          4
+        ]
+      },
+      "synergy": {
+        "with_skill": "skill_holy_shield",
+        "with_tag": "holy",
+        "bonus": "扇形神圣重击，护盾值越高伤害越高，把防御转为攻击。对亡灵双倍并击退，是骑士的主输出键。"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/smite.png",
+      "unlock_condition": "default",
+      "design_note": "骑士的近战输出技。'按当前护盾值加伤'的设计把skill_holy_shield从纯防御变成攻击增益开关：先开盾再痛击伤害最大化。对undead双倍同样呼应光克亡灵主题，配weapon_holy_mace在枯骨王陵收益最高。"
+    },
+    {
+      "id": "skill_guardian_vow",
+      "display_name": "守护誓约",
+      "class": "class_knight",
+      "type": "passive",
+      "tags": [
+        "defense",
+        "tank",
+        "holy"
+      ],
+      "effect": {
+        "kind": "mult_stat",
+        "stat": "armor",
+        "value": 0.25,
+        "extra": {
+          "damage_reduction_per_nearby_enemy": 0.02,
+          "max_reduction": 0.3
+        }
+      },
+      "max_level": 3,
+      "level_scaling": {
+        "value_per_level": 0.15,
+        "max_reduction_per_level": 0.1
+      },
+      "synergy": {
+        "with_skill": "skill_bulwark",
+        "with_tag": "tank",
+        "bonus": "护甲乘算放大，且周围敌人越多减伤越高，专为被围攻的前排设计。与bulwark的固定护甲叠乘后反伤流防御封顶。"
+      },
+      "rarity": "epic",
+      "icon": "res://assets/icons/skills/guardian_vow.png",
+      "unlock_condition": "default",
+      "design_note": "乘算护甲的高价值被动，必须先有bulwark的固定护甲打底才显著(加法×乘法)。'敌越多减伤越高'鼓励骑士主动冲进怪群当肉盾，与thorns_aegis的反伤形成'被围=输出'的正反馈，是坦克反伤流的封顶件。"
+    },
+    {
+      "id": "skill_radiant_nova",
+      "display_name": "圣光新星",
+      "class": "class_knight",
+      "type": "active",
+      "tags": [
+        "holy",
+        "aoe",
+        "defense"
+      ],
+      "effect": {
+        "kind": "aura",
+        "radius": 200,
+        "tick_damage": 0,
+        "damage_type": "holy",
+        "extra": {
+          "burst_damage": 60,
+          "trigger": "on_shield_break_or_cast",
+          "converts_absorbed_damage_pct": 0.5,
+          "cooldown": 12
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "burst_damage_per_level": 25,
+        "converts_absorbed_pct_at": [
+          3,
+          5
+        ],
+        "radius_per_level": 15
+      },
+      "synergy": {
+        "with_skill": "skill_holy_shield",
+        "with_tag": "holy",
+        "with_set": "set_bone",
+        "bonus": "把skill_holy_shield吸收的伤害以50%转为全屏神圣爆发释放，承伤越多炸得越狠。对亡灵区域伤害进一步放大。"
+      },
+      "rarity": "epic",
+      "icon": "res://assets/icons/skills/radiant_nova.png",
+      "unlock_condition": "default",
+      "design_note": "反伤流的终结技，把'承受伤害'彻底变成输出资源。需要先开圣盾扛伤蓄能，盾破或主动施放时一次性引爆，与guardian_vow的'抱团承伤'打法天然契合：扛得越久越多，新星越致命。完成骑士'以守为攻'的闭环。"
+    },
+    {
+      "id": "skill_raise_skeleton",
+      "display_name": "唤骨仆从",
+      "class": "class_necromancer",
+      "type": "active",
+      "tags": [
+        "undead",
+        "summon",
+        "death"
+      ],
+      "effect": {
+        "kind": "summon",
+        "minion_type": "skeleton_warrior",
+        "count": 2,
+        "duration": 20,
+        "cooldown": 6,
+        "extra": {
+          "minion_inherits_owner_damage_pct": 0.6,
+          "leaves_corpse_on_death": true
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "count_at": [
+          3,
+          5
+        ],
+        "duration_per_level": 3,
+        "minion_inherit_per_level": 0.1
+      },
+      "synergy": {
+        "with_tag": "summon",
+        "with_set": "set_bone",
+        "with_affix": "affix_attack_speed",
+        "bonus": "召唤骷髅战士替本体厮杀，骷髅继承玩家伤害的一部分。死亡后留下尸体供skill_corpse_explosion引爆，是召唤流与尸爆流的共同源头。"
+      },
+      "rarity": "common",
+      "icon": "res://assets/icons/skills/raise_skeleton.png",
+      "unlock_condition": "default",
+      "design_note": "死灵师起手技，承载'召唤亡灵+尸体资源'双机制。骷髅继承玩家伤害意味着堆伤害/攻速词缀能同时强化本体和大军；'死亡留尸'又给尸爆供弹，让玩家在'养大军'与'喂尸爆'两条路线间分流。配set_bone(白骨君王)直接成型亡灵流。"
+    },
+    {
+      "id": "skill_corpse_explosion",
+      "display_name": "尸体爆炸",
+      "class": "class_necromancer",
+      "type": "active",
+      "tags": [
+        "undead",
+        "death",
+        "aoe"
+      ],
+      "effect": {
+        "kind": "aura",
+        "radius": 120,
+        "tick_damage": 0,
+        "damage_type": "death",
+        "extra": {
+          "consumes_corpse": true,
+          "burst_damage": 40,
+          "scales_with_corpse_max_hp_pct": 0.2,
+          "chain_to_nearby_corpses": true,
+          "cooldown": 3
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "burst_damage_per_level": 15,
+        "radius_per_level": 15,
+        "chain_count_at": [
+          3,
+          5
+        ]
+      },
+      "synergy": {
+        "with_skill": "skill_raise_skeleton",
+        "with_tag": "undead",
+        "with_set": "set_bone",
+        "bonus": "引爆战场尸体造成范围亡灵伤害，并连锁引爆附近尸体。尸体来源越多(召唤物阵亡/击杀)爆发越密集，是尸爆流核心。"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/corpse_explosion.png",
+      "unlock_condition": "default",
+      "design_note": "死灵师的核心AOE，但完全依赖尸体资源：没有skill_raise_skeleton或大量击杀供尸时几乎打空。伤害按尸体最大生命的百分比计算，因此对'高血杂兵成群'的波次场景收益爆炸，对单体Boss很弱，构成与召唤流不同的清场向构筑。"
+    },
+    {
+      "id": "skill_bone_spear",
+      "display_name": "骨矛",
+      "class": "class_necromancer",
+      "type": "active",
+      "tags": [
+        "undead",
+        "death",
+        "ranged"
+      ],
+      "effect": {
+        "kind": "projectile",
+        "damage_type": "death",
+        "base_damage": 22,
+        "cooldown": 2.5,
+        "projectile_count": 1,
+        "extra": {
+          "pierce": true,
+          "bonus_mult_vs_full_hp": 1.3
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "damage_per_level": 8,
+        "projectile_count_at": [
+          3,
+          5
+        ],
+        "cooldown_reduction_at": [
+          4
+        ]
+      },
+      "synergy": {
+        "with_tag": "undead",
+        "with_set": "set_void",
+        "with_affix": "affix_crit_chance",
+        "bonus": "贯穿一线敌人的亡灵投射，对满血目标增伤。多发与暴击词缀让死灵师拥有不依赖召唤物的直接输出手段。"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/bone_spear.png",
+      "unlock_condition": "default",
+      "design_note": "给本体脆弱的死灵师一个直接远程输出口，弥补'尸爆/召唤都要前置资源'的空窗。贯穿+满血增伤适合开团第一矛清排怪;升满多发后与暴击/穿透词缀组合可走'骨矛直伤流',作为召唤流之外的单挑Boss方案。"
+    },
+    {
+      "id": "skill_undying_legion",
+      "display_name": "亡灵支配",
+      "class": "class_necromancer",
+      "type": "passive",
+      "tags": [
+        "summon",
+        "undead"
+      ],
+      "effect": {
+        "kind": "mult_stat",
+        "stat": "minion_damage",
+        "value": 0.3,
+        "extra": {
+          "also_minion_max_count": 1,
+          "minion_armor_bonus": 0.2
+        }
+      },
+      "max_level": 3,
+      "level_scaling": {
+        "value_per_level": 0.2,
+        "minion_count_per_level": 1
+      },
+      "synergy": {
+        "with_skill": "skill_raise_skeleton",
+        "with_tag": "summon",
+        "with_set": "set_bone",
+        "bonus": "乘算提升召唤物伤害与上限并加固，是召唤流的核心倍率件。配合骷髅继承玩家伤害，本体词缀与此被动双重放大大军输出。"
+      },
+      "rarity": "epic",
+      "icon": "res://assets/icons/skills/undying_legion.png",
+      "unlock_condition": "default",
+      "design_note": "召唤流的伤害乘区与数量上限同时提升，价值极高但只对召唤物生效——不召唤就是废卡，迫使玩家明确选定召唤路线。与skill_raise_skeleton的'继承玩家伤害'叠乘，再叠set_bone的召唤词条后骷髅大军可独立清场，本体专注走位放尸爆。"
+    },
+    {
+      "id": "skill_soul_harvest",
+      "display_name": "噬魂光环",
+      "class": "class_necromancer",
+      "type": "passive",
+      "tags": [
+        "death",
+        "sustain",
+        "undead"
+      ],
+      "effect": {
+        "kind": "aura",
+        "radius": 140,
+        "tick_damage": 4,
+        "damage_type": "death",
+        "extra": {
+          "heal_on_kill": 8,
+          "generates_corpse_on_kill": true,
+          "applies_to_minions": true
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "tick_damage_per_level": 2,
+        "heal_on_kill_per_level": 4,
+        "radius_at": [
+          3,
+          5
+        ]
+      },
+      "synergy": {
+        "with_skill": "skill_corpse_explosion",
+        "with_affix": "affix_lifesteal",
+        "with_set": "set_bone",
+        "bonus": "持续灼烧周身敌人，击杀回血并生成尸体。为脆皮死灵师提供续航，同时稳定向尸爆供弹，是吸血召唤双流派的粘合剂。"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/soul_harvest.png",
+      "unlock_condition": "default",
+      "design_note": "解决死灵师本体70血站场易暴毙的问题：光环击杀回血提供续航，同时'击杀生尸'稳定喂养skill_corpse_explosion。与affix_lifesteal和set_bone的击杀回血词条叠加后,死灵师可在怪群中靠光环白嫖血量与尸体,把生存转化为输出资源。"
+    },
+    {
+      "id": "skill_army_of_the_dead",
+      "display_name": "亡者军团",
+      "class": "class_necromancer",
+      "type": "active",
+      "tags": [
+        "undead",
+        "summon",
+        "death"
+      ],
+      "effect": {
+        "kind": "summon",
+        "minion_type": "skeleton_horde",
+        "count": 6,
+        "duration": 12,
+        "cooldown": 30,
+        "extra": {
+          "explode_on_expire": true,
+          "explode_damage_type": "death",
+          "minion_inherits_owner_damage_pct": 0.5
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "count_per_level": 1,
+        "duration_per_level": 2,
+        "cooldown_reduction_at": [
+          3,
+          5
+        ]
+      },
+      "synergy": {
+        "with_skill": "skill_undying_legion",
+        "with_tag": "summon",
+        "with_set": "set_bone",
+        "bonus": "一次性召唤大批骷髅潮，存续结束后集体尸爆。召唤流的终结大招，受亡灵支配的数量/伤害加成全额放大。"
+      },
+      "rarity": "epic",
+      "icon": "res://assets/icons/skills/army_of_the_dead.png",
+      "unlock_condition": "default",
+      "design_note": "召唤流终结技，把'召唤大军'与'尸爆'两条死灵师路线合一：先用骷髅潮压制，结束时全员引爆造成一轮死亡AOE。受skill_undying_legion的数量与伤害乘区放大,配set_bone(白骨君王)的6件套大招效果时是清Boss房与精英波次的核按钮。"
+    },
+    {
+      "id": "skill_bloodthirst",
+      "display_name": "嗜血本能",
+      "class": "all",
+      "type": "passive",
+      "tags": [
+        "lifesteal",
+        "sustain"
+      ],
+      "effect": {
+        "kind": "add_stat",
+        "stat": "lifesteal",
+        "value": 0.08,
+        "extra": {
+          "min_heal_per_hit": 1
+        }
+      },
+      "max_level": 5,
+      "level_scaling": {
+        "value_per_level": 0.04
+      },
+      "synergy": {
+        "with_affix": "affix_lifesteal",
+        "with_tag": "lifesteal",
+        "with_set": "set_bone",
+        "bonus": "造成伤害回复等比生命，与affix_lifesteal吸血词缀和高攻速直接相加叠满。任何职业堆攻速都能转为续航。"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/bloodthirst.png",
+      "unlock_condition": "default",
+      "design_note": "通用续航被动。对高攻速职业(游侠/刺客)和召唤本体回血都通吃；与affix_lifesteal/affix_attack_speed叠加后形成'打得越快回得越多'的吸血流，配set_bone的吸取生命词条收益最高。是把任意输出构筑转坦的万金油件。"
+    },
+    {
+      "id": "skill_overcharge",
+      "display_name": "超载冲锋",
+      "class": "all",
+      "type": "active",
+      "tags": [
+        "buff",
+        "swift",
+        "damage"
+      ],
+      "effect": {
+        "kind": "buff",
+        "stat": "attack_speed",
+        "value": 0.3,
+        "duration": 5,
+        "cooldown": 14,
+        "extra": {
+          "also_damage_pct": 0.2,
+          "also_move_speed": 0.15
+        }
+      },
+      "max_level": 4,
+      "level_scaling": {
+        "value_per_level": 0.1,
+        "duration_per_level": 1,
+        "cooldown_reduction_at": [
+          2,
+          4
+        ]
+      },
+      "synergy": {
+        "with_affix": "affix_attack_speed",
+        "with_tag": "swift",
+        "bonus": "短时大幅提升攻速、伤害与移速的爆发开关。乘在攻速词缀之上，开团或斩杀窗口期一键拉满DPS。"
+      },
+      "rarity": "rare",
+      "icon": "res://assets/icons/skills/overcharge.png",
+      "unlock_condition": "default",
+      "design_note": "通用爆发位移buff,所有职业的'开大窗口'。乘算攻速让它与affix_attack_speed和skill_killing_spree的层数叠乘收益夸张;移速加成也让它兼作进场/逃生键。冷却较长,鼓励玩家压在Boss破防或精英波次时一次性打满。"
+    },
+    {
+      "id": "skill_reckless_might",
+      "display_name": "莽勇",
+      "class": "all",
+      "type": "passive",
+      "tags": [
+        "damage",
+        "glass_cannon"
+      ],
+      "effect": {
+        "kind": "mult_stat",
+        "stat": "damage",
+        "value": 0.3,
+        "extra": {
+          "max_hp_penalty_pct": -0.15,
+          "bonus_damage_below_50_hp": 0.2
+        }
+      },
+      "max_level": 3,
+      "level_scaling": {
+        "value_per_level": 0.2,
+        "max_hp_penalty_per_level": -0.05
+      },
+      "synergy": {
+        "with_tag": "crit",
+        "with_affix": "affix_lifesteal",
+        "with_set": "set_void",
+        "bonus": "乘算总伤但牺牲生命上限，残血时额外增伤。高风险高回报，靠吸血/护盾把脆弱补回来即可换来巨幅输出。"
+      },
+      "rarity": "epic",
+      "icon": "res://assets/icons/skills/reckless_might.png",
+      "unlock_condition": "default",
+      "design_note": "通用'玻璃大炮'权衡被动:乘算总伤极强,但-15%生命上限对脆皮职业(法师/刺客/死灵师)是真实风险。需要用skill_bloodthirst/affix_lifesteal或骑士圣盾把生存补回,与残血增伤搭配可走极限赌命流,配set_void的随机暴击词条收益最高,制造强构筑取舍。"
+    }
+  ]
+}
