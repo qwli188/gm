@@ -262,16 +262,14 @@ func _validate_rarity_progression():
 	for group_key in groups.keys():
 		var group = groups[group_key]
 
-		# 计算每个稀有度的平均战斗力（简化为 damage + max_hp）
+		# 计算每个稀有度的综合战斗力（统一公式，覆盖所有部位）
 		var rarity_avg_power = {}
 		for rarity in rarity_order:
 			if group.has(rarity):
 				var total_power = 0.0
 				var count = 0
 				for item in group[rarity]:
-					var stats = item.get("base_stats", {})
-					var power = stats.get("damage", 0) + stats.get("max_hp", 0) * 0.1  # hp 权重降低
-					total_power += power
+					total_power += _equipment_power(item)
 					count += 1
 				if count > 0:
 					rarity_avg_power[rarity] = total_power / count
@@ -290,6 +288,37 @@ func _validate_rarity_progression():
 					warnings.append("稀有度阶梯异常: %s 的 %s (%.1f) 明显弱于 %s (%.1f)" % [
 						group_key, higher_rarity, higher_power, lower_rarity, lower_power
 					])
+
+## 综合战斗力评估（统一公式，覆盖所有部位）
+## 把进攻、生存、增益都折算成一个可比数值，避免只看 damage+hp 误判防具/手套
+func _equipment_power(item: Dictionary) -> float:
+	var stats = item.get("base_stats", {})
+	var slot = item.get("slot", "")
+	var power := 0.0
+
+	# 进攻
+	power += stats.get("damage", 0.0)
+	# 攻速：武器是倍率（1.2→+0.2），其它部位是百分比加成（0.1→+0.1），折算成 damage 当量
+	if stats.has("attack_speed"):
+		var asp = stats["attack_speed"]
+		var bonus = (asp - 1.0) if slot == "weapon" else asp
+		power += bonus * 40.0
+	# 暴击：crit_chance + crit_damage 折算
+	power += stats.get("crit_chance", 0.0) * 100.0
+	power += stats.get("crit_damage", 0.0) * 20.0
+
+	# 生存
+	power += stats.get("max_hp", 0.0) * 0.1
+	power += stats.get("armor", 0.0) * 0.5
+	power += stats.get("hp_regen", 0.0) * 5.0
+
+	# 机动
+	power += stats.get("move_speed", 0.0) * 30.0
+
+	# 词缀槽也是价值（每槽约等于一档稀有度）
+	power += item.get("affix_slots", 0) * 8.0
+
+	return power
 
 ## 加载 schema
 func _load_schema() -> Dictionary:
