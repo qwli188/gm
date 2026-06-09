@@ -28,6 +28,7 @@ AffixSystem="*res://autoload/AffixSystem.gd"
 AffixWorkshop="*res://autoload/AffixWorkshop.gd"
 SaveSystem="*res://autoload/SaveSystem.gd"
 EquipmentSystem="*res://autoload/EquipmentSystem.gd"
+DungeonFeatureSystem="*res://autoload/DungeonFeatureSystem.gd"
 CombatSystem="*res://autoload/CombatSystem.gd"
 ActiveSkillSystem="*res://autoload/ActiveSkillSystem.gd"
 

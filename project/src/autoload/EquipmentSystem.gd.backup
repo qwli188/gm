@@ -311,11 +311,11 @@ func _merge_affix_effect(effects: Dictionary, affix: Dictionary):
 
 ## ============ 掉落系统（含稀有度特效） ============
 ## 在地图随机掉落装备（Enemy 死亡调用）
-func drop_random_equipment(position: Vector2, quality_bonus: float = 0.0, set_bias: String = "", slot_weights: Dictionary = {}):
+func drop_random_equipment(position: Vector2, quality_bonus: float = 0.0, set_bias: String = ""):
 	var all_equipment = ConfigLoader.get_all_equipment()
 	if all_equipment.is_empty():
 		return
-	var template = _roll_equipment(all_equipment, quality_bonus, set_bias, slot_weights)
+	var template = _roll_equipment(all_equipment, quality_bonus, set_bias)
 	if template.is_empty():
 		return
 	# 生成实例
@@ -327,7 +327,7 @@ func drop_random_equipment(position: Vector2, quality_bonus: float = 0.0, set_bi
 	_spawn_drop_item(item_data, position)
 
 ## 按稀有度权重随机抽一件装备
-func _roll_equipment(pool: Array, quality_bonus: float, set_bias: String = "", slot_weights: Dictionary = {}) -> Dictionary:
+func _roll_equipment(pool: Array, quality_bonus: float, set_bias: String = "") -> Dictionary:
 	# 从 balance.json 读权重，失败用默认
 	var weights = {"common": 50, "rare": 28, "epic": 14, "legendary": 6, "mythic": 2}
 	var cfg_weights = ConfigLoader.balance_data.get("drop_rates", {}).get("rarity_weights", {})
@@ -365,35 +365,6 @@ func _roll_equipment(pool: Array, quality_bonus: float, set_bias: String = "", s
 				candidates.append(item)
 	if candidates.is_empty():
 		candidates = pool
-
-	# slot 加权选择逻辑
-	if not slot_weights.is_empty() and candidates.size() > 0:
-		# 按 slot 分组
-		var slot_pool = {}
-		for item in candidates:
-			var s = item.get("slot", "")
-			if s == "":
-				continue
-			if not slot_pool.has(s):
-				slot_pool[s] = []
-			slot_pool[s].append(item)
-
-		if not slot_pool.is_empty():
-			# 计算总权重
-			var total_slot_weight = 0
-			for s in slot_pool:
-				var w = slot_weights.get(s, 1)
-				total_slot_weight += w * slot_pool[s].size()
-
-			# 加权随机选择 slot
-			var r = randi() % max(total_slot_weight, 1)
-			var accumulator = 0
-			for s in slot_pool:
-				var w = slot_weights.get(s, 1)
-				accumulator += w * slot_pool[s].size()
-				if r < accumulator:
-					return slot_pool[s][randi() % slot_pool[s].size()]
-
 	return candidates[randi() % candidates.size()]
 
 ## 实例化掉落物到场景（附带稀有度特效）

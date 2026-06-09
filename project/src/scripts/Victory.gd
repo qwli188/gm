@@ -17,6 +17,9 @@ func _ready():
 
 ## 显示通关界面
 func show_victory(time: float, kill_count: int, gold: int):
+	# 清理副本机制
+	if has_node("/root/DungeonFeatureSystem"):
+		get_node("/root/DungeonFeatureSystem").deactivate()
 	completion_time = time
 	kills = kill_count
 	gold_earned = gold

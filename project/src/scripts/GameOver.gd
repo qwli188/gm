@@ -17,6 +17,9 @@ func _ready():
 
 ## 显示游戏结束界面
 func show_game_over(time: float, kill_count: int, gold: int):
+	# 清理副本机制
+	if has_node("/root/DungeonFeatureSystem"):
+		get_node("/root/DungeonFeatureSystem").deactivate()
 	survival_time = time
 	kills = kill_count
 	gold_earned = gold

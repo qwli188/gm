@@ -122,5 +122,77 @@
     "gold_per_enemy_base": 2,
     "gold_on_death_keep_percent": 0.5,
     "design_note": "敌人掉金币，阵亡保留50%。确保失败也有收获，驱动'再来一局'。"
+  },
+  "region_materials": {
+    "description": "区域专属材料系统 - 每个区域产出独特材料，用于词缀改造/装备强化",
+    "materials": [
+      {
+        "id": "bone_dust",
+        "display_name": "骨尘",
+        "region": "crypt",
+        "description": "王陵亡灵碎骨研磨成的灰粉，蕴含死亡之力",
+        "use": "武器强化",
+        "drop_rate": 0.2,
+        "drop_amount_min": 1,
+        "drop_amount_max": 3,
+        "design_note": "王陵区域材料，用于武器改造。掉率20%，每次1-3个。"
+      },
+      {
+        "id": "plague_essence",
+        "display_name": "瘟疫精华",
+        "region": "swamp",
+        "description": "腐沼生物体内凝结的剧毒精华，散发腐臭",
+        "use": "防具强化",
+        "drop_rate": 0.2,
+        "drop_amount_min": 1,
+        "drop_amount_max": 3,
+        "design_note": "沼泽区域材料，用于防具改造。掉率20%，每次1-3个。"
+      },
+      {
+        "id": "ember_core",
+        "display_name": "余烬核心",
+        "region": "forge",
+        "description": "燃尽王座的永恒火种碎片，灼热如熔岩",
+        "use": "词缀洗练(高级)",
+        "drop_rate": 0.2,
+        "drop_amount_min": 1,
+        "drop_amount_max": 3,
+        "design_note": "熔炉区域材料，用于高级词缀洗练。掉率20%，每次1-3个。"
+      },
+      {
+        "id": "frost_shard",
+        "display_name": "霜晶",
+        "region": "ice",
+        "description": "永眠之渊的永冻结晶，触之刺骨",
+        "use": "饰品改造",
+        "drop_rate": 0.2,
+        "drop_amount_min": 1,
+        "drop_amount_max": 3,
+        "design_note": "冰霜区域材料，用于饰品改造。掉率20%，每次1-3个。"
+      },
+      {
+        "id": "void_fragment",
+        "display_name": "虚空碎片",
+        "region": "void",
+        "description": "虚空裂隙的扭曲碎片，内里蕴含混沌之力",
+        "use": "顶级改造",
+        "drop_rate": 0.15,
+        "drop_amount_min": 1,
+        "drop_amount_max": 2,
+        "design_note": "虚空区域材料，用于顶级装备改造。稀有，掉率15%，每次1-2个。"
+      },
+      {
+        "id": "rune_shard",
+        "display_name": "符文碎片",
+        "region": "field",
+        "description": "远古遗迹的符文碎片，万用基础材料",
+        "use": "通用改造材料",
+        "drop_rate": 0.25,
+        "drop_amount_min": 2,
+        "drop_amount_max": 4,
+        "design_note": "荒野区域材料，通用材料(AffixWorkshop已在用)。掉率25%，每次2-4个。"
+      }
+    ],
+    "design_note": "强化刷取驱动力，让每个区域产出独特材料。材料用于词缀工坊改造，形成'为了材料刷特定副本'的循环。"
   }
 }

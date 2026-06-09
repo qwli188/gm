@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://main_scene"]
+[gd_scene load_steps=15 format=3 uid="uid://main_scene"]
 
 [ext_resource type="Script" path="res://scripts/Player.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/EnemySpawner.gd" id="2"]
@@ -8,6 +8,12 @@
 [ext_resource type="PackedScene" path="res://scenes/GameOver.tscn" id="6"]
 [ext_resource type="Script" path="res://scripts/GameManager.gd" id="7"]
 [ext_resource type="Texture2D" path="res://assets/sprites/roguelike/roguelikeSheet_transparent.png" id="8"]
+[ext_resource type="PackedScene" path="res://scenes/CharacterPanel.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://scenes/SkillTreePanel.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://scenes/BackpackPanel.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://scenes/WarehousePanel.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://scenes/AffixWorkshopPanel.tscn" id="13"]
+[ext_resource type="Script" path="res://scripts/MainScene.gd" id="14"]
 
 [sub_resource type="RectangleShape2D" id="1"]
 size = Vector2(40, 40)
@@ -16,6 +22,7 @@ size = Vector2(40, 40)
 radius = 100.0
 
 [node name="Main" type="Node2D"]
+script = ExtResource("14")
 
 [node name="GameManager" type="Node" parent="."]
 script = ExtResource("7")
@@ -49,3 +56,18 @@ layer = 10
 [node name="EquipmentPickup" parent="UILayer" instance=ExtResource("5")]
 
 [node name="GameOver" parent="UILayer" instance=ExtResource("6")]
+
+[node name="CharacterPanel" parent="UILayer" instance=ExtResource("9")]
+visible = false
+
+[node name="SkillTreePanel" parent="UILayer" instance=ExtResource("10")]
+visible = false
+
+[node name="BackpackPanel" parent="UILayer" instance=ExtResource("11")]
+visible = false
+
+[node name="WarehousePanel" parent="UILayer" instance=ExtResource("12")]
+visible = false
+
+[node name="AffixWorkshopPanel" parent="UILayer" instance=ExtResource("13")]
+visible = false

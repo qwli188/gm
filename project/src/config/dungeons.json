@@ -13,7 +13,24 @@
         "fog": true,
         "light_level": 0.35
       },
-      "feature": "周期性死亡之雾：每30秒地图变暗并造成持续伤害，但雾中暴击率+50%，鼓励贴脸搏命。",
+      "feature": "周期性死亡之雾：每30秒触发，持续5秒，造成最大生命5%/秒伤害，雾中暴击率+50%。",
+      "feature_id": "death_fog",
+      "feature_params": {
+        "interval": 30,
+        "duration": 5,
+        "damage_percent_max_hp": 0.05,
+        "crit_bonus": 0.5
+      },
+      "slot_weights": {
+        "weapon": 3,
+        "amulet": 3,
+        "helmet": 1,
+        "chest": 1,
+        "legs": 1,
+        "boots": 1,
+        "gloves": 1,
+        "ring": 1
+      },
       "set_drop": "set_bone",
       "unlock_condition": "default",
       "design_note": "第一幕开端。长老埃德温派玩家入王陵寻找古代粮仓，守墓人卡兰在入口示警。亡灵杂兵起步关，引入死亡之雾核心记忆点。",
@@ -56,7 +73,25 @@
         "fog": true,
         "light_level": 0.32
       },
-      "feature": "骨堆地形：击杀敌人会堆积骨堆，踏入骨堆可召唤一只临时友方骷髅协战，呼应奈瑟拉的亡灵召唤之力。",
+      "feature": "死亡之雾：每28秒触发，持续6秒，造成最大生命6%/秒伤害，雾中暴击率+60%，雾中回血5%。",
+      "feature_id": "death_fog",
+      "feature_params": {
+        "interval": 28,
+        "duration": 6,
+        "damage_percent_max_hp": 0.06,
+        "crit_bonus": 0.6,
+        "lifesteal_bonus": 0.05
+      },
+      "slot_weights": {
+        "weapon": 3,
+        "amulet": 3,
+        "helmet": 1,
+        "chest": 1,
+        "legs": 1,
+        "boots": 1,
+        "gloves": 1,
+        "ring": 1
+      },
       "set_drop": "set_bone",
       "unlock_condition": "clear_dungeon_crypt_1",
       "design_note": "第一幕推进。深入陵墓第二层，骨骸铺地的长廊，墓园祭司开始召唤亡灵，给亡灵召唤流玩家第一份套装碎片。",
@@ -99,7 +134,25 @@
         "fog": true,
         "light_level": 0.3
       },
-      "feature": "王陵陷阱：地面随机激活骨刺尖阵，踩中受重伤并被减速，但亡灵系敌人无视尖刺，逼迫玩家与亡灵抢身位。",
+      "feature": "死亡之雾：每26秒触发，持续7秒，造成最大生命7%/秒伤害，雾中暴击率+70%，雾中回血8%。",
+      "feature_id": "death_fog",
+      "feature_params": {
+        "interval": 26,
+        "duration": 7,
+        "damage_percent_max_hp": 0.07,
+        "crit_bonus": 0.7,
+        "lifesteal_bonus": 0.08
+      },
+      "slot_weights": {
+        "weapon": 3,
+        "amulet": 3,
+        "helmet": 1,
+        "chest": 1,
+        "legs": 1,
+        "boots": 1,
+        "gloves": 1,
+        "ring": 1
+      },
       "set_drop": "set_bone",
       "unlock_condition": "clear_dungeon_crypt_2",
       "design_note": "第一幕推进。历代国王加冕之地，墙上血迹与抓痕暗示王朝覆灭。首次出现堕落教团祭司踪迹（伏笔：教团在王陵做什么）。",
@@ -142,7 +195,26 @@
         "fog": true,
         "light_level": 0.28
       },
-      "feature": "双月死雾：死亡之雾持续时间翻倍且范围扩大，雾中暴击同时回血，亡灵精英在雾中获得护盾，高风险高回报。",
+      "feature": "双月死雾：每24秒触发，持续8秒，造成最大生命8%/秒伤害，雾中暴击率+80%，雾中回血10%，精英获得护盾。",
+      "feature_id": "death_fog",
+      "feature_params": {
+        "interval": 24,
+        "duration": 8,
+        "damage_percent_max_hp": 0.08,
+        "crit_bonus": 0.8,
+        "lifesteal_bonus": 0.1,
+        "elite_shield": 0.2
+      },
+      "slot_weights": {
+        "weapon": 3,
+        "amulet": 3,
+        "helmet": 1,
+        "chest": 1,
+        "legs": 1,
+        "boots": 1,
+        "gloves": 1,
+        "ring": 1
+      },
       "set_drop": "set_bone",
       "unlock_condition": "clear_dungeon_crypt_3",
       "design_note": "第一幕尾声前哨。空王座在风中呜咽，骸骨骑士成群守卫通往千骨大殿之路。死雾机制压力拉满，为Boss战预热。",
@@ -185,7 +257,27 @@
         "fog": true,
         "light_level": 0.25
       },
-      "feature": "千骨大殿·白骨王领域：亡灵召唤流伤害+30%，Boss阶段二召唤历代国王亡灵助战，死雾与召唤潮叠加考验清场与走位。",
+      "feature": "千骨大殿死雾：每22秒触发，持续10秒，造成最大生命10%/秒伤害，雾中暴击率+100%，雾中回血15%，召唤流伤害+30%。",
+      "feature_id": "death_fog",
+      "feature_params": {
+        "interval": 22,
+        "duration": 10,
+        "damage_percent_max_hp": 0.1,
+        "crit_bonus": 1.0,
+        "lifesteal_bonus": 0.15,
+        "elite_shield": 0.3,
+        "summon_damage_bonus": 0.3
+      },
+      "slot_weights": {
+        "weapon": 3,
+        "amulet": 3,
+        "helmet": 1,
+        "chest": 1,
+        "legs": 1,
+        "boots": 1,
+        "gloves": 1,
+        "ring": 1
+      },
       "set_drop": "set_bone",
       "unlock_condition": "clear_dungeon_crypt_4",
       "design_note": "第一幕高潮。决战白骨王奥斯瑞克（安罗斯末代仁君，被奈瑟拉困住灵魂）。临终独白'不是我让我变成怪物的……是地下的她'，玩家首次听到古神暗示。",
@@ -228,7 +320,26 @@
         "fog": true,
         "light_level": 0.45
       },
-      "feature": "沼泽水面减速30%，但毒系装备在水中触发率翻倍，中毒叠加层数上限提升，主推毒系DoT构筑。",
+      "feature": "毒池：地面随机生成毒池，踏入造成20 DPS毒伤并减速30%，毒系装备在毒池触发率翻倍，中毒层数上限+2。",
+      "feature_id": "poison_pools",
+      "feature_params": {
+        "spawn_interval": 8,
+        "pool_count": 3,
+        "poison_dps": 20,
+        "slow_percent": 0.3,
+        "poison_trigger_mult": 2.0,
+        "poison_stack_bonus": 2
+      },
+      "slot_weights": {
+        "chest": 3,
+        "legs": 3,
+        "weapon": 1,
+        "helmet": 1,
+        "boots": 1,
+        "gloves": 1,
+        "ring": 1,
+        "amulet": 1
+      },
       "set_drop": "set_plague",
       "unlock_condition": "clear_dungeon_crypt_5",
       "design_note": "第二幕开端。黎明堡爆发瘟疫，沼泽贤者维兰引玩家溯源至腐沼疫地。发绿水面与苍蝇嗡鸣，引入水面减速与毒触发机制。",
@@ -271,7 +382,28 @@
         "fog": true,
         "light_level": 0.42
       },
-      "feature": "孢子云：踩踏或击破巨型蘑菇释放扩散毒云，对敌持续毒伤但对玩家同样有毒，需借虫群与孢子连锁感染。",
+      "feature": "毒池与孢子云：毒池造成30 DPS毒伤并减速35%，击破蘑菇释放扩散毒云（范围3米，15 DPS），毒系触发率翻倍，毒层数上限+3。",
+      "feature_id": "poison_pools",
+      "feature_params": {
+        "spawn_interval": 7,
+        "pool_count": 4,
+        "poison_dps": 30,
+        "slow_percent": 0.35,
+        "poison_trigger_mult": 2.0,
+        "poison_stack_bonus": 3,
+        "spore_cloud_radius": 3,
+        "spore_cloud_dps": 15
+      },
+      "slot_weights": {
+        "chest": 3,
+        "legs": 3,
+        "weapon": 1,
+        "helmet": 1,
+        "boots": 1,
+        "gloves": 1,
+        "ring": 1,
+        "amulet": 1
+      },
       "set_drop": "set_plague",
       "unlock_condition": "clear_dungeon_swamp_1",
       "design_note": "第二幕推进。巨型蘑菇林与缠绕尸体的藤蔓，孵化者持续召虫。环境叙事：树上悬挂疫病祷者的茧，教团祭祀痕迹渐显。",
@@ -314,7 +446,28 @@
         "fog": true,
         "light_level": 0.4
       },
-      "feature": "虫巢潮：周期性从淹没城市废墟涌出蛆群，清掉巢穴可获得额外掉落，放任则虫潮叠加包围玩家。",
+      "feature": "毒池与虫巢潮：毒池造成40 DPS毒伤并减速40%，周期性虫巢涌出蛆群，清掉巢穴额外掉落，毒系触发率2.5倍，毒层数上限+4。",
+      "feature_id": "poison_pools",
+      "feature_params": {
+        "spawn_interval": 6,
+        "pool_count": 5,
+        "poison_dps": 40,
+        "slow_percent": 0.4,
+        "poison_trigger_mult": 2.5,
+        "poison_stack_bonus": 4,
+        "nest_spawn_interval": 15,
+        "nest_drop_bonus": 0.1
+      },
+      "slot_weights": {
+        "chest": 3,
+        "legs": 3,
+        "weapon": 1,
+        "helmet": 1,
+        "boots": 1,
+        "gloves": 1,
+        "ring": 1,
+        "amulet": 1
+      },
       "set_drop": "set_plague",
       "unlock_condition": "clear_dungeon_swamp_2",
       "design_note": "第二幕推进。维兰丁淹没的钟楼半浸水中，发现被绑架并变异的黎明堡村民。教团在加速古尔撒'心跳'的真相逐步揭开。",
@@ -357,7 +510,28 @@
         "fog": true,
         "light_level": 0.38
       },
-      "feature": "巢母深井：毒雾自边缘向中心逼近，中毒叠层无上限，Boss战周期性产卵，玩家须取舍打卵止增殖或集火Boss。",
+      "feature": "巢母深井毒雾：毒池造成60 DPS毒伤并减速50%，毒雾从边缘逼近中心，中毒层数无上限，毒系触发率3倍，Boss周期产卵。",
+      "feature_id": "poison_pools",
+      "feature_params": {
+        "spawn_interval": 5,
+        "pool_count": 6,
+        "poison_dps": 60,
+        "slow_percent": 0.5,
+        "poison_trigger_mult": 3.0,
+        "poison_stack_unlimited": true,
+        "fog_advance_speed": 0.5,
+        "boss_egg_spawn_interval": 20
+      },
+      "slot_weights": {
+        "chest": 3,
+        "legs": 3,
+        "weapon": 1,
+        "helmet": 1,
+        "boots": 1,
+        "gloves": 1,
+        "ring": 1,
+        "amulet": 1
+      },
       "set_drop": "set_plague",
       "unlock_condition": "clear_dungeon_swamp_3",
       "design_note": "第二幕高潮。决战巢母莫拉戈斯（原疫病修女艾尔莎，1010年献祭古尔撒成为代孕子宫）。维兰摘面具露出半张腐脸，玩家首次正面认识古神与远古守护者。",
@@ -400,7 +574,25 @@
         "fog": false,
         "light_level": 0.6
       },
-      "feature": "熔岩格随机点亮：踩中持续灼烧，但火焰系装备在熔岩格上反而回血，奖励火焰流贴近熔岩输出。",
+      "feature": "熔岩格：每6秒随机点亮3格熔岩格（1秒预警圈），踩中造成80灼烧伤害，火焰系装备在熔岩格上反而回血5%。",
+      "feature_id": "lava_eruption",
+      "feature_params": {
+        "eruption_interval": 6,
+        "grid_count": 3,
+        "warning_duration": 1,
+        "damage": 80,
+        "fire_build_heal_percent": 0.05
+      },
+      "slot_weights": {
+        "helmet": 3,
+        "gloves": 3,
+        "weapon": 1,
+        "chest": 1,
+        "legs": 1,
+        "boots": 1,
+        "ring": 1,
+        "amulet": 1
+      },
       "set_drop": "set_ember",
       "unlock_condition": "clear_dungeon_swamp_4",
       "design_note": "第三幕开端。远古守护者锻心索林告知教团'虚空之钥'计划，玩家进入卡尔罗斯地下铁矿。烫红恶魔石像与风箱轰鸣，引入熔岩格机制。",
@@ -443,7 +635,28 @@
         "fog": false,
         "light_level": 0.65
       },
-      "feature": "过热机制：连续输出累积热度条，满热触发一次范围爆燃高伤，但过热期间自身防御下降，呼应伊格诺斯'扭曲变强'。",
+      "feature": "熔岩格与过热：每5秒点亮4格熔岩（0.8秒预警），踩中造成120伤害，连续输出积累热度，满热触发范围爆燃150伤害且防御-30%，火焰流回血8%。",
+      "feature_id": "lava_eruption",
+      "feature_params": {
+        "eruption_interval": 5,
+        "grid_count": 4,
+        "warning_duration": 0.8,
+        "damage": 120,
+        "fire_build_heal_percent": 0.08,
+        "overheat_threshold": 100,
+        "overheat_explosion_damage": 150,
+        "overheat_armor_reduction": 0.3
+      },
+      "slot_weights": {
+        "helmet": 3,
+        "gloves": 3,
+        "weapon": 1,
+        "chest": 1,
+        "legs": 1,
+        "boots": 1,
+        "ring": 1,
+        "amulet": 1
+      },
       "set_drop": "set_ember",
       "unlock_condition": "clear_dungeon_forge_1",
       "design_note": "第三幕推进。熔岩脉深处悬空镣铐密布，熔铸者护甲极高需穿透应对。环境叙事：被烧红的恶魔之心碎片散落矿脉。",
@@ -486,7 +699,30 @@
         "fog": false,
         "light_level": 0.62
       },
-      "feature": "锻造核心：场上分布可击碎的烧红铁砧，摧毁获得临时火焰增伤层，刑炉守卫投掷烈焰链封锁走位。",
+      "feature": "熔岩格与锻造核心：每4秒点亮5格熔岩（0.6秒预警），踩中造成160伤害，摧毁铁砧获得临时火焰增伤+20%（持续10秒），火焰流回血10%。",
+      "feature_id": "lava_eruption",
+      "feature_params": {
+        "eruption_interval": 4,
+        "grid_count": 5,
+        "warning_duration": 0.6,
+        "damage": 160,
+        "fire_build_heal_percent": 0.1,
+        "overheat_threshold": 100,
+        "overheat_explosion_damage": 200,
+        "overheat_armor_reduction": 0.4,
+        "anvil_damage_bonus": 0.2,
+        "anvil_bonus_duration": 10
+      },
+      "slot_weights": {
+        "helmet": 3,
+        "gloves": 3,
+        "weapon": 1,
+        "chest": 1,
+        "legs": 1,
+        "boots": 1,
+        "ring": 1,
+        "amulet": 1
+      },
       "set_drop": "set_ember",
       "unlock_condition": "clear_dungeon_forge_2",
       "design_note": "第三幕推进。玩家在堕落锻造厅打断教团锻造'虚空之钥'的仪式。铁锤敲击与铜锣回荡，索林准备牺牲自己开启燃尽王座之路。",
@@ -529,7 +765,31 @@
         "fog": false,
         "light_level": 0.7
       },
-      "feature": "燃尽王座·熔炉开启：阶段三熔炉敞开，玩家须摧毁锻造核心，否则Boss无限重生，熔岩格密集灼烧叠加爆发考验。",
+      "feature": "燃尽王座熔炉开启：每3秒点亮6格熔岩（0.5秒预警），踩中造成250伤害，阶段三须摧毁锻造核心否则Boss无限重生，火焰流回血15%，火焰增伤+30%。",
+      "feature_id": "lava_eruption",
+      "feature_params": {
+        "eruption_interval": 3,
+        "grid_count": 6,
+        "warning_duration": 0.5,
+        "damage": 250,
+        "fire_build_heal_percent": 0.15,
+        "overheat_threshold": 100,
+        "overheat_explosion_damage": 300,
+        "overheat_armor_reduction": 0.5,
+        "anvil_damage_bonus": 0.3,
+        "anvil_bonus_duration": 12,
+        "boss_respawn_core": true
+      },
+      "slot_weights": {
+        "helmet": 3,
+        "gloves": 3,
+        "weapon": 1,
+        "chest": 1,
+        "legs": 1,
+        "boots": 1,
+        "ring": 1,
+        "amulet": 1
+      },
       "set_drop": "set_ember",
       "unlock_condition": "clear_dungeon_forge_3",
       "design_note": "第三幕高潮。决战燃烬之主瓦尔卡兹（矮人锻造大师杜林，身体成伊格诺斯容器）。击败后教团杀手抢走锻心之锤逃走，索林留言'去找北方'，指引DLC1。",
@@ -572,7 +832,24 @@
         "fog": true,
         "light_level": 0.7
       },
-      "feature": "冰霜领域：全场移速降低，但冰霜系技能冷却减半，被冻结敌人受到的伤害提升，主推控制/减速流。",
+      "feature": "冰面打滑：全场移速-20%但冰霜系技能冷却-50%，冰冻敌人受伤+30%，冰面摩擦力0.3（惯性滑行）。",
+      "feature_id": "ice_slide",
+      "feature_params": {
+        "move_speed_penalty": 0.2,
+        "frost_skill_cooldown_reduction": 0.5,
+        "frozen_damage_bonus": 0.3,
+        "ice_friction": 0.3
+      },
+      "slot_weights": {
+        "boots": 3,
+        "ring": 3,
+        "weapon": 1,
+        "helmet": 1,
+        "chest": 1,
+        "legs": 1,
+        "gloves": 1,
+        "amulet": 1
+      },
       "set_drop": "set_frost",
       "unlock_condition": "clear_dungeon_forge_4",
       "design_note": "第四幕开端（DLC1）。玩家追击教团北上永眠之渊，外围遇'艾莉珊德拉学徒'女巫加入（解锁冰霜女巫职业线索）。寒风呜咽，引入冰霜领域机制。",
@@ -615,7 +892,26 @@
         "fog": true,
         "light_level": 0.72
       },
-      "feature": "时间裂隙：每隔一段时间全场时停3秒，时停期间预埋的技能与弹道会在解冻瞬间一次性结算，奖励爆发布置。",
+      "feature": "冰面打滑与时间裂隙：移速-25%，冰霜技能冷却-60%，冰冻敌人受伤+40%，每15秒时停3秒（时停期间技能与弹道解冻后结算），冰面摩擦力0.2。",
+      "feature_id": "ice_slide",
+      "feature_params": {
+        "move_speed_penalty": 0.25,
+        "frost_skill_cooldown_reduction": 0.6,
+        "frozen_damage_bonus": 0.4,
+        "ice_friction": 0.2,
+        "time_stop_interval": 15,
+        "time_stop_duration": 3
+      },
+      "slot_weights": {
+        "boots": 3,
+        "ring": 3,
+        "weapon": 1,
+        "helmet": 1,
+        "chest": 1,
+        "legs": 1,
+        "gloves": 1,
+        "amulet": 1
+      },
       "set_drop": "set_frost",
       "unlock_condition": "clear_dungeon_ice_1",
       "design_note": "第四幕推进（DLC1）。被永久封印的法师议会回廊，冰封骑士与寒冰祭司守卫。环境叙事：冻结在冰中的议会法师，时停机制呼应克里斯塔的时间停滞之力。",
@@ -658,7 +954,29 @@
         "fog": true,
         "light_level": 0.68
       },
-      "feature": "永冻王座：全场霜冻，玩家施加的控制效果时长翻倍，但Boss被打断时释放冰封反击，时停与霜爆交替施压。",
+      "feature": "永冻王座：移速-30%，冰霜技能冷却-70%，冰冻敌人受伤+50%，控制效果时长x2，Boss被打断释放冰封反击（半径5米，冻结2秒），冰面摩擦力0.1。",
+      "feature_id": "ice_slide",
+      "feature_params": {
+        "move_speed_penalty": 0.3,
+        "frost_skill_cooldown_reduction": 0.7,
+        "frozen_damage_bonus": 0.5,
+        "ice_friction": 0.1,
+        "time_stop_interval": 12,
+        "time_stop_duration": 4,
+        "cc_duration_multiplier": 2.0,
+        "boss_counter_radius": 5,
+        "boss_counter_freeze_duration": 2
+      },
+      "slot_weights": {
+        "boots": 3,
+        "ring": 3,
+        "weapon": 1,
+        "helmet": 1,
+        "chest": 1,
+        "legs": 1,
+        "gloves": 1,
+        "amulet": 1
+      },
       "set_drop": "set_frost",
       "unlock_condition": "clear_dungeon_ice_2",
       "design_note": "第四幕高潮（DLC1）。决战冰霜巫妖艾莉珊德拉（千年活体封印，封印克里斯塔）。反转揭示：古神并非主动作恶，真正推手是教团。留言'教团之首并非凡人'指引DLC2。",
@@ -701,7 +1019,25 @@
         "fog": true,
         "light_level": 0.35
       },
-      "feature": "规则扭曲：装备词缀效果随机变异，每60秒重掷一次，混沌伤害与随机暴击频发，奖励虚空/混合构筑的容错。",
+      "feature": "虚空裂隙：装备词缀效果每60秒随机变异（±30%），混沌伤害频发（10%几率触发），随机暴击+15%，裂隙传送（每20秒随机传送玩家）。",
+      "feature_id": "void_rift",
+      "feature_params": {
+        "affix_mutation_interval": 60,
+        "affix_mutation_range": 0.3,
+        "chaos_damage_chance": 0.1,
+        "random_crit_bonus": 0.15,
+        "rift_teleport_interval": 20
+      },
+      "slot_weights": {
+        "ring": 4,
+        "amulet": 4,
+        "weapon": 1,
+        "helmet": 1,
+        "chest": 1,
+        "legs": 1,
+        "boots": 1,
+        "gloves": 1
+      },
       "set_drop": "set_void",
       "unlock_condition": "clear_dungeon_ice_3",
       "design_note": "第五幕开端（DLC2）。玩家进入永眠之渊核心、深渊之力的真正源头。空间扭曲、异色裂痕遍布，碎影与混沌眼游荡，引入规则扭曲机制。",
@@ -744,7 +1080,27 @@
         "fog": true,
         "light_level": 0.3
       },
-      "feature": "虚空核心：Boss随机复制前四幕Boss招式，现实扭曲会随机翻转移动/技能映射，规则突破词缀在此触发概率最高。",
+      "feature": "虚空核心：装备词缀每45秒变异（±40%），混沌伤害15%几率触发，随机暴击+25%，裂隙传送每15秒，Boss复制前四幕Boss招式，现实扭曲翻转映射。",
+      "feature_id": "void_rift",
+      "feature_params": {
+        "affix_mutation_interval": 45,
+        "affix_mutation_range": 0.4,
+        "chaos_damage_chance": 0.15,
+        "random_crit_bonus": 0.25,
+        "rift_teleport_interval": 15,
+        "boss_mimic_abilities": true,
+        "reality_distortion": true
+      },
+      "slot_weights": {
+        "ring": 4,
+        "amulet": 4,
+        "weapon": 1,
+        "helmet": 1,
+        "chest": 1,
+        "legs": 1,
+        "boots": 1,
+        "gloves": 1
+      },
       "set_drop": "set_void",
       "unlock_condition": "clear_dungeon_void_1",
       "design_note": "第五幕终局（DLC2）。决战教皇卡西米尔——千年前故意失败仪式的首席祭司、虚空之子容器。其后虚空之子现身（模仿前四Boss招式），按前序选择走向黎明/轮回/堕落结局。",
@@ -787,7 +1143,18 @@
         "fog": true,
         "light_level": 0.65
       },
-      "feature": "荒原沙暴：周期性沙暴降低视野与命中，荒野盗匪趁沙暴伏击，沙暴间隙是安全输出窗口。",
+      "feature": "怪物狂潮：怪物密度x2，刷新速度+50%，击杀金币x1.5，经验x1.3，材料掉落+20%，无套装偏向，沙暴降低视野与命中-15%。",
+      "feature_id": "monster_surge",
+      "feature_params": {
+        "monster_density_mult": 2.0,
+        "spawn_speed_mult": 1.5,
+        "gold_mult": 1.5,
+        "exp_mult": 1.3,
+        "material_drop_bonus": 0.2,
+        "sandstorm_vision_reduction": 0.15,
+        "sandstorm_accuracy_reduction": 0.15
+      },
+      "slot_weights": {},
       "set_drop": "",
       "unlock_condition": "clear_dungeon_void_2",
       "design_note": "拾荒者行会支线farming场。黎明堡城墙外的腐化荒原，混杂腐化狼、盗匪与游荡尸，无古神套装掉落但是稳定刷材料金币的开阔地。",
@@ -830,7 +1197,18 @@
         "fog": true,
         "light_level": 0.55
       },
-      "feature": "腐化藤蔓：场地藤蔓缠绕减速，砍除藤蔓掉落补给与短时增益，变异熊在密林中突进伏击。",
+      "feature": "怪物狂潮：怪物密度x2.2，刷新速度+60%，击杀金币x1.6，经验x1.4，材料掉落+25%，无套装偏向，腐化藤蔓缠绕减速20%但砍除掉落补给。",
+      "feature_id": "monster_surge",
+      "feature_params": {
+        "monster_density_mult": 2.2,
+        "spawn_speed_mult": 1.6,
+        "gold_mult": 1.6,
+        "exp_mult": 1.4,
+        "material_drop_bonus": 0.25,
+        "vine_slow_percent": 0.2,
+        "vine_drop_supplies": true
+      },
+      "slot_weights": {},
       "set_drop": "",
       "unlock_condition": "clear_field_wasteland",
       "design_note": "拾荒者行会支线farming场。深渊之力侵蚀的扭曲森林，教团斥候在此巡逻（环境叙事：跨副本的教团踪迹）。中等强度的混合刷怪区。",
@@ -873,7 +1251,19 @@
         "fog": false,
         "light_level": 0.6
       },
-      "feature": "遗迹回响：废墟中游荡尸成群刷新，连续击杀积累拾荒者宝箱掉率，最终触发荒原霸主精英Boss刷新。",
+      "feature": "怪物狂潮：怪物密度x2.5，刷新速度+80%，击杀金币x1.8，经验x1.5，材料掉落+30%，无套装偏向，连续击杀积累宝箱掉率+5%/层（最高50%），触发荒原霸主精英Boss。",
+      "feature_id": "monster_surge",
+      "feature_params": {
+        "monster_density_mult": 2.5,
+        "spawn_speed_mult": 1.8,
+        "gold_mult": 1.8,
+        "exp_mult": 1.5,
+        "material_drop_bonus": 0.3,
+        "killstreak_chest_bonus_per_stack": 0.05,
+        "killstreak_chest_bonus_max": 0.5,
+        "elite_boss_trigger": true
+      },
+      "slot_weights": {},
       "set_drop": "",
       "unlock_condition": "clear_field_forest",
       "design_note": "拾荒者行会支线farming场。三大王国覆灭后的地表废墟，破碎王冠与锈蚀盔甲诉说往日辉煌。野区精英Boss荒原霸主在此坐镇，是地表最高强度的刷宝点。",

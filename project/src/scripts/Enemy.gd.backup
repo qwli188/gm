@@ -447,7 +447,6 @@ func die():
 		return
 	_dying = true
 	drop_loot()
-	drop_material()
 
 	# 通知玩家击杀
 	if player and player.has_method("on_enemy_killed"):
@@ -466,44 +465,6 @@ func drop_loot():
 				bonus = get_node("/root/GameState").selected_drop_bonus
 				set_bias = get_node("/root/GameState").selected_set_drop
 			get_node("/root/EquipmentSystem").drop_random_equipment(global_position, bonus, set_bias)
-
-## 掉落区域专属材料
-func drop_material():
-	if not has_node("/root/GameState"):
-		return
-	var game_state = get_node("/root/GameState")
-	var dungeon_id = game_state.selected_dungeon_id
-	if dungeon_id == "":
-		return
-
-	# 从副本配置读取 material_type
-	var dungeon = ConfigLoader.get_dungeon_by_id(dungeon_id)
-	if dungeon.is_empty():
-		return
-
-	var material_type = dungeon.get("material_type", "")
-	if material_type == "":
-		return
-
-	# 从 balance.json 读取材料掉落配置
-	var materials_config = ConfigLoader.balance_data.get("region_materials", {}).get("materials", [])
-	var material_data = null
-	for mat in materials_config:
-		if mat.get("id", "") == material_type:
-			material_data = mat
-			break
-
-	if material_data == null:
-		return
-
-	# 掉落判定
-	var drop_rate = material_data.get("drop_rate", 0.2)
-	if randf() < drop_rate:
-		var drop_min = material_data.get("drop_amount_min", 1)
-		var drop_max = material_data.get("drop_amount_max", 3)
-		var amount = randi_range(drop_min, drop_max)
-		game_state.add_material(material_type, amount)
-		print("[Enemy] 掉落材料: %s x%d" % [material_type, amount])
 
 func call_equipment_drop():
 	# 从 equipment.json 随机掉落装备

@@ -154,6 +154,14 @@ func recalculate_stats():
 	crit_chance = min(crit_chance, 0.75)
 	attack_speed = min(attack_speed, 3.0)
 
+	# 副本机制buff(死亡之雾暴击加成)
+	if has_node("/root/DungeonFeatureSystem"):
+		var dfs = get_node("/root/DungeonFeatureSystem")
+		var fog_crit = dfs.active_buffs.get("fog_crit_bonus", 0.0)
+		if fog_crit > 0:
+			crit_chance += fog_crit
+			crit_chance = min(crit_chance, 0.95)  # 雾中也有上限
+
 	stats_recalculated.emit()
 
 func _physics_process(delta):
@@ -169,6 +177,18 @@ func _physics_process(delta):
 	# 不在闪避中才正常处理移动(闪避期间 velocity 由 handle_dodge 接管)
 	if not is_dodging:
 		handle_movement()
+		# 冰面惯性(副本机制ice_slide)
+		if has_node("/root/DungeonFeatureSystem"):
+			var dfs = get_node("/root/DungeonFeatureSystem")
+			var ice_zones = dfs.active_buffs.get("ice_slide_zones", [])
+			var on_ice = false
+			for zone in ice_zones:
+				if is_instance_valid(zone) and zone.has_method("overlaps_body"):
+					if zone.overlaps_body(self):
+						on_ice = true
+						break
+			if on_ice:
+				velocity *= 0.85  # 惯性打滑
 
 	handle_attack(delta)
 	move_and_slide()

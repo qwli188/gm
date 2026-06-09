@@ -13,6 +13,7 @@ var selected_hp_mult: float = 1.0
 var selected_dmg_mult: float = 1.0
 var selected_drop_bonus: float = 0.0
 var selected_set_drop: String = ""
+var selected_slot_weights: Dictionary = {}
 
 # 局外永久数据（金币、强化等级、已解锁内容）
 var total_gold: int = 0
@@ -27,6 +28,9 @@ var unlocked_dungeons: Array = ["dungeon_crypt_1"]
 #   }
 # }
 var cleared_dungeons: Dictionary = {}
+
+# 材料系统(区域专属材料用于改造)
+var materials: Dictionary = {}
 
 func _ready():
 	print("[GameState] 全局状态初始化")
@@ -56,6 +60,7 @@ func enter_dungeon(dungeon_id: String, tier: int = 1):
 		return
 	selected_waveset = dungeon.get("wave_set", "waveset_crypt_1")
 	selected_set_drop = dungeon.get("set_drop", "")
+	selected_slot_weights = dungeon.get("slot_weights", {})
 	# 应用难度
 	var tiers = dungeon.get("difficulty_tiers", [])
 	for t in tiers:
@@ -88,3 +93,13 @@ func get_max_cleared_tier(dungeon_id: String) -> int:
 ## 查询副本是否通关过指定难度
 func is_dungeon_cleared(dungeon_id: String, tier: int = 1) -> bool:
 	return get_max_cleared_tier(dungeon_id) >= tier
+
+## 材料系统 - 添加/扣除材料
+func add_material(material_id: String, amount: int):
+	var current = materials.get(material_id, 0)
+	materials[material_id] = max(0, current + amount)
+	print("[GameState] 材料变动: %s %+d -> %d" % [material_id, amount, materials[material_id]])
+
+## 材料系统 - 获取材料数量
+func get_material(material_id: String) -> int:
+	return materials.get(material_id, 0)
