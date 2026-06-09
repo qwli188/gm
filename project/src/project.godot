@@ -35,6 +35,7 @@ DungeonFeatureSystem="*res://autoload/DungeonFeatureSystem.gd"
 CombatSystem="*res://autoload/CombatSystem.gd"
 ActiveSkillSystem="*res://autoload/ActiveSkillSystem.gd"
 ClassMechanicSystem="*res://autoload/ClassMechanicSystem.gd"
+DungeonFlow="*res://autoload/DungeonFlow.gd"
 
 [display]
 
