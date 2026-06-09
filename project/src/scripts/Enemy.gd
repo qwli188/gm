@@ -653,7 +653,20 @@ func _execute_regional_skill(skill_name: String):
 			_skill_bone_whirlwind()
 		"孵化狂潮":
 			_skill_spawn_frenzy()
-		# 复杂技能组（待实现）
+		# 复杂技能组
+		"王座审判":
+			_skill_throne_judgment()
+		"陨石天降":
+			_skill_meteor_storm()
+		"寒冰牢笼":
+			_skill_ice_prison()
+		"现实撕裂":
+			_skill_reality_rift()
+		"深渊冲锋":
+			_skill_abyss_charge()
+		"腐化号令":
+			_skill_corruption_call()
+		# 未实现的高难度技能（回退）
 		_:
 			print("[Boss] 未实现的技能: ", skill_name)
 			_use_boss_skill()  # 回退
@@ -981,3 +994,258 @@ func _spawn_minion(minion_type: String):
 	get_parent().add_child(minion)
 	minion._ready()  # 手动初始化
 
+
+
+# ────────────────────────────────────────────────────────────
+# 复杂技能组 (阶段1深度实施)
+# ────────────────────────────────────────────────────────────
+
+## 王座审判：飞天无敌 + 8方位骨刺 + 召唤
+func _skill_throne_judgment():
+	_casting = true
+	print("[Boss] 王座审判！飞至上空")
+
+	# 飞至上空（无敌1.5秒）
+	var original_pos = global_position
+	if anim_sprite:
+		anim_sprite.modulate = Color(1.5, 1.5, 2.0)  # 发光表示无敌
+	set_collision_layer_value(1, false)  # 暂时无敌
+
+	await get_tree().create_timer(1.5).timeout
+	if not is_instance_valid(self):
+		return
+
+	# 在玩家周围8方位生成骨刺预警（中心安全）
+	if player and is_instance_valid(player):
+		var center = player.global_position
+		var warnings = []
+		for i in range(8):
+			var angle = (TAU / 8) * i
+			var spike_pos = center + Vector2(cos(angle), sin(angle)) * 120
+			var warning = _create_warning_circle(spike_pos, 60)
+			get_parent().add_child(warning)
+			warnings.append({node = warning, pos = spike_pos})
+
+		# 1秒预警
+		await get_tree().create_timer(1.0).timeout
+		if not is_instance_valid(self):
+			return
+
+		# 爆发伤害
+		for w in warnings:
+			if is_instance_valid(w.node):
+				_deal_aoe_damage(w.pos, 60, damage * 1.5)
+				EffectSprite.spawn(get_parent(), "hit", w.pos, 1.5)
+				w.node.queue_free()
+
+	# 恢复
+	if anim_sprite:
+		anim_sprite.modulate = SpriteLibrary.RANK_TINT.get("boss", Color.WHITE)
+	set_collision_layer_value(1, true)
+
+	# 召唤4只骸骨骑士
+	for i in range(4):
+		_spawn_minion("skeleton_knight")
+
+	_casting = false
+
+## 陨石天降：6颗陨石随机落点 + 永久岩浆池
+func _skill_meteor_storm():
+	_casting = true
+	print("[Boss] 陨石天降！")
+
+	# 生成6个随机落点预警
+	var meteor_positions = []
+	for i in range(6):
+		var offset = Vector2(randf_range(-400, 400), randf_range(-300, 300))
+		var pos = global_position + offset
+		var warning = _create_warning_circle(pos, 80)
+		warning.color = Color(1.0, 0.4, 0.0, 0.4)  # 橙红色
+		get_parent().add_child(warning)
+		meteor_positions.append({pos = pos, warning = warning})
+
+		var blink = warning.create_tween().set_loops()
+		blink.tween_property(warning, "modulate:a", 0.8, 0.2)
+		blink.tween_property(warning, "modulate:a", 0.3, 0.2)
+
+	# 1.2秒预警
+	await get_tree().create_timer(1.2).timeout
+	if not is_instance_valid(self):
+		return
+
+	# 陨石落地
+	for m in meteor_positions:
+		if is_instance_valid(m.warning):
+			_deal_aoe_damage(m.pos, 80, 100)
+			EffectSprite.spawn(get_parent(), "fire", m.pos, 2.5)
+			m.warning.queue_free()
+			# TODO: 生成永久岩浆池（需要持久DOT区域系统）
+
+	AudioManager.play("attack")
+	_casting = false
+
+## 寒冰牢笼：困住玩家 + 可破坏
+func _skill_ice_prison():
+	_casting = true
+	print("[Boss] 寒冰牢笼！")
+
+	if not player or not is_instance_valid(player):
+		_casting = false
+		return
+
+	var target_pos = player.global_position
+
+	# 1秒预警
+	var warning = _create_warning_circle(target_pos, 50)
+	warning.color = Color(0.4, 0.7, 1.0, 0.4)
+	get_parent().add_child(warning)
+
+	await get_tree().create_timer(1.0).timeout
+	if not is_instance_valid(self):
+		if is_instance_valid(warning):
+			warning.queue_free()
+		return
+
+	if is_instance_valid(warning):
+		warning.queue_free()
+
+	# 检查玩家是否还在原位（可走位躲避）
+	if player.global_position.distance_to(target_pos) < 60:
+		# 困住玩家（冰冻3秒）
+		if player.has_method("apply_freeze"):
+			player.apply_freeze(3.0)
+		EffectSprite.spawn(get_parent(), "frost", player.global_position, 2.0)
+		print("[Boss] 玩家被冰封！")
+
+	_casting = false
+
+## 现实撕裂：3道虚空裂隙
+func _skill_reality_rift():
+	_casting = true
+	print("[Boss] 现实撕裂！")
+
+	# 生成3道裂隙（横向线条）
+	var rifts = []
+	for i in range(3):
+		var y_offset = -200 + i * 200
+		var rift = ColorRect.new()
+		rift.size = Vector2(800, 30)
+		rift.color = Color(0.6, 0.2, 0.8, 0.5)  # 紫色
+		rift.global_position = global_position + Vector2(-400, y_offset)
+		rift.z_index = 5
+		get_parent().add_child(rift)
+		rifts.append(rift)
+
+		var blink = rift.create_tween().set_loops()
+		blink.tween_property(rift, "modulate:a", 0.9, 0.25)
+		blink.tween_property(rift, "modulate:a", 0.4, 0.25)
+
+	# 1.5秒后闭合
+	await get_tree().create_timer(1.5).timeout
+	if not is_instance_valid(self):
+		return
+
+	# 判定玩家是否在裂隙上
+	if player and is_instance_valid(player):
+		for rift in rifts:
+			if is_instance_valid(rift):
+				var rect = Rect2(rift.global_position, rift.size)
+				if rect.has_point(player.global_position):
+					player.take_damage(200)
+					# 传送到场地另一侧
+					player.global_position += Vector2(0, 300)
+					EffectSprite.spawn(get_parent(), "void", player.global_position, 2.0)
+					break
+
+	for rift in rifts:
+		if is_instance_valid(rift):
+			rift.queue_free()
+
+	_casting = false
+
+## 深渊冲锋：锁定方向高速冲锋
+func _skill_abyss_charge():
+	_casting = true
+	print("[Boss] 深渊冲锋蓄力...")
+
+	if not player or not is_instance_valid(player):
+		_casting = false
+		return
+
+	# 锁定玩家方向
+	var charge_dir = (player.global_position - global_position).normalized()
+
+	# 0.8秒蓄力（显示冲锋路径）
+	var warning = ColorRect.new()
+	warning.size = Vector2(600, 60)
+	warning.color = Color(0.5, 0.1, 0.6, 0.4)
+	warning.global_position = global_position
+	warning.rotation = charge_dir.angle()
+	warning.z_index = -1
+	get_parent().add_child(warning)
+
+	if anim_sprite:
+		anim_sprite.modulate = Color(1.5, 0.5, 1.5)
+
+	await get_tree().create_timer(0.8).timeout
+	if not is_instance_valid(self):
+		if is_instance_valid(warning):
+			warning.queue_free()
+		return
+
+	# 高速冲锋
+	var charge_distance = 600
+	var charge_speed = 1500
+	var start_pos = global_position
+	var target_pos = start_pos + charge_dir * charge_distance
+
+	var hit_player = false
+	var tween = create_tween()
+	tween.tween_property(self, "global_position", target_pos, charge_distance / charge_speed)
+
+	# 冲锋过程检测碰撞
+	while global_position.distance_to(target_pos) > 20 and is_instance_valid(self):
+		await get_tree().create_timer(0.02).timeout
+		if not hit_player and player and is_instance_valid(player):
+			if global_position.distance_to(player.global_position) < 50:
+				player.take_damage(100)
+				if player.has_method("apply_knockback"):
+					player.apply_knockback(global_position, true)
+				hit_player = true
+
+	if anim_sprite:
+		anim_sprite.modulate = SpriteLibrary.RANK_TINT.get("boss", Color.WHITE)
+	if is_instance_valid(warning):
+		warning.queue_free()
+
+	_casting = false
+
+## 腐化号令：召唤强化怪
+func _skill_corruption_call():
+	_casting = true
+	print("[Boss] 腐化号令！召唤援军")
+
+	# 无敌1秒
+	set_collision_layer_value(1, false)
+	if anim_sprite:
+		anim_sprite.modulate = Color(0.8, 0.3, 0.8)
+
+	# 号角特效
+	EffectSprite.spawn(get_parent(), "dark", global_position, 3.0)
+	AudioManager.play("attack")
+
+	await get_tree().create_timer(1.0).timeout
+	if not is_instance_valid(self):
+		return
+
+	# 召唤2熊+3斥候（强化版）
+	for i in range(5):
+		var minion_type = "bear" if i < 2 else "scout"
+		_spawn_minion(minion_type)
+
+	# 恢复
+	set_collision_layer_value(1, true)
+	if anim_sprite:
+		anim_sprite.modulate = SpriteLibrary.RANK_TINT.get("boss", Color.WHITE)
+
+	_casting = false
