@@ -36,12 +36,30 @@ func start_dungeon(dungeon_id: String, scene: Node2D, player_ref: Node2D):
 	# 加载波次配置
 	waves = _load_waves(dungeon_id)
 
+	# 阶段A2: 生成地形
+	_generate_terrain(dungeon_id)
+
 	print("[DungeonFlow] 副本开始: %s, %d波" % [dungeon_id, waves.size()])
 
 	# 延迟3秒后开始第1波
 	await get_tree().create_timer(3.0).timeout
 	if dungeon_active:
 		_start_next_wave()
+
+## 生成副本地形
+func _generate_terrain(dungeon_id: String):
+	var dungeon_data = _get_dungeon_data(dungeon_id)
+	if not dungeon_data or not dungeon_scene:
+		return
+
+	var region = dungeon_data.get("region", "crypt")
+
+	# 创建地形生成器节点
+	var terrain_script = load("res://scripts/DungeonTerrain.gd")
+	var terrain = terrain_script.new()
+	terrain.name = "DungeonTerrain"
+	dungeon_scene.add_child(terrain)
+	terrain.generate_terrain(region, dungeon_scene)
 
 ## 加载波次配置
 func _load_waves(dungeon_id: String) -> Array:
@@ -237,40 +255,37 @@ func _get_dungeon_data(dungeon_id: String) -> Dictionary:
 func _get_region_minion(region: String) -> String:
 	var map = {
 		"crypt": "enemy_skeleton",
-		"forge": "enemy_fire_elemental",
-		"ice": "enemy_frost_drake",
-		"swamp": "enemy_toxic_frog",
-		"void": "enemy_void_spawn",
-		"field": "enemy_cultist_scout",
-		"chaos": "enemy_chaos_aberration"
+		"forge": "enemy_ember_fiend",
+		"ice": "enemy_frost_wraith",
+		"swamp": "enemy_plague_walker",
+		"void": "enemy_void_crawler",
+		"field": "enemy_corrupted_wolf"
 	}
 	return map.get(region, "enemy_skeleton")
 
 ## 区域对应的精英怪
 func _get_region_elite(region: String) -> String:
 	var map = {
-		"crypt": "enemy_skeleton_knight",
-		"forge": "enemy_lava_golem",
-		"ice": "enemy_ice_knight",
-		"swamp": "enemy_swamp_titan",
-		"void": "enemy_void_watcher",
-		"field": "enemy_cultist_berserker",
-		"chaos": "enemy_chaos_lord"
+		"crypt": "elite_bone_knight",
+		"forge": "elite_forgemaster",
+		"ice": "elite_frozen_knight",
+		"swamp": "elite_brood_hatcher",
+		"void": "elite_riftbreaker",
+		"field": "elite_mutant_bear"
 	}
-	return map.get(region, "enemy_skeleton_knight")
+	return map.get(region, "elite_bone_knight")
 
 ## 区域对应的Boss
 func _get_region_boss(region: String) -> String:
 	var map = {
-		"crypt": "boss_lich_lord",
-		"forge": "boss_flame_warden",
-		"ice": "boss_frost_queen",
-		"swamp": "boss_plague_spawn",
-		"void": "boss_void_walker",
-		"field": "boss_abyss_champion",
-		"chaos": "boss_chaos_prophet"
+		"crypt": "boss_bone_lord",
+		"forge": "boss_ember_lord",
+		"ice": "boss_frost_lich",
+		"swamp": "boss_brood_mother",
+		"void": "boss_void_child",
+		"field": "boss_abyss_herald"
 	}
-	return map.get(region, "boss_lich_lord")
+	return map.get(region, "boss_bone_lord")
 
 ## 重置副本
 func reset():
