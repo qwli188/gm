@@ -1531,6 +1531,503 @@
       "icon": "res://assets/icons/skills/reckless_might.png",
       "unlock_condition": "default",
       "design_note": "通用'玻璃大炮'权衡被动:乘算总伤极强,但-15%生命上限对脆皮职业(法师/刺客/死灵师)是真实风险。需要用skill_bloodthirst/affix_lifesteal或骑士圣盾把生存补回,与残血增伤搭配可走极限赌命流,配set_void的随机暴击词条收益最高,制造强构筑取舍。"
+    },
+    {
+      "id": "skill_charge",
+      "display_name": "战吼冲锋",
+      "type": "active_manual",
+      "hotkey": "1",
+      "cooldown": 8,
+      "resource_cost": {
+        "type": "rage",
+        "amount": 20
+      },
+      "effect": {
+        "kind": "dash",
+        "distance": 300,
+        "damage": 25,
+        "damage_type": "physical",
+        "extra": {
+          "stun_duration": 1,
+          "generates_rage": 15,
+          "knockback": true
+        }
+      },
+      "visual": "橙红色冲刺轨迹 + 撞击火花",
+      "synergy": "冲锋命中敌人增加怒气,配合skill_rampage可快速叠满怒气槽",
+      "scaling": "等级提升伤害、缩短CD、延长眩晕时间",
+      "class": "class_warrior",
+      "max_level": 5
+    },
+    {
+      "id": "skill_whirlwind_active",
+      "display_name": "旋风斩(主动)",
+      "type": "active_manual",
+      "hotkey": "2",
+      "cooldown": 5,
+      "resource_cost": {
+        "type": "none"
+      },
+      "effect": {
+        "kind": "channel",
+        "duration": 2.5,
+        "tick_rate": 0.2,
+        "damage_per_tick": 12,
+        "radius": 140,
+        "damage_type": "physical",
+        "extra": {
+          "can_move_while_channeling": true,
+          "move_speed_mult": 0.6,
+          "generates_rage_per_hit": 3
+        }
+      },
+      "visual": "玩家周身旋转刀光,持续2.5秒",
+      "synergy": "每段命中积攒怒气,配合skill_bloodthirst可边旋转边吸血",
+      "scaling": "增加伤害、扩大半径、缩短tick间隔",
+      "class": "class_warrior",
+      "max_level": 5
+    },
+    {
+      "id": "skill_taunt",
+      "display_name": "嘲讽怒吼",
+      "type": "active_manual",
+      "hotkey": "3",
+      "cooldown": 12,
+      "resource_cost": {
+        "type": "rage",
+        "amount": 30
+      },
+      "effect": {
+        "kind": "buff",
+        "stat": "threat",
+        "value": 2,
+        "duration": 6,
+        "radius": 200,
+        "extra": {
+          "forces_enemies_to_target_player": true,
+          "also_damage_reduction": 0.15,
+          "also_armor_bonus": 10
+        }
+      },
+      "visual": "红色声波扩散 + 玩家周身橙色光环",
+      "synergy": "强制吸引敌人并提供减伤,配合skill_iron_will/bulwark坦克流开团",
+      "scaling": "提升减伤比例、延长持续时间、缩短CD",
+      "class": "class_warrior",
+      "max_level": 5
+    },
+    {
+      "id": "skill_multishot_active",
+      "display_name": "多重射击",
+      "type": "active_manual",
+      "hotkey": "1",
+      "cooldown": 6,
+      "resource_cost": {
+        "type": "none"
+      },
+      "effect": {
+        "kind": "projectile",
+        "damage_type": "physical",
+        "base_damage": 18,
+        "projectile_count": 5,
+        "spread_angle": 45,
+        "extra": {
+          "pierce": 2,
+          "adds_precision_stack_per_hit": true
+        }
+      },
+      "visual": "扇形射出5支箭,淡青色箭矢轨迹",
+      "synergy": "每支箭独立叠加精准层数,配合skill_eagle_eye暴击流快速叠层",
+      "scaling": "增加箭矢数量、提升穿透、缩短CD",
+      "class": "class_ranger",
+      "max_level": 5
+    },
+    {
+      "id": "skill_trap",
+      "display_name": "冰霜陷阱",
+      "type": "active_manual",
+      "hotkey": "2",
+      "cooldown": 10,
+      "resource_cost": {
+        "type": "none"
+      },
+      "effect": {
+        "kind": "summon",
+        "minion_type": "trap",
+        "count": 1,
+        "duration": 20,
+        "extra": {
+          "trigger_radius": 80,
+          "explode_damage": 40,
+          "slows_enemies": 0.6,
+          "slow_duration": 3
+        }
+      },
+      "visual": "脚下放置蓝色冰晶陷阱,触发时爆裂",
+      "synergy": "减速配合风筝流,skill_evasive_roll拉开距离后放置",
+      "scaling": "增加伤害、延长减速、可同时放置多个陷阱",
+      "class": "class_ranger",
+      "max_level": 5
+    },
+    {
+      "id": "skill_hawk_eye",
+      "display_name": "鹰眼标记",
+      "type": "active_manual",
+      "hotkey": "3",
+      "cooldown": 8,
+      "resource_cost": {
+        "type": "none"
+      },
+      "effect": {
+        "kind": "buff",
+        "stat": "crit_chance",
+        "value": 0.25,
+        "duration": 5,
+        "extra": {
+          "also_crit_damage": 0.4,
+          "also_attack_speed": 0.2,
+          "resets_precision_decay": true
+        }
+      },
+      "visual": "玩家眼睛发出金色光芒 + 视野边缘鹰隼剪影",
+      "synergy": "配合skill_rapid_fire双爆发叠加,精准层不衰减打出超高暴击",
+      "scaling": "提升暴击增益、延长持续时间、缩短CD",
+      "class": "class_ranger",
+      "max_level": 5
+    },
+    {
+      "id": "skill_fireball_active",
+      "display_name": "火球术",
+      "type": "active_manual",
+      "hotkey": "1",
+      "cooldown": 3,
+      "resource_cost": {
+        "type": "mana",
+        "amount": 20
+      },
+      "effect": {
+        "kind": "projectile",
+        "damage_type": "fire",
+        "base_damage": 35,
+        "projectile_count": 1,
+        "extra": {
+          "explode_on_hit": true,
+          "explosion_radius": 60,
+          "ignite_chance": 0.8,
+          "can_trigger_chain": true
+        }
+      },
+      "visual": "橙红色火球飞行 + 爆炸火焰扩散",
+      "synergy": "法力>50%触发连锁,配合skill_chain_flame形成火焰覆盖",
+      "scaling": "增加伤害、扩大爆炸半径、必定点燃",
+      "class": "class_mage",
+      "max_level": 5
+    },
+    {
+      "id": "skill_frost_wall",
+      "display_name": "冰墙",
+      "type": "active_manual",
+      "hotkey": "2",
+      "cooldown": 12,
+      "resource_cost": {
+        "type": "mana",
+        "amount": 30
+      },
+      "effect": {
+        "kind": "summon",
+        "minion_type": "ice_wall",
+        "count": 1,
+        "duration": 8,
+        "extra": {
+          "blocks_enemies": true,
+          "reflects_projectiles": true,
+          "chills_nearby": 0.4,
+          "chill_radius": 100
+        }
+      },
+      "visual": "玩家前方生成冰蓝色半透明墙体",
+      "synergy": "阻挡敌人进攻,配合skill_flame_nova防身或拉开施法距离",
+      "scaling": "延长持续时间、提升寒冷减速、可放置多段冰墙",
+      "class": "class_mage",
+      "max_level": 5
+    },
+    {
+      "id": "skill_teleport",
+      "display_name": "闪现",
+      "type": "active_manual",
+      "hotkey": "3",
+      "cooldown": 10,
+      "resource_cost": {
+        "type": "mana",
+        "amount": 25
+      },
+      "effect": {
+        "kind": "dash",
+        "distance": 350,
+        "damage": 0,
+        "extra": {
+          "instant_teleport": true,
+          "invuln_duration": 0.5,
+          "leaves_decoy": true,
+          "restores_mana_on_use": 10
+        }
+      },
+      "visual": "紫色传送门特效 + 残影",
+      "synergy": "瞬移脱离危险,配合skill_meteor拉开距离后砸陨石",
+      "scaling": "缩短CD、延长无敌帧、传送时回复更多法力",
+      "class": "class_mage",
+      "max_level": 5
+    },
+    {
+      "id": "skill_shadow_strike",
+      "display_name": "影袭",
+      "type": "active_manual",
+      "hotkey": "1",
+      "cooldown": 6,
+      "resource_cost": {
+        "type": "none"
+      },
+      "effect": {
+        "kind": "dash",
+        "distance": 250,
+        "damage": 30,
+        "damage_type": "physical",
+        "extra": {
+          "teleport_behind_target": true,
+          "guaranteed_backstab": true,
+          "enters_stealth_after": true,
+          "invuln_during_dash": true
+        }
+      },
+      "visual": "黑色烟雾轨迹 + 瞬移到敌人身后",
+      "synergy": "触发skill_backstab背刺机制,配合skill_shadow_cloak连环潜行斩杀",
+      "scaling": "增加伤害、缩短CD、延长斩杀后潜行时间",
+      "class": "class_assassin",
+      "max_level": 5
+    },
+    {
+      "id": "skill_smoke_bomb",
+      "display_name": "烟雾弹",
+      "type": "active_manual",
+      "hotkey": "2",
+      "cooldown": 14,
+      "resource_cost": {
+        "type": "none"
+      },
+      "effect": {
+        "kind": "aura",
+        "radius": 150,
+        "tick_damage": 0,
+        "damage_type": "poison",
+        "duration": 5,
+        "extra": {
+          "blinds_enemies": true,
+          "enters_stealth_immediately": true,
+          "also_move_speed": 0.4,
+          "leaves_poison_cloud": true,
+          "poison_dps": 6
+        }
+      },
+      "visual": "紫黑色烟雾扩散 + 玩家半透明潜行",
+      "synergy": "强制进入潜行并致盲敌人,配合skill_envenom_blade毒系DoT流",
+      "scaling": "延长持续时间、提升毒伤、扩大范围",
+      "class": "class_assassin",
+      "max_level": 5
+    },
+    {
+      "id": "skill_poison_blade",
+      "display_name": "淬毒刃舞",
+      "type": "active_manual",
+      "hotkey": "3",
+      "cooldown": 8,
+      "resource_cost": {
+        "type": "none"
+      },
+      "effect": {
+        "kind": "channel",
+        "duration": 1.5,
+        "tick_rate": 0.15,
+        "damage_per_tick": 15,
+        "radius": 100,
+        "damage_type": "poison",
+        "extra": {
+          "applies_poison_stacks": 2,
+          "can_move_while_channeling": true,
+          "move_speed_mult": 1.2,
+          "also_attack_speed_buff": 0.3,
+          "buff_duration": 4
+        }
+      },
+      "visual": "绿色刀光旋舞 + 毒液飞溅",
+      "synergy": "快速叠毒层数,配合skill_envenom_blade/set_plague毒系流",
+      "scaling": "增加伤害、提升毒层数、延长攻速buff",
+      "class": "class_assassin",
+      "max_level": 5
+    },
+    {
+      "id": "skill_judgment_hammer",
+      "display_name": "审判之锤",
+      "type": "active_manual",
+      "hotkey": "1",
+      "cooldown": 7,
+      "resource_cost": {
+        "type": "none"
+      },
+      "effect": {
+        "kind": "projectile",
+        "damage_type": "holy",
+        "base_damage": 45,
+        "projectile_count": 1,
+        "extra": {
+          "homing": true,
+          "stuns_on_hit": 1.5,
+          "bonus_vs_undead": 2,
+          "returns_to_player": true,
+          "heals_player_on_return": 15
+        }
+      },
+      "visual": "金色圣锤飞出 + 回旋轨迹",
+      "synergy": "对亡灵双倍伤害并回血,配合skill_consecration清理枯骨王陵",
+      "scaling": "增加伤害、提升眩晕时长、回旋回复更多生命",
+      "class": "class_knight",
+      "max_level": 5
+    },
+    {
+      "id": "skill_blessing_aura",
+      "display_name": "祝福光环",
+      "type": "active_manual",
+      "hotkey": "2",
+      "cooldown": 15,
+      "resource_cost": {
+        "type": "none"
+      },
+      "effect": {
+        "kind": "buff",
+        "stat": "armor",
+        "value": 15,
+        "duration": 8,
+        "radius": 180,
+        "extra": {
+          "also_hp_regen": 5,
+          "regen_tick_rate": 1,
+          "also_thorns_mult": 0.5,
+          "affects_minions": true
+        }
+      },
+      "visual": "玩家周身金色光环扩散",
+      "synergy": "提升护甲并持续回血,配合skill_thorns_aegis反伤流倍增输出",
+      "scaling": "增加护甲、提升回复速率、延长持续时间",
+      "class": "class_knight",
+      "max_level": 5
+    },
+    {
+      "id": "skill_holy_heal",
+      "display_name": "圣疗祷告",
+      "type": "active_manual",
+      "hotkey": "3",
+      "cooldown": 20,
+      "resource_cost": {
+        "type": "none"
+      },
+      "effect": {
+        "kind": "buff",
+        "stat": "hp",
+        "value": 80,
+        "duration": 0,
+        "extra": {
+          "instant_heal": true,
+          "also_removes_debuffs": true,
+          "grants_shield": 40,
+          "shield_duration": 5,
+          "reduces_next_damage": 0.3
+        }
+      },
+      "visual": "白金色圣光从天而降笼罩玩家",
+      "synergy": "瞬间回血并附加护盾,配合skill_holy_shield扛伤后紧急续航",
+      "scaling": "增加治疗量、提升护盾值、缩短CD",
+      "class": "class_knight",
+      "max_level": 5
+    },
+    {
+      "id": "skill_shadow_bolt",
+      "display_name": "暗影箭",
+      "type": "active_manual",
+      "hotkey": "1",
+      "cooldown": 2.5,
+      "resource_cost": {
+        "type": "none"
+      },
+      "effect": {
+        "kind": "projectile",
+        "damage_type": "death",
+        "base_damage": 22,
+        "projectile_count": 1,
+        "extra": {
+          "pierce": true,
+          "spawns_corpse_on_kill": true,
+          "heals_minions": 8,
+          "bonus_vs_living": 1.3
+        }
+      },
+      "visual": "紫黑色死亡箭矢穿透",
+      "synergy": "击杀生成尸体供skill_corpse_explosion,同时回复骷髅生命",
+      "scaling": "增加伤害、提升穿透、缩短CD",
+      "class": "class_necromancer",
+      "max_level": 5
+    },
+    {
+      "id": "skill_weakness_curse",
+      "display_name": "虚弱诅咒",
+      "type": "active_manual",
+      "hotkey": "2",
+      "cooldown": 10,
+      "resource_cost": {
+        "type": "none"
+      },
+      "effect": {
+        "kind": "aura",
+        "radius": 200,
+        "tick_damage": 5,
+        "damage_type": "death",
+        "duration": 6,
+        "extra": {
+          "reduces_enemy_armor": 0.4,
+          "reduces_enemy_damage": 0.3,
+          "increases_minion_damage": 0.5,
+          "slows_enemies": 0.25
+        }
+      },
+      "visual": "紫色诅咒光环扩散 + 敌人身上浮现骷髅标记",
+      "synergy": "削弱敌人并强化召唤物,配合skill_undying_legion大军流核心",
+      "scaling": "扩大范围、提升削弱幅度、延长持续时间",
+      "class": "class_necromancer",
+      "max_level": 5
+    },
+    {
+      "id": "skill_army_summon",
+      "display_name": "亡灵军团",
+      "type": "active_manual",
+      "hotkey": "3",
+      "cooldown": 30,
+      "resource_cost": {
+        "type": "none"
+      },
+      "effect": {
+        "kind": "summon",
+        "minion_type": "skeleton_horde",
+        "count": 6,
+        "duration": 15,
+        "extra": {
+          "inherits_player_damage": 0.7,
+          "explodes_on_death": true,
+          "explosion_damage": 30,
+          "leaves_corpses": true
+        }
+      },
+      "visual": "地面裂开召唤6个骷髅战士",
+      "synergy": "终结技,配合skill_undying_legion数量/伤害乘算,死后全员尸爆",
+      "scaling": "增加召唤数量、提升继承比例、延长持续时间",
+      "class": "class_necromancer",
+      "max_level": 5
     }
   ]
 }

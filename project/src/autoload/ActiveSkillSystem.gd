@@ -352,7 +352,7 @@ func _update_manual_cooldowns(delta: float):
 func _execute_manual_skill(skill_data: Dictionary):
 	var effect = skill_data.get("effect", {})
 	var kind = effect.get("kind", "")
-	
+
 	match kind:
 		"dash":
 			_cast_dash(effect)
@@ -364,6 +364,10 @@ func _execute_manual_skill(skill_data: Dictionary):
 			_cast_summon_manual(effect)
 		"channel":
 			_cast_channel(effect)
+		"projectile":
+			_cast_projectile(effect)
+		"aura":
+			_cast_aura(effect)
 		_:
 			push_error("[ActiveSkillSystem] 未知的技能类型:", kind)
 
@@ -515,3 +519,152 @@ func _cast_summon_manual(effect: Dictionary):
 func _cast_channel(effect: Dictionary):
 	print("[Skill] 持续施法技能 - 待实现")
 	# 需要特殊的输入锁定+持续伤害系统
+
+## projectile: 发射投射物
+func _cast_projectile(effect: Dictionary):
+	if not player:
+		return
+
+	var projectile_count = effect.get("projectile_count", 1)
+	var damage = effect.get("damage", 30)
+	var speed = effect.get("speed", 400)
+	var pierce = effect.get("pierce", false)
+	var damage_type = effect.get("damage_type", "physical")
+
+	# 获取射击方向（朝向最近敌人）
+	var nearest = _find_nearest_enemy()
+	var direction = Vector2.RIGHT
+	if nearest:
+		direction = (nearest.global_position - player.global_position).normalized()
+	else:
+		# 无敌人时朝向鼠标或默认右
+		var input_dir = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+		if input_dir.length() > 0:
+			direction = input_dir.normalized()
+
+	# 发射多个投射物（扇形分布）
+	var angle_spread = 0.3 if projectile_count > 1 else 0.0
+	for i in range(projectile_count):
+		var offset_angle = 0.0
+		if projectile_count > 1:
+			offset_angle = -angle_spread / 2 + (angle_spread / (projectile_count - 1)) * i
+
+		var proj_dir = direction.rotated(offset_angle)
+		_spawn_projectile(proj_dir, damage, speed, pierce, damage_type)
+
+	# 特效
+	AudioManager.play("attack")
+	print("[Skill] 投射物释放: %d发, 伤害%d" % [projectile_count, damage])
+
+## 生成投射物实体
+func _spawn_projectile(direction: Vector2, damage: float, speed: float, pierce: bool, dtype: String):
+	var projectile = Area2D.new()
+	projectile.global_position = player.global_position
+	projectile.name = "Projectile"
+
+	# 视觉（简单圆形）
+	var sprite = Sprite2D.new()
+	sprite.texture = preload("res://icon.svg")  # 占位图标
+	sprite.scale = Vector2(0.1, 0.1)
+	sprite.modulate = _damage_type_color(dtype)
+	projectile.add_child(sprite)
+
+	# 碰撞体
+	var collision = CollisionShape2D.new()
+	var shape = CircleShape2D.new()
+	shape.radius = 8
+	collision.shape = shape
+	projectile.add_child(collision)
+
+	player.get_parent().add_child(projectile)
+
+	# 飞行逻辑（3秒寿命或碰到敌人）
+	var lifetime = 3.0
+	var hit_enemies = []
+	while lifetime > 0 and is_instance_valid(projectile):
+		await get_tree().create_timer(0.05).timeout
+		lifetime -= 0.05
+
+		if not is_instance_valid(projectile):
+			break
+
+		# 移动
+		projectile.global_position += direction * speed * 0.05
+
+		# 碰撞检测
+		var enemies = get_tree().get_nodes_in_group("enemy")
+		for e in enemies:
+			if not is_instance_valid(e) or e in hit_enemies:
+				continue
+
+			var distance = projectile.global_position.distance_to(e.global_position)
+			if distance < 30:  # 碰撞半径
+				if e.has_method("take_damage"):
+					e.take_damage(damage, false)
+					hit_enemies.append(e)
+
+					if not pierce:
+						# 非穿透，命中后消失
+						if is_instance_valid(projectile):
+							projectile.queue_free()
+						return
+
+	# 寿命到期
+	if is_instance_valid(projectile):
+		projectile.queue_free()
+
+## aura: 光环效果（持续存在的范围buff/debuff）
+func _cast_aura(effect: Dictionary):
+	if not player:
+		return
+
+	var radius = effect.get("radius", 200)
+	var duration = effect.get("duration", 5.0)
+	var aura_type = effect.get("aura_type", "damage_reduction")
+	var aura_value = effect.get("aura_value", 0.3)
+
+	# 创建光环视觉
+	var aura = Node2D.new()
+	aura.global_position = player.global_position
+	aura.name = "Aura"
+
+	var circle = Sprite2D.new()
+	circle.texture = preload("res://icon.svg")
+	circle.scale = Vector2(radius / 64.0, radius / 64.0)
+	circle.modulate = Color(0.5, 0.8, 1.0, 0.3)
+	aura.add_child(circle)
+
+	player.get_parent().add_child(aura)
+
+	# 脉冲动画
+	var tween = aura.create_tween().set_loops()
+	tween.tween_property(circle, "modulate:a", 0.5, 0.8)
+	tween.tween_property(circle, "modulate:a", 0.2, 0.8)
+
+	# 持续时间内应用效果
+	var elapsed = 0.0
+	while elapsed < duration and is_instance_valid(aura):
+		await get_tree().create_timer(0.5).timeout
+		elapsed += 0.5
+
+		if not is_instance_valid(player):
+			break
+
+		# 跟随玩家
+		aura.global_position = player.global_position
+
+		# 对范围内敌人应用debuff（简化：直接造成持续伤害）
+		if aura_type == "damage_over_time":
+			var enemies = get_tree().get_nodes_in_group("enemy")
+			for e in enemies:
+				if not is_instance_valid(e):
+					continue
+				if e.global_position.distance_to(player.global_position) <= radius:
+					if e.has_method("take_damage"):
+						e.take_damage(aura_value * 0.5, false)  # 每0.5秒造成一次伤害
+
+	# 光环结束
+	if is_instance_valid(aura):
+		aura.queue_free()
+
+	print("[Skill] 光环结束: %s持续%.1fs" % [aura_type, duration])

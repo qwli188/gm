@@ -19,6 +19,8 @@ func _ready():
 	_create_town_locations()
 	# 模块6: 首次进入教学提示
 	_show_tutorial_if_needed()
+	# 阶段1: 自动装备职业技能到槽位
+	_equip_class_skills()
 
 ## 设置视觉效果
 func _setup_visuals():
@@ -329,3 +331,25 @@ func _show_tutorial_if_needed():
 	
 	# 标记已查看
 	GameState.tutorial_completed = true
+
+## 阶段1: 自动装备职业技能
+func _equip_class_skills():
+	var class_id = GameState.get_current_class().get("id", "")
+	var skill_map = {
+		"class_warrior": ["skill_charge", "skill_whirlwind_active", "skill_taunt"],
+		"class_ranger": ["skill_multishot_active", "skill_trap", "skill_hawk_eye"],
+		"class_mage": ["skill_fireball_active", "skill_frost_wall", "skill_teleport"],
+		"class_assassin": ["skill_shadow_strike", "skill_smoke_bomb", "skill_poison_blade"],
+		"class_knight": ["skill_judgment_hammer", "skill_blessing_aura", "skill_holy_heal"],
+		"class_necromancer": ["skill_shadow_bolt", "skill_weakness_curse", "skill_army_summon"]
+	}
+	
+	var skills = skill_map.get(class_id, [])
+	if skills.is_empty():
+		return
+	
+	if has_node("/root/ActiveSkillSystem"):
+		var ask = get_node("/root/ActiveSkillSystem")
+		for i in range(min(3, skills.size())):
+			ask.equip_manual_skill(i, skills[i])
+		print("[Town] 已为%s装备3个技能" % class_id)
