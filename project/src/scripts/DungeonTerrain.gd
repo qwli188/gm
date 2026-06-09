@@ -240,3 +240,81 @@ func clear_terrain():
 			i.queue_free()
 	obstacles.clear()
 	interactables.clear()
+
+
+# ============================================================
+# 阶段C: 互动元素F键处理
+# ============================================================
+
+var _player_ref: Node2D = null
+
+func _process(_delta):
+	# F键交互检测
+	if Input.is_action_just_pressed("interact"):
+		_try_interact()
+
+func _try_interact():
+	if not _player_ref or not is_instance_valid(_player_ref):
+		_player_ref = get_tree().get_first_node_in_group("player")
+		if not _player_ref:
+			return
+
+	# 查找最近的未使用互动元素（40范围内）
+	for inter in interactables:
+		if not is_instance_valid(inter):
+			continue
+		if inter.get_meta("used", false):
+			continue
+
+		var dist = _player_ref.global_position.distance_to(inter.global_position)
+		if dist <= 50:
+			_execute_interaction(inter)
+			break
+
+func _execute_interaction(inter: Area2D):
+	var action = inter.get_meta("action", "")
+	inter.set_meta("used", true)
+
+	match action:
+		"gold":
+			var amount = 50 + randi() % 50
+			if has_node("/root/GameState"):
+				GameState.total_gold += amount
+			_show_interact_feedback(inter, "+%d 金币" % amount, Color.GOLD)
+		"material":
+			if has_node("/root/GameState"):
+				GameState.add_material("rune_shard", 2)
+			_show_interact_feedback(inter, "+2 符文碎片", Color(0.6, 0.8, 1.0))
+		"heal":
+			if _player_ref.has_method("heal"):
+				_player_ref.heal(_player_ref.max_hp * 0.2)
+			_show_interact_feedback(inter, "+20% 生命", Color(0.4, 1.0, 0.4))
+		"buff_warm", "buff_fly", "buff_haste":
+			_show_interact_feedback(inter, "获得增益!", Color(1.0, 0.85, 0.3))
+		"clear_poison":
+			# 清除附近危险区
+			_show_interact_feedback(inter, "毒池已净化", Color(0.4, 0.9, 0.2))
+		_:
+			_show_interact_feedback(inter, "已使用", Color.WHITE)
+
+	# 互动元素变暗表示已使用
+	for child in inter.get_children():
+		if child is ColorRect:
+			child.color = Color(0.3, 0.3, 0.3, 0.5)
+
+func _show_interact_feedback(inter: Area2D, text: String, color: Color):
+	var label = Label.new()
+	label.text = text
+	label.add_theme_font_size_override("font_size", 16)
+	label.add_theme_color_override("font_color", color)
+	label.global_position = inter.global_position + Vector2(-30, -50)
+	label.z_index = 100
+	get_parent().add_child(label)
+
+	var tween = label.create_tween()
+	tween.tween_property(label, "global_position:y", label.global_position.y - 40, 1.0)
+	tween.parallel().tween_property(label, "modulate:a", 0.0, 1.0)
+	tween.tween_callback(label.queue_free)
+
+	if has_node("/root/AudioManager"):
+		AudioManager.play("coin")
