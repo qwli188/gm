@@ -27,6 +27,7 @@ func _ready():
 	_beautify_ui()
 	_setup_class_resource_bar()
 	_ready_dungeon_ui()
+	_setup_skill_bar()
 
 ## 应用自定义进度条样式
 func _apply_custom_bar_styles():
@@ -120,6 +121,8 @@ func _beautify_ui():
 func _process(delta):
 	if player:
 		_update_stats()
+	_update_boss_health()
+	_update_skill_bar_cd()
 
 func _update_stats():
 	# 更新生命
@@ -263,7 +266,7 @@ func _show_boss_health(boss: Node):
 	boss_health_bar.add_theme_stylebox_override("fill", fill)
 	boss_health_container.add_child(boss_health_bar)
 
-func _process(_delta):
+func _update_boss_health():
 	# 更新Boss血条
 	if tracked_boss and is_instance_valid(tracked_boss) and boss_health_bar:
 		var current = tracked_boss.get("current_hp")
@@ -275,3 +278,164 @@ func _process(_delta):
 			boss_health_container.queue_free()
 			boss_health_container = null
 			tracked_boss = null
+
+
+
+# ============================================================
+# 阶段C2: 技能栏UI (1/2/3技能槽 + CD显示)
+# ============================================================
+
+var skill_bar: HBoxContainer = null
+var skill_slots: Array = []  # [{panel, icon, cd_label, key_label}]
+
+func _setup_skill_bar():
+	"""创建底部中央技能栏"""
+	skill_bar = HBoxContainer.new()
+	skill_bar.add_theme_constant_override("separation", 8)
+	skill_bar.anchor_left = 0.5
+	skill_bar.anchor_right = 0.5
+	skill_bar.anchor_top = 1.0
+	skill_bar.anchor_bottom = 1.0
+	skill_bar.position = Vector2(-120, -80)
+	$Control.add_child(skill_bar)
+
+	# 创建3个技能槽
+	for i in range(3):
+		var slot = _create_skill_slot(i)
+		skill_bar.add_child(slot.panel)
+		skill_slots.append(slot)
+
+	_refresh_skill_bar()
+
+func _create_skill_slot(index: int) -> Dictionary:
+	var panel = Panel.new()
+	panel.custom_minimum_size = Vector2(64, 64)
+
+	# 背景样式
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.15, 0.15, 0.2, 0.9)
+	style.border_color = Color(0.5, 0.5, 0.6)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	panel.add_theme_stylebox_override("panel", style)
+
+	# 技能图标（颜色块占位）
+	var icon = ColorRect.new()
+	icon.size = Vector2(56, 56)
+	icon.position = Vector2(4, 4)
+	icon.color = Color(0.3, 0.4, 0.6)
+	panel.add_child(icon)
+
+	# 快捷键标签（左上角）
+	var key_label = Label.new()
+	key_label.text = str(index + 1)
+	key_label.add_theme_font_size_override("font_size", 14)
+	key_label.add_theme_color_override("font_color", Color.WHITE)
+	key_label.position = Vector2(4, 2)
+	panel.add_child(key_label)
+
+	# 技能名（底部）
+	var name_label = Label.new()
+	name_label.add_theme_font_size_override("font_size", 9)
+	name_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	name_label.position = Vector2(4, 48)
+	name_label.size = Vector2(56, 14)
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	panel.add_child(name_label)
+
+	# CD遮罩（半透明黑色覆盖层）
+	var cd_overlay = ColorRect.new()
+	cd_overlay.size = Vector2(56, 56)
+	cd_overlay.position = Vector2(4, 4)
+	cd_overlay.color = Color(0, 0, 0, 0.6)
+	cd_overlay.visible = false
+	panel.add_child(cd_overlay)
+
+	# CD倒计时文字（居中大字）
+	var cd_label = Label.new()
+	cd_label.add_theme_font_size_override("font_size", 24)
+	cd_label.add_theme_color_override("font_color", Color.WHITE)
+	cd_label.position = Vector2(4, 16)
+	cd_label.size = Vector2(56, 32)
+	cd_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	cd_label.visible = false
+	panel.add_child(cd_label)
+
+	return {
+		"panel": panel,
+		"icon": icon,
+		"name_label": name_label,
+		"cd_overlay": cd_overlay,
+		"cd_label": cd_label
+	}
+
+## 刷新技能栏（更新技能名称/图标）
+func _refresh_skill_bar():
+	if not has_node("/root/ActiveSkillSystem"):
+		return
+
+	var ask = get_node("/root/ActiveSkillSystem")
+	var manual_skills = ask.get("manual_skills")
+	if manual_skills == null:
+		return
+
+	for i in range(min(3, skill_slots.size())):
+		var slot = skill_slots[i]
+		var skill_id = manual_skills[i] if i < manual_skills.size() else ""
+
+		if skill_id == "":
+			slot.name_label.text = "空"
+			slot.icon.color = Color(0.2, 0.2, 0.25)
+			continue
+
+		# 获取技能数据
+		var skill_data = _get_skill_info(skill_id)
+		slot.name_label.text = skill_data.get("display_name", skill_id).substr(0, 4)
+
+		# 根据effect类型设置颜色
+		var effect_kind = skill_data.get("effect", {}).get("kind", "")
+		slot.icon.color = _skill_kind_color(effect_kind)
+
+func _get_skill_info(skill_id: String) -> Dictionary:
+	for s in ConfigLoader.get_all_skills():
+		if s.get("id") == skill_id:
+			return s
+	return {}
+
+func _skill_kind_color(kind: String) -> Color:
+	match kind:
+		"dash": return Color(0.4, 0.8, 0.4)
+		"aoe": return Color(0.9, 0.5, 0.2)
+		"projectile": return Color(0.4, 0.6, 0.9)
+		"buff": return Color(0.9, 0.85, 0.3)
+		"summon": return Color(0.6, 0.3, 0.7)
+		"aura": return Color(0.3, 0.7, 0.8)
+		"channel": return Color(0.8, 0.3, 0.5)
+		_: return Color(0.4, 0.4, 0.5)
+
+## 更新技能栏CD（每帧调用）
+func _update_skill_bar_cd():
+	if not has_node("/root/ActiveSkillSystem"):
+		return
+
+	var ask = get_node("/root/ActiveSkillSystem")
+	var manual_skills = ask.get("manual_skills")
+	var cooldowns = ask.get("manual_cooldowns")
+	if manual_skills == null or cooldowns == null:
+		return
+
+	for i in range(min(3, skill_slots.size())):
+		var slot = skill_slots[i]
+		var skill_id = manual_skills[i] if i < manual_skills.size() else ""
+
+		if skill_id == "":
+			continue
+
+		var cd = cooldowns.get(skill_id, 0.0)
+		if cd > 0:
+			slot.cd_overlay.visible = true
+			slot.cd_label.visible = true
+			slot.cd_label.text = "%.0f" % ceil(cd)
+		else:
+			slot.cd_overlay.visible = false
+			slot.cd_label.visible = false
