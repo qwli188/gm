@@ -14,6 +14,7 @@ var waves: Array = []
 var enemies_alive: Array = []
 var _boss_active: bool = false
 var dungeon_active: bool = false
+var _detected_boss_id: String = ""  # 从波次集检测到的Boss ID
 
 # 场景引用
 var player: Node2D = null
@@ -71,11 +72,62 @@ func _load_waves(dungeon_id: String) -> Array:
 
 	var wave_set_id = dungeon_data.get("wave_set", "")
 	if wave_set_id == "":
-		# 无配置，返回默认3波
 		return _generate_default_waves(dungeon_data)
 
-	# TODO: 从 wave_sets.json 读取（暂未创建）
-	return _generate_default_waves(dungeon_data)
+	# 从 waves.json 读取波次集
+	var wave_set = _get_wave_set(wave_set_id)
+	if wave_set.is_empty():
+		print("[DungeonFlow] 未找到波次集 %s, 使用默认波次" % wave_set_id)
+		return _generate_default_waves(dungeon_data)
+
+	# 转换时间段格式 → 波次清理制
+	return _convert_wave_set(wave_set, dungeon_data)
+
+## 获取波次集配置
+func _get_wave_set(wave_set_id: String) -> Dictionary:
+	var waves_data = ConfigLoader.waves_data
+	for ws in waves_data.get("wave_sets", []):
+		if ws.get("id", "") == wave_set_id:
+			return ws
+	return {}
+
+## 转换时间段波次 → 波次清理制
+func _convert_wave_set(wave_set: Dictionary, dungeon_data: Dictionary) -> Array:
+	var result = []
+	var time_waves = wave_set.get("waves", [])
+
+	for i in range(time_waves.size()):
+		var tw = time_waves[i]
+		var spawns = tw.get("spawns", [])
+		var enemies = []
+		var has_boss = false
+
+		for spawn in spawns:
+			var enemy_id = spawn.get("enemy_id", "")
+			if enemy_id == "":
+				continue
+
+			# 检测Boss（带burst标记或boss_前缀）
+			if enemy_id.begins_with("boss_") or enemy_id.begins_with("field_boss_") or spawn.get("burst", false):
+				if enemy_id.begins_with("boss_") or enemy_id.begins_with("field_boss_"):
+					has_boss = true
+					_detected_boss_id = enemy_id
+					continue  # Boss不加入普通波次，单独触发
+
+			var rate = spawn.get("rate", 1.0)
+			var explicit_count = spawn.get("count", 0)
+			var is_elite = enemy_id.begins_with("elite_")
+			var count = explicit_count if explicit_count > 0 else max(1, int(rate * (3 if is_elite else 5)))
+			enemies.append({"type": enemy_id, "count": count})
+
+		# 普通波次（含小怪）
+		if not enemies.is_empty():
+			result.append({
+				"enemies": enemies,
+				"delay": 0 if i == 0 else 12
+			})
+
+	return result if not result.is_empty() else _generate_default_waves(dungeon_data)
 
 ## 生成默认波次（暂无配置时使用）
 func _generate_default_waves(dungeon_data: Dictionary) -> Array:
@@ -195,9 +247,9 @@ func _spawn_boss():
 	if not dungeon_data:
 		return
 
-	# 获取Boss ID（根据区域推断）
+	# 获取Boss ID（优先用波次集检测到的，否则按区域推断）
 	var region = dungeon_data.get("region", "crypt")
-	var boss_id = _get_region_boss(region)
+	var boss_id = _detected_boss_id if _detected_boss_id != "" else _get_region_boss(region)
 
 	# 加载Boss数据
 	var boss_data = ConfigLoader.get_enemy_by_id(boss_id)
