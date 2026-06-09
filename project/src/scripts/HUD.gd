@@ -403,12 +403,13 @@ func _get_skill_info(skill_id: String) -> Dictionary:
 func _skill_kind_color(kind: String) -> Color:
 	match kind:
 		"dash": return Color(0.4, 0.8, 0.4)
-		"aoe": return Color(0.9, 0.5, 0.2)
+		"aoe", "melee_swing": return Color(0.9, 0.5, 0.2)
 		"projectile": return Color(0.4, 0.6, 0.9)
-		"buff": return Color(0.9, 0.85, 0.3)
+		"buff", "add_stat", "mult_stat": return Color(0.9, 0.85, 0.3)
 		"summon": return Color(0.6, 0.3, 0.7)
 		"aura": return Color(0.3, 0.7, 0.8)
 		"channel": return Color(0.8, 0.3, 0.5)
+		"execute": return Color(0.9, 0.2, 0.2)
 		_: return Color(0.4, 0.4, 0.5)
 
 ## 更新技能栏CD（每帧调用）
