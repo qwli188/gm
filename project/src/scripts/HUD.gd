@@ -171,13 +171,25 @@ var tracked_boss: Node = null
 
 func _ready_dungeon_ui():
 	"""初始化副本UI（在_ready末尾调用）"""
-	# 连接DungeonFlow信号
-	if has_node("/root/DungeonFlow"):
-		var df = get_node("/root/DungeonFlow")
-		if not df.wave_started.is_connected(_on_wave_started):
-			df.wave_started.connect(_on_wave_started)
-		if not df.boss_spawned.is_connected(_on_boss_spawned):
-			df.boss_spawned.connect(_on_boss_spawned)
+	# 连接EnemySpawner的Boss信号（场景树节点）
+	await get_tree().process_frame  # 等待场景树就绪
+	var spawner = get_tree().get_first_node_in_group("enemy_spawner")
+	if not spawner:
+		# 尝试通过路径查找
+		var main = get_tree().current_scene
+		if main and main.has_node("EnemySpawner"):
+			spawner = main.get_node("EnemySpawner")
+
+	if spawner and spawner.has_signal("boss_spawned"):
+		if not spawner.boss_spawned.is_connected(_on_spawner_boss):
+			spawner.boss_spawned.connect(_on_spawner_boss)
+
+## EnemySpawner Boss生成回调
+func _on_spawner_boss(boss_node):
+	show_wave_text("⚔ BOSS ⚔")
+	if is_instance_valid(boss_node):
+		await get_tree().create_timer(0.5).timeout
+		_show_boss_health(boss_node)
 
 ## 显示波次提示（大字居中淡出）
 func show_wave_text(text: String):
@@ -208,20 +220,6 @@ func show_wave_text(text: String):
 		if is_instance_valid(wave_label):
 			wave_label.queue_free()
 	)
-
-## 波次开始回调
-func _on_wave_started(wave_index: int):
-	show_wave_text("第 %d 波" % (wave_index + 1))
-
-## Boss登场回调
-func _on_boss_spawned():
-	show_wave_text("⚔ BOSS ⚔")
-	await get_tree().create_timer(0.5).timeout
-	# 查找Boss节点
-	for e in get_tree().get_nodes_in_group("enemy"):
-		if is_instance_valid(e) and e.get("_is_boss"):
-			_show_boss_health(e)
-			break
 
 ## 显示Boss血条
 func _show_boss_health(boss: Node):

@@ -2,6 +2,9 @@ extends Node2D
 ## 敌人生成器 - 读取 waves.json 按时间波次生成敌人
 ## 配置表驱动：波次曲线全部来自配置
 
+signal boss_spawned(boss_node)
+signal wave_advanced(wave_index)
+
 var current_waveset_id: String = "waveset_crypt"
 var difficulty_mult_hp: float = 1.0
 var difficulty_mult_dmg: float = 1.0
@@ -14,6 +17,7 @@ var current_enemy_count: int = 0
 var max_total_enemies: int = 60
 
 func _ready():
+	add_to_group("enemy_spawner")
 	# 从 GameState 读取选中的副本配置
 	if has_node("/root/GameState"):
 		var gs = get_node("/root/GameState")
@@ -64,7 +68,9 @@ func _process_waves(delta):
 				if not burst_fired.has(burst_key):
 					burst_fired[burst_key] = true
 					for k in range(spawn.get("count", 1)):
-						_spawn_enemy(enemy_id)
+						var spawned = _spawn_enemy(enemy_id)
+						if spawned and (enemy_id.begins_with("boss_") or enemy_id.begins_with("field_boss_")):
+							boss_spawned.emit(spawned)
 				continue
 
 			# rate：按速率持续生成
@@ -81,12 +87,13 @@ func _process_waves(delta):
 func _spawn_enemy(enemy_id: String):
 	var enemy = load("res://scripts/Enemy.gd").create_enemy(enemy_id, _get_spawn_position())
 	if enemy == null:
-		return
+		return null
 	if enemy.has_method("apply_difficulty"):
 		enemy.apply_difficulty(difficulty_mult_hp, difficulty_mult_dmg)
 	get_parent().add_child(enemy)
 	enemy.tree_exited.connect(_on_enemy_removed)
 	current_enemy_count += 1
+	return enemy
 
 func _on_enemy_removed():
 	current_enemy_count -= 1

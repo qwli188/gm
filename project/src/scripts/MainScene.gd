@@ -12,15 +12,14 @@ func _start_dungeon_flow():
 	var dungeon_id = "dungeon_crypt_1"  # 默认第一个副本
 	if has_node("/root/GameState"):
 		var gs = get_node("/root/GameState")
-		if gs.has_method("get_current_dungeon"):
-			var current = gs.get_current_dungeon()
-			if current != "":
-				dungeon_id = current
+		var current = gs.get("selected_dungeon_id")
+		if current != null and current != "":
+			dungeon_id = current
 
-	# 启动副本流程
+	# 启动副本地形生成
 	if has_node("/root/DungeonFlow"):
 		DungeonFlow.start_dungeon(dungeon_id, self, player)
-		print("[MainScene] 副本流程已启动: %s" % dungeon_id)
+		print("[MainScene] 副本地形已生成: %s" % dungeon_id)
 
 func _input(event):
 	# UI 面板切换
