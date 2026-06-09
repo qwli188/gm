@@ -7,6 +7,7 @@ extends Panel
 @onready var cost_label: Label = $VBox/CostInfo
 @onready var reforge_button: Button = $VBox/ButtonRow/ReforgeButton
 @onready var dismantle_button: Button = $VBox/ButtonRow/DismantleButton
+@onready var enhance_button: Button = $VBox/ButtonRow/EnhanceButton
 @onready var close_button: Button = $VBox/CloseButton
 
 var current_item: Dictionary = {}
@@ -17,6 +18,7 @@ func _ready():
 	close_button.pressed.connect(_on_close_pressed)
 	reforge_button.pressed.connect(_on_reforge_pressed)
 	dismantle_button.pressed.connect(_on_dismantle_pressed)
+	enhance_button.pressed.connect(_on_enhance_pressed)
 	_clear_ui()
 
 ## 打开面板并加载指定装备
@@ -197,3 +199,93 @@ func _show_dismantle_result(shard_count: int):
 	tween.parallel().tween_property(label, "modulate:a", 0.0, 1.0)
 	tween.tween_callback(label.queue_free)
 
+
+
+# ============================================================
+# 阶段1: 装备强化功能集成
+# ============================================================
+
+## 强化按钮处理(需在场景中添加EnhanceButton节点,或动态创建)
+func _on_enhance_pressed():
+	if current_item.is_empty():
+		return
+
+	var instance_id = current_item.get("instance_id", "")
+	if instance_id == "":
+		_show_float_text("该装备无法强化", Color.RED)
+		return
+
+	if not has_node("/root/AffixWorkshop"):
+		return
+
+	var result = AffixWorkshop.enhance_equipment(instance_id)
+	var msg = result.get("message", "")
+	var succeeded = result.get("success", false)
+
+	# 刷新当前装备数据
+	if has_node("/root/EquipmentSystem"):
+		var fresh = EquipmentSystem.get_equipment_instance(instance_id)
+		if fresh:
+			current_item = fresh
+
+	_refresh_ui()
+	_play_enhance_animation(succeeded)
+	_show_float_text(msg, Color.CYAN if succeeded else Color.ORANGE_RED)
+
+## 强化动画
+func _play_enhance_animation(succeeded: bool):
+	var color = Color(0.4, 1.0, 0.4) if succeeded else Color(1.0, 0.3, 0.3)
+	if item_slot:
+		var tween = create_tween()
+		tween.tween_property(item_slot, "modulate", color, 0.15)
+		tween.tween_property(item_slot, "modulate", Color.WHITE, 0.3)
+
+## 浮动文本提示
+func _show_float_text(text: String, color: Color):
+	var label = Label.new()
+	label.text = text
+	label.add_theme_font_size_override("font_size", 20)
+	label.add_theme_color_override("font_color", color)
+	label.position = Vector2(350, 280)
+	add_child(label)
+	var tween = create_tween()
+	tween.tween_property(label, "position:y", 180, 1.2)
+	tween.parallel().tween_property(label, "modulate:a", 0.0, 1.2)
+	tween.tween_callback(label.queue_free)
+
+## 获取强化信息(供UI显示)
+func _get_enhance_info() -> String:
+	if current_item.is_empty():
+		return ""
+
+	var instance_id = current_item.get("instance_id", "")
+	if instance_id == "" or not has_node("/root/EquipmentSystem"):
+		return ""
+
+	var instance = EquipmentSystem.get_equipment_instance(instance_id)
+	if not instance:
+		return ""
+
+	var current_level = instance.get("enhance_level", 0)
+	var config = ConfigLoader.get_balance_config().get("equipment_enhancement", {})
+	var max_level = config.get("max_level", 15)
+
+	if current_level >= max_level:
+		return "已满级 +%d" % max_level
+
+	# 计算成功率
+	var rate = 1.0
+	if current_level >= 10:
+		rate = 0.4
+	elif current_level >= 5:
+		rate = 0.7
+
+	# 计算消耗
+	var rarity = instance.get("rarity", "common")
+	var costs = config.get("costs", {}).get(rarity, {})
+	var gold = costs.get("gold_base", 50) + int(costs.get("gold_per_level", 25) * current_level)
+	var mat = int(costs.get("material_base", 1) + costs.get("material_per_level", 0.5) * current_level)
+
+	return "强化 +%d → +%d\n成功率: %d%%\n消耗: %d金币 + %d材料" % [
+		current_level, current_level + 1, int(rate * 100), gold, mat
+	]

@@ -70,6 +70,11 @@ custom_minimum_size = Vector2(150, 50)
 layout_mode = 2
 text = "分解装备"
 
+[node name="EnhanceButton" type="Button" parent="VBox/ButtonRow"]
+custom_minimum_size = Vector2(150, 50)
+layout_mode = 2
+text = "强化装备"
+
 [node name="CloseButton" type="Button" parent="VBox"]
 layout_mode = 2
 text = "关闭"
