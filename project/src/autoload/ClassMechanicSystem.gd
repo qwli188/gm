@@ -237,6 +237,10 @@ func on_ranger_hit_target(target: Node2D):
 	if _current_class_id != "class_ranger":
 		return
 
+	# Bug修复: 检查目标是否有效
+	if not is_instance_valid(target):
+		return
+
 	# 命中同一目标，增加层数
 	if precision_target == target:
 		precision_stacks = min(precision_stacks + 1, precision_max_stacks)
@@ -342,11 +346,11 @@ func _find_nearest_unchained_enemy(from: Node2D, chained: Array, all_enemies: Ar
 
 # ============ 法师 - 连锁闪电特效 ============
 func _spawn_chain_effect(from_pos: Vector2, to_pos: Vector2):
-	if not _player:
+	if not _player or not is_instance_valid(_player):
 		return
 
 	var parent = _player.get_parent()
-	if not parent:
+	if not parent or not is_instance_valid(parent):
 		return
 
 	# 创建一条从 from_pos 到 to_pos 的闪电线条
@@ -357,9 +361,9 @@ func _spawn_chain_effect(from_pos: Vector2, to_pos: Vector2):
 	line.default_color = Color(0.5, 0.8, 1.0, 0.8)
 	parent.add_child(line)
 
-	# 0.15秒后消失
+	# 0.15秒后消失 (Bug修复: 增强清理检查)
 	await get_tree().create_timer(0.15).timeout
-	if is_instance_valid(line):
+	if is_instance_valid(line) and is_instance_valid(line.get_parent()):
 		line.queue_free()
 
 # ============ 重置机制状态（新游戏开始时调用） ============
@@ -645,7 +649,7 @@ func _physics_process(delta):
 
 	# AI：追击最近敌人
 	var target = _nearest_enemy()
-	if target == null:
+	if target == null or not is_instance_valid(target):
 		velocity = Vector2.ZERO
 		move_and_slide()
 		return
@@ -658,8 +662,8 @@ func _physics_process(delta):
 		var dir = (target.global_position - global_position).normalized()
 		velocity = dir * move_speed
 		move_and_slide()
-	elif attack_cd <= 0:
-		# 攻击
+	elif attack_cd <= 0 and is_instance_valid(target):
+		# 攻击 (Bug修复: 再次检查目标有效性)
 		velocity = Vector2.ZERO
 		if target.has_method("take_damage"):
 			target.take_damage(get_meta("damage"))
