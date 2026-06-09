@@ -318,6 +318,17 @@ func handle_attack(delta):
 		elif Input.is_action_just_pressed("skill_3"):
 			ask.activate_manual_skill(2)
 
+	# 阶段1: 装备强化调试快捷键 (F1强化武器)
+	if Input.is_action_just_pressed("ui_home") and has_node("/root/EquipmentSystem"):  # F1键
+		var eq_sys = get_node("/root/EquipmentSystem")
+		var weapon_id = eq_sys.equipped_items.get("weapon", "")
+		if weapon_id != "":
+			if has_node("/root/AffixWorkshop"):
+				var result = get_node("/root/AffixWorkshop").enhance_equipment(weapon_id)
+				print("[装备强化] ", result.get("message", ""))
+		else:
+			print("[装备强化] 未装备武器")
+
 	var should_attack = false
 	if auto_attack_enabled:
 		should_attack = true
