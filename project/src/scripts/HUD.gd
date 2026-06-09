@@ -2,6 +2,7 @@ extends CanvasLayer
 
 @onready var health_bar: ProgressBar = $Control/TopLeft/HealthBar
 @onready var health_label: Label = $Control/TopLeft/HealthLabel
+@onready var class_resource_bar: HBoxContainer = $Control/TopLeft/ClassResourceBar
 @onready var level_label: Label = $Control/TopLeft/LevelLabel
 @onready var exp_label: Label = $Control/TopLeft/ExpLabel
 @onready var kills_label: Label = $Control/TopLeft/KillsLabel
@@ -12,13 +13,87 @@ extends CanvasLayer
 var player: CharacterBody2D
 
 func _ready():
+	# 应用主题
+	ThemeGenerator.apply_theme_to_node(self)
+	_apply_custom_bar_styles()
+
 	player = get_tree().get_first_node_in_group("player")
 	if player:
 		player.hp_changed.connect(_on_player_hp_changed)
 		player.auto_attack_toggled.connect(_on_auto_attack_toggled)
 		player.level_up.connect(_on_player_level_up)
 		_on_player_hp_changed(player.current_hp, player.max_hp)
+
 	_beautify_ui()
+	_setup_class_resource_bar()
+
+## 应用自定义进度条样式
+func _apply_custom_bar_styles():
+	if health_bar:
+		health_bar.add_theme_stylebox_override("fill", ThemeGenerator.create_health_bar_style())
+
+## 设置职业资源条（根据职业配置）
+func _setup_class_resource_bar():
+	if not class_resource_bar:
+		return
+
+	# 根据职业设置资源类型（从 GameState 获取）
+	var current_class = ""
+	if has_node("/root/GameState"):
+		var cls = get_node("/root/GameState").get_current_class()
+		current_class = cls.get("id", "")
+
+	# 根据职业ID配置资源条(修复: 用 class_ 前缀的真实ID)
+	match current_class:
+		"class_warrior":
+			class_resource_bar.set_resource_type(class_resource_bar.ResourceType.RAGE)
+			class_resource_bar.set_resource_name("怒气")
+			class_resource_bar.set_resource_value(0, 100)
+		"class_mage":
+			class_resource_bar.set_resource_type(class_resource_bar.ResourceType.MANA)
+			class_resource_bar.set_resource_name("法力")
+			class_resource_bar.set_resource_value(100, 100)
+		"class_assassin":
+			class_resource_bar.set_resource_type(class_resource_bar.ResourceType.ENERGY)
+			class_resource_bar.set_resource_name("潜行")
+			class_resource_bar.set_resource_value(0, 100)
+		"class_ranger":
+			class_resource_bar.set_resource_type(class_resource_bar.ResourceType.COMBO)
+			class_resource_bar.set_resource_name("精准")
+			class_resource_bar.set_resource_value(0, 10)
+		"class_knight":
+			class_resource_bar.set_resource_type(class_resource_bar.ResourceType.HOLY)
+			class_resource_bar.set_resource_name("圣盾")
+			class_resource_bar.set_resource_value(0, 100)
+		"class_necromancer":
+			class_resource_bar.set_resource_type(class_resource_bar.ResourceType.CUSTOM)
+			class_resource_bar.set_resource_name("灵能")
+			class_resource_bar.set_custom_color(Color("#9B4DCA"))
+			class_resource_bar.set_resource_value(0, 100)
+		_:
+			class_resource_bar.visible = false
+
+	# 连接 ClassMechanicSystem 信号(怒气/法力/精准实时更新)
+	if has_node("/root/ClassMechanicSystem"):
+		var cms = get_node("/root/ClassMechanicSystem")
+		if cms.has_signal("rage_changed") and not cms.rage_changed.is_connected(_on_rage_changed):
+			cms.rage_changed.connect(_on_rage_changed)
+		if cms.has_signal("mana_changed") and not cms.mana_changed.is_connected(_on_mana_changed):
+			cms.mana_changed.connect(_on_mana_changed)
+		if cms.has_signal("precision_changed") and not cms.precision_changed.is_connected(_on_precision_changed):
+			cms.precision_changed.connect(_on_precision_changed)
+
+func _on_rage_changed(current: float, maximum: float):
+	if class_resource_bar:
+		class_resource_bar.set_resource_value(current, maximum)
+
+func _on_mana_changed(current: float, maximum: float):
+	if class_resource_bar:
+		class_resource_bar.set_resource_value(current, maximum)
+
+func _on_precision_changed(stacks: int, _target):
+	if class_resource_bar:
+		class_resource_bar.set_resource_value(stacks, 10)
 
 ## 美化HUD：用生成的UI素材替换默认样式
 func _beautify_ui():

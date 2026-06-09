@@ -182,6 +182,7 @@ func take_damage(damage_amount: float, is_crit: bool = false):
 	current_hp -= damage_amount
 	AudioManager.play("hit")
 	_flash_white()
+	_squash_hit()  # B2: 挤压变形增强打击感
 	_update_hp_bar()
 	# 漂浮伤害数字
 	DamageNumber.spawn(get_parent(), global_position + Vector2(0, -30), damage_amount, is_crit)
@@ -195,6 +196,14 @@ func take_damage(damage_amount: float, is_crit: bool = false):
 	# Boss 阶段转换检查
 	if _is_boss:
 		_check_phase_transition()
+
+## 打击感 - 受击挤压变形(B2)
+func _squash_hit():
+	if anim_sprite:
+		var original_scale = anim_sprite.scale
+		var tween = create_tween()
+		tween.tween_property(anim_sprite, "scale", Vector2(original_scale.x * 1.15, original_scale.y * 0.85), 0.06)
+		tween.tween_property(anim_sprite, "scale", original_scale, 0.1).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 ## 打击感 - 击退效果
 func apply_knockback(attacker_pos: Vector2, is_crit: bool):
@@ -446,6 +455,28 @@ func die():
 	if _dying:
 		return
 	_dying = true
+
+	# A2: 死灵职业 - 注册尸体(供尸爆)
+	if has_node("/root/ClassMechanicSystem"):
+		var cms = get_node("/root/ClassMechanicSystem")
+		if cms.has_method("necro_register_corpse"):
+			cms.necro_register_corpse(global_position)
+
+	# B2: 死亡爆裂粒子
+	var burst_color = Color(1.0, 0.3, 0.3)
+	var rank = enemy_data.get("rank", "normal")
+	if rank == "boss":
+		burst_color = Color(1.0, 0.5, 0.0)  # Boss橙色
+	elif rank == "elite":
+		burst_color = Color(0.8, 0.2, 0.8)  # 精英紫色
+	ParticleHelper.spawn_death_burst(get_parent(), global_position, burst_color)
+
+	# B2: 击杀定格(0.05秒,增强打击感)
+	Engine.time_scale = 0.0
+	get_tree().create_timer(0.05, true, false, true).timeout.connect(func():
+		Engine.time_scale = 1.0
+	)
+
 	drop_loot()
 	drop_material()
 

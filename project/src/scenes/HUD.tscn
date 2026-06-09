@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://hud_scene"]
+[gd_scene load_steps=3 format=3 uid="uid://hud_scene"]
 
 [ext_resource type="Script" path="res://scripts/HUD.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/ClassResourceBar.gd" id="2"]
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1")
@@ -16,7 +17,7 @@ layout_mode = 0
 offset_left = 20.0
 offset_top = 20.0
 offset_right = 400.0
-offset_bottom = 200.0
+offset_bottom = 250.0
 theme_override_constants/separation = 5
 
 [node name="HealthBar" type="ProgressBar" parent="Control/TopLeft"]
@@ -28,6 +29,10 @@ show_percentage = false
 [node name="HealthLabel" type="Label" parent="Control/TopLeft"]
 layout_mode = 2
 text = "生命: 100 / 100"
+
+[node name="ClassResourceBar" type="HBoxContainer" parent="Control/TopLeft"]
+layout_mode = 2
+script = ExtResource("2")
 
 [node name="LevelLabel" type="Label" parent="Control/TopLeft"]
 layout_mode = 2

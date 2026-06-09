@@ -12,34 +12,59 @@ static func spawn(parent: Node, pos: Vector2, amount: float, is_crit: bool = fal
 
 var _label: Label
 var _life: float = 0.0
-const DURATION := 0.8
+const DURATION := 1.0
+var _is_crit: bool = false
+var _bounce_tween: Tween
 
 func _setup(amount: float, is_crit: bool, is_heal: bool) -> void:
+	_is_crit = is_crit
 	_label = Label.new()
 	_label.text = ("+" if is_heal else "") + str(int(round(amount)))
 	var color := Color(1, 1, 1)
 	var fsize := 22
 	if is_heal:
 		color = Color(0.4, 1.0, 0.4)
+		fsize = 24
 	elif is_crit:
 		color = Color(1.0, 0.85, 0.2)
-		fsize = 34
+		fsize = 42  # 暴击更大
 		_label.text += "!"
 	_label.add_theme_color_override("font_color", color)
 	_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
 	_label.add_theme_constant_override("outline_size", 4)
 	_label.add_theme_font_size_override("font_size", fsize)
-	_label.position = Vector2(-20, -20)
+	_label.position = Vector2(-30, -20)
 	_label.z_index = 100
 	add_child(_label)
+
 	# 随机水平偏移
-	position.x += randf_range(-12, 12)
+	position.x += randf_range(-15, 15)
+
+	# 弹跳动画: scale从1.5挤压到1.0,增强打击感
+	_label.scale = Vector2(1.5, 1.5)
+	_bounce_tween = create_tween()
+	_bounce_tween.tween_property(_label, "scale", Vector2(1.0, 1.0), 0.15).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+	# 暴击额外弹跳一次(连续两段弹跳)
+	if is_crit:
+		_bounce_tween.tween_property(_label, "scale", Vector2(1.1, 1.1), 0.08)
+		_bounce_tween.tween_property(_label, "scale", Vector2(1.0, 1.0), 0.08)
 
 func _process(delta: float) -> void:
 	_life += delta
 	var t := _life / DURATION
-	position.y -= 60 * delta
+
+	# 上浮速度: 前半程快,后半程慢(二次缓动)
+	var rise_speed = 80.0 * (1.0 - t)
+	position.y -= rise_speed * delta
+
+	# 淡出: 前60%保持不透明,后40%快速淡出
 	if _label:
-		_label.modulate.a = 1.0 - t
+		if t < 0.6:
+			_label.modulate.a = 1.0
+		else:
+			var fade_t = (t - 0.6) / 0.4
+			_label.modulate.a = 1.0 - fade_t
+
 	if _life >= DURATION:
 		queue_free()

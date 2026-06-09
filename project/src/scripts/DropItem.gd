@@ -10,6 +10,9 @@ var _vfx_time: float = 0.0
 func setup(data: Dictionary):
 	item_data = data
 	_setup_rarity_visual()
+	# 掉落闪烁粒子
+	var rarity = item_data.get("rarity", "common")
+	ParticleHelper.spawn_pickup_sparkle(get_parent(), global_position, rarity)
 
 func _ready():
 	body_entered.connect(_on_body_entered)

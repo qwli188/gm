@@ -122,29 +122,69 @@ func trigger_stun(target: Node2D, duration: float):
 		return
 	target.apply_stun(duration)
 
-## 玩家攻击检测（Area2D）
+## 玩家攻击检测（Area2D）- 三方合并: A1职业机制 + A2刺客背刺 + B2粒子
 func check_player_attack(attack_area: Area2D, player_stats: Dictionary):
 	var enemies = attack_area.get_overlapping_bodies()
+
+	# 战士: 怒气伤害加成(循环外预计算)
+	var warrior_dmg_mult = 1.0
+	var cms = null
+	if has_node("/root/ClassMechanicSystem"):
+		cms = get_node("/root/ClassMechanicSystem")
+		warrior_dmg_mult = cms.get_warrior_damage_mult()
+
 	for enemy in enemies:
 		if enemy.is_in_group("enemy"):
+			# (1) 刺客潜行背刺检测(calculate_damage前)
+			var is_backstab = false
+			var backstab_mult = 1.0
+			if cms and cms.has_method("assassin_is_backstab"):
+				is_backstab = cms.assassin_is_backstab()
+				if is_backstab:
+					backstab_mult = cms.assassin_get_backstab_damage_mult()
+					cms.assassin_on_attack()  # 触发退出潜行
+
+			# (2) 战士伤害加成 → modified_stats
+			var modified_stats = player_stats.duplicate()
+			modified_stats["damage"] = player_stats.get("damage", 10) * warrior_dmg_mult
+
+			# (3) 计算伤害
 			var armor = enemy.enemy_data.get("base_stats", {}).get("armor", 0)
-			var result = calculate_damage(player_stats, armor)
+			var result = calculate_damage(modified_stats, armor)
+
+			# (4) 背刺override: 强制暴击+额外伤害
+			if is_backstab:
+				result.is_crit = true
+				result.damage *= backstab_mult
+
+			# (5) 应用伤害
 			apply_damage(enemy, result.damage, player_stats, result.is_crit)
 			damage_dealt.emit(enemy, result.damage, result.is_crit)
 
-			# 打击感效果
-			# 1. 顿帧 (hitstop)
-			if result.is_crit:
-				_apply_hitstop(0.08)  # 暴击顿帧 0.08 秒
-				_apply_screen_shake(8.0)  # 暴击震屏
-			else:
-				_apply_hitstop(0.04)  # 普攻顿帧 0.04 秒
+			# (6) A1职业命中机制: 战士怒气/游侠精准/法师连锁
+			if cms:
+				cms.on_player_hit_enemy()  # 战士命中加怒气
+				cms.on_ranger_hit_target(enemy)  # 游侠精准层数
+				cms.trigger_chain_lightning(enemy, result.damage, player_stats)  # 法师连锁
 
-			# 2. 击退（传递玩家位置给敌人）
+			# (7) 打击感: 顿帧 + 震屏
+			if result.is_crit:
+				_apply_hitstop(0.08)
+				_apply_screen_shake(8.0)
+			else:
+				_apply_hitstop(0.04)
+			# 击退
 			if enemy.has_method("apply_knockback"):
 				var player = get_tree().get_first_node_in_group("player")
 				if player:
 					enemy.apply_knockback(player.global_position, result.is_crit)
+
+			# (8) B2粒子特效
+			var hit_pos = enemy.global_position + Vector2(0, -15)
+			if result.is_crit:
+				ParticleHelper.spawn_crit_particles(enemy.get_parent(), hit_pos)
+			else:
+				ParticleHelper.spawn_hit_particles(enemy.get_parent(), hit_pos, Color(1.0, 0.9, 0.7))
 
 ## 敌人攻击玩家
 func enemy_attack_player(enemy_damage: float, player: Node2D):

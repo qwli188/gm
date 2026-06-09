@@ -194,5 +194,128 @@
       }
     ],
     "design_note": "强化刷取驱动力，让每个区域产出独特材料。材料用于词缀工坊改造，形成'为了材料刷特定副本'的循环。"
+  },
+  "class_mechanics": {
+    "description": "职业核心机制参数",
+    "warrior": {
+      "rage_max": 100,
+      "rage_gain_on_hit": 10,
+      "rage_gain_on_damaged": 15,
+      "damage_bonus": 0.3,
+      "damage_reduction": 0.2,
+      "skill_duration": 5,
+      "design_note": "受击与命中积攒怒气,满槽释放强力旋斩+5秒增益(伤害+30%减伤+20%)"
+    },
+    "ranger": {
+      "max_stacks": 10,
+      "crit_per_stack": 0.02,
+      "crit_dmg_per_stack": 0.05,
+      "design_note": "连续命中同一目标叠精准层数,每层+2%暴击+5%暴伤,最多10层"
+    },
+    "mage": {
+      "mana_max": 100,
+      "mana_cost": 15,
+      "mana_regen": 8,
+      "chain_threshold": 0.5,
+      "chain_range": 180,
+      "chain_damage_reduction": 0.2,
+      "chain_max_targets": 4,
+      "design_note": "攻击消耗法力,法力>50%时触发连锁(弹射4次,伤害递减20%),法力每秒回复8点"
+    }
+  },
+  "tag_synergy": {
+    "description": "标签联动系统 - 装备+技能集齐N个同标签触发协同加成，让流派从口号变机制",
+    "fire": {
+      "3": {
+        "fire_damage_mult": 0.2
+      },
+      "5": {
+        "fire_damage_mult": 0.15,
+        "ignite_duration_mult": 0.5
+      },
+      "7": {
+        "fire_damage_mult": 0.25,
+        "ignite_dps_mult": 0.3
+      }
+    },
+    "crit": {
+      "3": {
+        "crit_chance": 0.05
+      },
+      "5": {
+        "crit_chance": 0.08,
+        "crit_damage": 0.3
+      },
+      "7": {
+        "crit_chance": 0.12,
+        "crit_damage": 0.5
+      }
+    },
+    "physical": {
+      "3": {
+        "damage": 5
+      },
+      "5": {
+        "damage": 10,
+        "armor_pen": 0.15
+      },
+      "7": {
+        "damage": 18,
+        "armor_pen": 0.3
+      }
+    },
+    "cold": {
+      "3": {
+        "frost_damage_mult": 0.2
+      },
+      "5": {
+        "frost_damage_mult": 0.15,
+        "freeze_duration_mult": 0.4
+      },
+      "7": {
+        "frost_damage_mult": 0.25,
+        "slow_effect_mult": 0.5
+      }
+    },
+    "poison": {
+      "3": {
+        "poison_damage_mult": 0.2
+      },
+      "5": {
+        "poison_damage_mult": 0.15,
+        "poison_duration_mult": 0.5
+      },
+      "7": {
+        "poison_damage_mult": 0.25,
+        "poison_stack_mult": 0.4
+      }
+    },
+    "undead": {
+      "3": {
+        "lifesteal": 0.05
+      },
+      "5": {
+        "lifesteal": 0.08,
+        "summon_damage_mult": 0.2
+      },
+      "7": {
+        "lifesteal": 0.12,
+        "summon_damage_mult": 0.4
+      }
+    },
+    "defense": {
+      "3": {
+        "armor": 5
+      },
+      "5": {
+        "armor": 10,
+        "max_hp": 30
+      },
+      "7": {
+        "armor": 18,
+        "max_hp": 60
+      }
+    },
+    "design_note": "每集齐N个同标签触发协同加成。fire/crit/physical/cold/poison/undead/defense 7种流派，各3/5/7档。数值温和，3件套5-20%加成，5件套叠加更高，7件套质变。配合套装效果形成完整流派体系。"
   }
 }

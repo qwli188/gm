@@ -154,13 +154,44 @@ func recalculate_stats():
 	crit_chance = min(crit_chance, 0.75)
 	attack_speed = min(attack_speed, 3.0)
 
+	# A3: 标签联动加成(集齐N个同tag触发)
+	if has_node("/root/TagSynergySystem"):
+		var tss = get_node("/root/TagSynergySystem")
+		if tss.has_method("get_tag_synergy_bonuses"):
+			var syn = tss.get_tag_synergy_bonuses()
+			for k in syn:
+				if k.ends_with("_mult"):
+					var stat = k.trim_suffix("_mult")
+					match stat:
+						"damage": damage *= (1.0 + syn[k])
+						"attack_speed": attack_speed *= (1.0 + syn[k])
+						"move_speed": move_speed *= (1.0 + syn[k])
+						_: combat_stats[k] = combat_stats.get(k, 0.0) + syn[k]
+				else:
+					match k:
+						"crit_chance": crit_chance += syn[k]
+						"crit_damage": crit_damage += syn[k]
+						"max_hp": max_hp += syn[k]
+						"armor": armor += syn[k]
+						"damage": damage += syn[k]
+						_: combat_stats[k] = combat_stats.get(k, 0.0) + syn[k]
+
+	# A1: 游侠精准射击叠层(暴击加成)
+	if has_node("/root/ClassMechanicSystem"):
+		var cms = get_node("/root/ClassMechanicSystem")
+		if cms.has_method("get_ranger_crit_bonus"):
+			crit_chance += cms.get_ranger_crit_bonus()
+			crit_damage += cms.get_ranger_crit_damage_bonus()
+
 	# 副本机制buff(死亡之雾暴击加成)
 	if has_node("/root/DungeonFeatureSystem"):
 		var dfs = get_node("/root/DungeonFeatureSystem")
 		var fog_crit = dfs.active_buffs.get("fog_crit_bonus", 0.0)
 		if fog_crit > 0:
 			crit_chance += fog_crit
-			crit_chance = min(crit_chance, 0.95)  # 雾中也有上限
+
+	# 最终暴击率再clamp(游侠精准+雾加成后)
+	crit_chance = min(crit_chance, 0.95)
 
 	stats_recalculated.emit()
 
@@ -263,6 +294,13 @@ func handle_attack(delta):
 		auto_attack_enabled = !auto_attack_enabled
 		auto_attack_toggled.emit(auto_attack_enabled)
 
+	# A1: 战士怒气技能(class_skill键)
+	if Input.is_action_just_pressed("class_skill"):
+		if has_node("/root/ClassMechanicSystem"):
+			var cms = get_node("/root/ClassMechanicSystem")
+			if cms.has_method("activate_rage_skill"):
+				cms.activate_rage_skill()
+
 	var should_attack = false
 	if auto_attack_enabled:
 		should_attack = true
@@ -275,6 +313,12 @@ func handle_attack(delta):
 func perform_attack():
 	attack_cooldown = 1.0 / attack_speed
 	AudioManager.play("attack")
+
+	# A1: 法师施法消耗法力(用于连锁判定)
+	if has_node("/root/ClassMechanicSystem"):
+		var cms = get_node("/root/ClassMechanicSystem")
+		if cms.has_method("on_mage_cast"):
+			cms.on_mage_cast()
 
 	# 播放攻击动画
 	if anim_sprite and anim_sprite.sprite_frames.has_animation("attack"):
@@ -310,6 +354,19 @@ func take_damage(damage: float):
 	if is_dodging and dodge_timer < dodge_i_frame_duration:
 		print("[Player] 闪避成功！无敌帧生效")
 		return
+
+	# 职业受击机制(A1战士怒气+减伤 / A2骑士圣盾反伤)
+	if has_node("/root/ClassMechanicSystem"):
+		var cms = get_node("/root/ClassMechanicSystem")
+		# A1战士: 受击积攒怒气
+		if cms.has_method("on_player_damaged"):
+			cms.on_player_damaged()
+		# A1战士: 怒气技能期间减伤
+		if cms.has_method("get_warrior_damage_reduction"):
+			damage *= (1.0 - cms.get_warrior_damage_reduction())
+		# A2骑士: 圣盾反伤(作用于减伤后的值,返回实际承受伤害)
+		if cms.has_method("knight_on_take_damage"):
+			damage = cms.knight_on_take_damage(damage)
 
 	current_hp -= damage
 	current_hp = clamp(current_hp, 0, max_hp)
@@ -377,6 +434,8 @@ func _on_level_up():
 	level_up.emit(current_level)
 	# 升级光环特效
 	EffectSprite.spawn(get_parent(), "levelup", global_position, 2.0)
+	# B2: 升级粒子光环
+	ParticleHelper.spawn_levelup_aura(get_parent(), self)
 
 ## 击杀敌人时调用
 func on_enemy_killed(enemy_data: Dictionary):

@@ -239,6 +239,9 @@ func get_total_stats() -> Dictionary:
 	# 套装属性加成
 	var set_bonus = get_set_bonuses()
 	for stat_key in set_bonus:
+		# 跳过 effect_ 前缀的键(由 get_combat_effects 处理,不进基础属性)
+		if stat_key.begins_with("effect_"):
+			continue
 		if stat_key.ends_with("_mult"):
 			total[stat_key] = total.get(stat_key, 1.0) * (1.0 + set_bonus[stat_key])
 		else:
@@ -500,3 +503,7 @@ func deserialize_backpack(data: Array):
 	inventory = data.duplicate()
 	print("[EquipmentSystem] 恢复背包: %d 件" % inventory.size())
 
+
+## B3: 装备tooltip生成(委托RarityVisuals)
+func generate_tooltip(item_data: Dictionary) -> String:
+	return RarityVisuals.generate_equipment_tooltip(item_data)
