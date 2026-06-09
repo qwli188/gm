@@ -39,10 +39,14 @@ func _physics_process(delta):
 		if player == null:
 			return
 
+	# 自动技能系统（原有）
 	for entry in active_skills:
 		entry.cooldown_timer -= delta
 		if entry.cooldown_timer <= 0.0:
 			_cast_skill(entry)
+
+	# 手动技能CD更新（阶段1新增）
+	_update_manual_cooldowns(delta)
 
 ## 释放技能
 func _cast_skill(entry: Dictionary):
@@ -278,3 +282,236 @@ func _damage_type_color(dtype: String) -> Color:
 		"void": return Color(0.6, 0.2, 0.8)
 		"holy": return Color(1.0, 0.95, 0.6)
 		_: return Color(0.9, 0.9, 0.9)
+
+
+# ============================================================
+# 阶段1: 手动技能系统 (模块4扩展)
+# ============================================================
+
+# 手动技能槽位 [skill_id_1, skill_id_2, skill_id_3]
+var manual_skills: Array = ["", "", ""]
+# 手动技能CD状态 {skill_id: cooldown_remaining}
+var manual_cooldowns: Dictionary = {}
+
+## 装备技能到槽位
+func equip_manual_skill(slot_index: int, skill_id: String):
+	"""装备技能到槽位0/1/2 (对应快捷键1/2/3)"""
+	if slot_index < 0 or slot_index >= 3:
+		push_error("[ActiveSkillSystem] 无效的槽位:", slot_index)
+		return
+	
+	manual_skills[slot_index] = skill_id
+	print("[ActiveSkillSystem] 槽位%d装备技能: %s" % [slot_index + 1, skill_id])
+
+## 激活手动技能
+func activate_manual_skill(slot_index: int) -> bool:
+	"""玩家按1/2/3键时调用"""
+	if slot_index < 0 or slot_index >= 3:
+		return false
+	
+	var skill_id = manual_skills[slot_index]
+	if skill_id == "":
+		print("[ActiveSkillSystem] 槽位%d未装备技能" % (slot_index + 1))
+		return false
+	
+	# 检查CD
+	var cd = manual_cooldowns.get(skill_id, 0.0)
+	if cd > 0:
+		print("[ActiveSkillSystem] 技能CD中: %.1fs" % cd)
+		return false
+	
+	# 读取技能数据
+	var skill_data = _get_skill_data(skill_id)
+	if skill_data.is_empty():
+		push_error("[ActiveSkillSystem] 未找到技能:", skill_id)
+		return false
+	
+	# 检查资源消耗
+	if not _check_resource_cost(skill_data):
+		print("[ActiveSkillSystem] 资源不足")
+		return false
+	
+	# 释放技能
+	_execute_manual_skill(skill_data)
+	
+	# 启动CD
+	var cooldown = skill_data.get("cooldown", 5.0)
+	manual_cooldowns[skill_id] = cooldown
+	
+	return true
+
+## 更新手动技能CD
+func _update_manual_cooldowns(delta: float):
+	for skill_id in manual_cooldowns.keys():
+		if manual_cooldowns[skill_id] > 0:
+			manual_cooldowns[skill_id] -= delta
+			if manual_cooldowns[skill_id] < 0:
+				manual_cooldowns[skill_id] = 0
+
+## 执行手动技能
+func _execute_manual_skill(skill_data: Dictionary):
+	var effect = skill_data.get("effect", {})
+	var kind = effect.get("kind", "")
+	
+	match kind:
+		"dash":
+			_cast_dash(effect)
+		"aoe":
+			_cast_aoe(effect)
+		"buff":
+			_cast_buff(effect)
+		"summon":
+			_cast_summon_manual(effect)
+		"channel":
+			_cast_channel(effect)
+		_:
+			push_error("[ActiveSkillSystem] 未知的技能类型:", kind)
+
+## 检查资源消耗
+func _check_resource_cost(skill_data: Dictionary) -> bool:
+	var cost = skill_data.get("resource_cost", {})
+	if cost.is_empty():
+		return true
+	
+	var type = cost.get("type", "")
+	var amount = cost.get("amount", 0)
+	
+	# 检查职业资源（怒气/法力/能量等）
+	if has_node("/root/ClassMechanicSystem"):
+		var cms = get_node("/root/ClassMechanicSystem")
+		match type:
+			"rage":
+				return cms.rage >= amount
+			"mana":
+				return cms.mana >= amount
+			"energy":
+				return true  # 刺客能量暂无实现
+			_:
+				return true
+	
+	return true
+
+## 消耗资源
+func _consume_resource(skill_data: Dictionary):
+	var cost = skill_data.get("resource_cost", {})
+	if cost.is_empty():
+		return
+	
+	var type = cost.get("type", "")
+	var amount = cost.get("amount", 0)
+	
+	if has_node("/root/ClassMechanicSystem"):
+		var cms = get_node("/root/ClassMechanicSystem")
+		match type:
+			"rage":
+				cms.rage -= amount
+				cms.rage_changed.emit(cms.rage, cms.rage_max)
+			"mana":
+				cms.mana -= amount
+				cms.mana_changed.emit(cms.mana, cms.mana_max)
+
+## 获取技能数据
+func _get_skill_data(skill_id: String) -> Dictionary:
+	var all_skills = ConfigLoader.get_all_skills()
+	for s in all_skills:
+		if s.get("id") == skill_id:
+			return s
+	return {}
+
+# ────────────────────────────────────────────────────────────
+# 5种effect类型实现
+# ────────────────────────────────────────────────────────────
+
+## dash: 冲刺位移
+func _cast_dash(effect: Dictionary):
+	if not player:
+		return
+	
+	var distance = effect.get("distance", 300)
+	var damage = effect.get("damage", 25)
+	
+	# 获取朝向（鼠标方向或移动方向）
+	var direction = Vector2.RIGHT  # 默认右
+	if player.has_method("get_facing_direction"):
+		direction = player.get_facing_direction()
+	else:
+		# 简化：根据上次移动方向
+		var input_dir = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+		if input_dir.length() > 0:
+			direction = input_dir.normalized()
+	
+	# 冲刺目标位置
+	var target_pos = player.global_position + direction * distance
+	
+	# Tween冲刺（0.2秒）
+	var tween = player.create_tween()
+	tween.tween_property(player, "global_position", target_pos, 0.2)
+	
+	# 冲刺路径上的敌人受到伤害
+	var enemies = get_tree().get_nodes_in_group("enemy")
+	for e in enemies:
+		if not is_instance_valid(e):
+			continue
+		var to_enemy = e.global_position - player.global_position
+		if to_enemy.dot(direction) > 0 and to_enemy.length() < distance + 50:
+			if e.has_method("take_damage"):
+				e.take_damage(damage, false)
+	
+	# 特效
+	EffectSprite.spawn(player.get_parent(), "slash", player.global_position + direction * distance / 2, 1.5)
+	AudioManager.play("attack")
+	
+	print("[Skill] 冲刺释放: 距离%d, 伤害%d" % [distance, damage])
+
+## aoe: 范围伤害
+func _cast_aoe(effect: Dictionary):
+	if not player:
+		return
+	
+	var radius = effect.get("radius", 150)
+	var damage = effect.get("damage", 40)
+	var damage_type = effect.get("damage_type", "physical")
+	
+	# AOE判定（玩家周围）
+	var enemies = get_tree().get_nodes_in_group("enemy")
+	var hit_count = 0
+	for e in enemies:
+		if not is_instance_valid(e):
+			continue
+		if e.global_position.distance_to(player.global_position) <= radius:
+			if e.has_method("take_damage"):
+				e.take_damage(damage, false)
+				hit_count += 1
+	
+	# 特效
+	var effect_name = "fire" if damage_type == "fire" else "frost" if damage_type == "frost" else "hit"
+	EffectSprite.spawn(player.get_parent(), effect_name, player.global_position, radius / 75.0)
+	AudioManager.play("attack")
+	
+	print("[Skill] AOE释放: 半径%d, 命中%d个敌人" % [radius, hit_count])
+
+## buff: 增益状态
+func _cast_buff(effect: Dictionary):
+	if not player:
+		return
+	
+	var buff_type = effect.get("buff_type", "damage")
+	var buff_value = effect.get("buff_value", 0.2)
+	var duration = effect.get("duration", 5.0)
+	
+	# TODO: 需要扩展Player.gd的buff系统
+	# 当前简化实现：直接修改属性，不支持自动恢复
+	print("[Skill] Buff释放: %s +%.1f%%持续%.1fs (待实现buff系统)" % [buff_type, buff_value * 100, duration])
+	
+	# 特效
+	EffectSprite.spawn(player.get_parent(), "holy", player.global_position, 1.8)
+
+## summon: 召唤物（手动版本）
+func _cast_summon_manual(effect: Dictionary):
+	# 复用现有_cast_summon逻辑
+	_cast_summon({"effect": effect}, 1)
+
+## channel: 持续施法
+func _cast_channel(effect: Dictionary):
+	print("[Skill] 持续施法技能 - 待实现")
+	# 需要特殊的输入锁定+持续伤害系统

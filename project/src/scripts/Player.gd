@@ -308,6 +308,16 @@ func handle_attack(delta):
 						cms.activate_knight_shield()
 				# 其他职业暂无R键技能
 
+	# 阶段1: 手动技能快捷键 1/2/3
+	if has_node("/root/ActiveSkillSystem"):
+		var ask = get_node("/root/ActiveSkillSystem")
+		if Input.is_action_just_pressed("skill_1"):
+			ask.activate_manual_skill(0)
+		elif Input.is_action_just_pressed("skill_2"):
+			ask.activate_manual_skill(1)
+		elif Input.is_action_just_pressed("skill_3"):
+			ask.activate_manual_skill(2)
+
 	var should_attack = false
 	if auto_attack_enabled:
 		should_attack = true
