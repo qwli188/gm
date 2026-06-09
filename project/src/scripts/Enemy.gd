@@ -119,7 +119,11 @@ func _physics_process(delta):
 	if _is_boss and not _dying:
 		skill_cooldown -= delta
 		if skill_cooldown <= 0 and not _casting:
-			_use_boss_skill()
+			# 阶段1: 优先使用区域专属技能
+			if enemy_data.has("boss_skills") and not enemy_data.get("boss_skills", []).is_empty():
+				_use_regional_boss_skill()
+			else:
+				_use_boss_skill()
 			skill_cooldown = randf_range(8.0, 12.0)
 
 	# 击退衰减(优先于 AI:被击退时不执行追击)
@@ -600,3 +604,380 @@ static func create_enemy(enemy_id: String, spawn_position: Vector2) -> Node2D:
 	enemy.global_position = spawn_position
 
 	return enemy
+
+
+# ============================================================
+# 阶段1: 区域专属Boss技能 (模块3扩展)
+# ============================================================
+
+## 使用区域专属技能（覆盖通用技能）
+func _use_regional_boss_skill():
+	"""从boss_skills数组随机选择一个技能执行"""
+	var skills = enemy_data.get("boss_skills", [])
+	if skills.is_empty():
+		_use_boss_skill()  # 回退到通用技能
+		return
+	
+	if not player or not is_instance_valid(player):
+		return
+	if _casting:
+		return
+	
+	# 根据阶段过滤可用技能（阶段越高技能越多）
+	var available = []
+	for skill in skills:
+		var skill_index = skills.find(skill)
+		if skill_index < current_phase:  # 阶段1只用第1个技能，阶段2用前2个，阶段3全部
+			available.append(skill)
+	
+	if available.is_empty():
+		available = [skills[0]]  # 至少用第1个技能
+	
+	var selected = available[randi() % available.size()]
+	_execute_regional_skill(selected)
+
+## 执行区域专属技能
+func _execute_regional_skill(skill_name: String):
+	match skill_name:
+		# 简单技能组
+		"熔铸之锤":
+			_skill_forge_hammer()
+		"永冻吐息":
+			_skill_frost_breath()
+		"死亡之息":
+			_skill_death_breath()
+		# 中等技能组
+		"瘟疫脉冲":
+			_skill_plague_pulse()
+		"白骨旋风":
+			_skill_bone_whirlwind()
+		"孵化狂潮":
+			_skill_spawn_frenzy()
+		# 复杂技能组（待实现）
+		_:
+			print("[Boss] 未实现的技能: ", skill_name)
+			_use_boss_skill()  # 回退
+
+# ────────────────────────────────────────────────────────────
+# 简单技能组
+# ────────────────────────────────────────────────────────────
+
+## 熔铸之锤：直线冲击波 + 点燃
+func _skill_forge_hammer():
+	_casting = true
+	var direction = (player.global_position - global_position).normalized()
+	
+	# 1秒蓄力动画（身体发红光）
+	if anim_sprite:
+		anim_sprite.modulate = Color(2.0, 0.5, 0.5)
+	
+	# 显示冲击波预警线（5米长，宽50）
+	var warning = ColorRect.new()
+	warning.size = Vector2(500, 50)
+	warning.color = Color(1.0, 0.3, 0.0, 0.4)
+	warning.global_position = global_position
+	warning.rotation = direction.angle()
+	warning.z_index = -1
+	get_parent().add_child(warning)
+	
+	var blink = warning.create_tween().set_loops()
+	blink.tween_property(warning, "modulate:a", 0.7, 0.25)
+	blink.tween_property(warning, "modulate:a", 0.2, 0.25)
+	
+	await get_tree().create_timer(1.0).timeout
+	
+	if not is_instance_valid(self):
+		if is_instance_valid(warning):
+			warning.queue_free()
+		return
+	
+	# 恢复颜色
+	if anim_sprite:
+		anim_sprite.modulate = SpriteLibrary.RANK_TINT.get(enemy_data.get("rank", "normal"), Color.WHITE)
+	
+	# 冲击波判定（射线检测）
+	var hit_player = false
+	if player and is_instance_valid(player):
+		var to_player = player.global_position - global_position
+		var distance = to_player.length()
+		if distance <= 500 and abs(to_player.angle() - direction.angle()) < 0.3:  # 锥形判定
+			player.take_damage(80)
+			# 点燃效果（需CombatSystem支持）
+			if has_node("/root/CombatSystem"):
+				get_node("/root/CombatSystem").trigger_ignite(player, 20, 5.0)
+			hit_player = true
+	
+	# 特效
+	EffectSprite.spawn(get_parent(), "fire", global_position + direction * 250, 3.0)
+	AudioManager.play("attack")
+	
+	if is_instance_valid(warning):
+		warning.queue_free()
+	_casting = false
+
+## 永冻吐息：扇形180度 + 冰冻叠层
+func _skill_frost_breath():
+	_casting = true
+	var direction = (player.global_position - global_position).normalized()
+	
+	# 2秒预警（扇形区域）
+	var warning = _create_fan_warning(global_position, direction, 300, PI)  # 180度扇形
+	get_parent().add_child(warning)
+	
+	var blink = warning.create_tween().set_loops()
+	blink.tween_property(warning, "modulate:a", 0.8, 0.3)
+	blink.tween_property(warning, "modulate:a", 0.3, 0.3)
+	
+	await get_tree().create_timer(2.0).timeout
+	
+	if not is_instance_valid(self):
+		if is_instance_valid(warning):
+			warning.queue_free()
+		return
+	
+	# 扇形判定
+	if player and is_instance_valid(player):
+		var to_player = player.global_position - global_position
+		var distance = to_player.length()
+		var angle_diff = abs(to_player.angle() - direction.angle())
+		
+		if distance <= 300 and angle_diff < PI / 2:  # 180度内
+			# 冰冻效果
+			if player.has_method("apply_freeze"):
+				player.apply_freeze(3.0)
+			else:
+				player.take_damage(60)
+	
+	# 冰霜特效
+	EffectSprite.spawn(get_parent(), "frost", global_position + direction * 150, 2.5)
+	
+	if is_instance_valid(warning):
+		warning.queue_free()
+	_casting = false
+
+## 死亡之息：扇形120度 + 死亡标记debuff
+func _skill_death_breath():
+	_casting = true
+	var direction = (player.global_position - global_position).normalized()
+	
+	# 3秒预警（扇形120度）
+	var warning = _create_fan_warning(global_position, direction, 350, PI * 0.67)  # 120度
+	warning.color = Color(0.5, 0.2, 0.5, 0.4)  # 紫黑色
+	get_parent().add_child(warning)
+	
+	var blink = warning.create_tween().set_loops()
+	blink.tween_property(warning, "modulate:a", 0.9, 0.35)
+	blink.tween_property(warning, "modulate:a", 0.25, 0.35)
+	
+	await get_tree().create_timer(3.0).timeout
+	
+	if not is_instance_valid(self):
+		if is_instance_valid(warning):
+			warning.queue_free()
+		return
+	
+	# 扇形判定
+	if player and is_instance_valid(player):
+		var to_player = player.global_position - global_position
+		var distance = to_player.length()
+		var angle_diff = abs(to_player.angle() - direction.angle())
+		
+		if distance <= 350 and angle_diff < PI / 3:  # 120度内
+			# 造成最大生命15%伤害
+			var max_hp = player.get("max_hp", 100)
+			var death_damage = max_hp * 0.15
+			player.take_damage(death_damage)
+			
+			# TODO: 死亡标记debuff（受到伤害+30%，持续8秒）
+			# 需要扩展Player.gd的debuff系统
+			print("[Boss] 死亡标记命中玩家！")
+	
+	# 死亡特效
+	EffectSprite.spawn(get_parent(), "dark", global_position + direction * 175, 2.8)
+	
+	if is_instance_valid(warning):
+		warning.queue_free()
+	_casting = false
+
+## 辅助：创建扇形预警区域
+func _create_fan_warning(pos: Vector2, dir: Vector2, radius: float, angle: float) -> Polygon2D:
+	var fan = Polygon2D.new()
+	fan.color = Color(0.8, 1.0, 1.0, 0.4)  # 冰蓝色半透明
+	fan.z_index = -1
+	
+	# 生成扇形多边形顶点
+	var points = [Vector2.ZERO]  # 中心点
+	var segments = 16
+	for i in range(segments + 1):
+		var theta = -angle / 2 + (angle / segments) * i
+		var point = Vector2(cos(theta), sin(theta)) * radius
+		# 旋转到方向
+		var rotated = point.rotated(dir.angle())
+		points.append(rotated)
+	
+	fan.polygon = PackedVector2Array(points)
+	fan.global_position = pos
+	return fan
+
+# ────────────────────────────────────────────────────────────
+# 中等技能组（待实现）
+# ────────────────────────────────────────────────────────────
+
+## 瘟疫脉冲：全屏DOT + 毒层叠加
+func _skill_plague_pulse():
+	_casting = true
+
+	# 1.5秒预警（全屏绿色脉冲）
+	var warning = ColorRect.new()
+	warning.size = Vector2(2000, 2000)  # 覆盖大部分屏幕
+	warning.color = Color(0.2, 0.8, 0.2, 0.25)
+	warning.global_position = global_position - warning.size / 2
+	warning.z_index = -2
+	get_parent().add_child(warning)
+
+	# 脉冲扩散动画
+	var expand = warning.create_tween()
+	expand.tween_property(warning, "scale", Vector2(1.5, 1.5), 1.5)
+	expand.parallel().tween_property(warning, "modulate:a", 0.0, 1.5)
+
+	await get_tree().create_timer(1.5).timeout
+
+	if not is_instance_valid(self):
+		if is_instance_valid(warning):
+			warning.queue_free()
+		return
+
+	# 全屏判定：对所有玩家施加毒层
+	var players = get_tree().get_nodes_in_group("player")
+	for p in players:
+		if is_instance_valid(p):
+			# 施加毒层（需CombatSystem支持层数叠加）
+			if has_node("/root/CombatSystem"):
+				get_node("/root/CombatSystem").trigger_poison(p, 5.0, 8.0)  # 5 DPS持续8秒
+			else:
+				p.take_damage(40)  # 降级处理
+
+	# 瘟疫特效
+	EffectSprite.spawn(get_parent(), "poison", global_position, 3.0)
+	print("[Boss] 瘟疫脉冲命中所有玩家！")
+
+	if is_instance_valid(warning):
+		warning.queue_free()
+	_casting = false
+
+## 白骨旋风：追踪旋风 + 持续伤害
+func _skill_bone_whirlwind():
+	_casting = true
+
+	# 生成旋风实体（CharacterBody2D追踪玩家）
+	var whirlwind = CharacterBody2D.new()
+	whirlwind.global_position = global_position
+	whirlwind.name = "BoneWhirlwind"
+
+	# 添加视觉（旋转的骨刺精灵）
+	var sprite = Sprite2D.new()
+	sprite.texture = SPRITE_SHEET  # 复用敌人sprite
+	sprite.region_enabled = true
+	sprite.region_rect = Rect2(408, 238, 16, 16)  # 骨头精灵
+	sprite.scale = Vector2(3, 3)
+	sprite.modulate = Color(0.9, 0.9, 1.2)
+	whirlwind.add_child(sprite)
+
+	# 添加碰撞体
+	var collision = CollisionShape2D.new()
+	var shape = CircleShape2D.new()
+	shape.radius = 40
+	collision.shape = shape
+	whirlwind.add_child(collision)
+
+	get_parent().add_child(whirlwind)
+
+	# 追踪逻辑（6秒寿命）
+	var lifetime = 6.0
+	var speed = 120.0
+	while lifetime > 0 and is_instance_valid(whirlwind) and is_instance_valid(self):
+		await get_tree().create_timer(0.1).timeout
+		lifetime -= 0.1
+
+		if not is_instance_valid(player):
+			break
+
+		# 追踪玩家
+		var direction = (player.global_position - whirlwind.global_position).normalized()
+		whirlwind.velocity = direction * speed
+		whirlwind.move_and_slide()
+
+		# 旋转动画
+		sprite.rotation += 0.3
+
+		# 碰撞判定（接触造成伤害）
+		var distance = whirlwind.global_position.distance_to(player.global_position)
+		if distance < 50:
+			player.take_damage(30)
+			# 击退
+			if player.has_method("apply_knockback"):
+				player.apply_knockback(whirlwind.global_position, false)
+			lifetime -= 1.0  # 命中后加速消失
+
+	if is_instance_valid(whirlwind):
+		whirlwind.queue_free()
+
+	_casting = false
+	print("[Boss] 白骨旋风结束")
+
+## 孵化狂潮：持续召唤小怪
+func _skill_spawn_frenzy():
+	_casting = true
+
+	print("[Boss] 孵化狂潮开始！8秒内每秒生成5只蛆群")
+
+	# 8秒内每秒生成5只小怪
+	var duration = 8
+	for wave in range(duration):
+		if not is_instance_valid(self) or _dying:
+			break
+
+		# 每波生成5只
+		for i in range(5):
+			_spawn_minion("swarm")
+
+		# 特效
+		EffectSprite.spawn(get_parent(), "poison", global_position, 1.5)
+
+		await get_tree().create_timer(1.0).timeout
+
+	_casting = false
+	print("[Boss] 孵化狂潮结束，共生成", duration * 5, "只蛆群")
+
+## 辅助：生成小怪
+func _spawn_minion(minion_type: String):
+	"""生成指定类型的小怪"""
+	# 随机位置（Boss周围半径150）
+	var angle = randf() * TAU
+	var offset = Vector2(cos(angle), sin(angle)) * randf_range(50, 150)
+	var spawn_pos = global_position + offset
+
+	# 简化版：复用现有敌人数据
+	var minion_data = {
+		"id": "minion_" + minion_type,
+		"name": "蛆群",
+		"rank": "normal",
+		"base_stats": {
+			"hp": 20,  # 血量减半
+			"damage": 5,
+			"armor": 0,
+			"move_speed": 80
+		},
+		"sprite_region": [391, 238, 16, 16],  # 小虫精灵
+		"behavior": {"ai_type": "aggressive", "attack_range": 50, "chase_range": 300}
+	}
+
+	# 生成敌人实例
+	var minion = preload("res://scripts/Enemy.gd").new()
+	minion.enemy_data = minion_data
+	minion.global_position = spawn_pos
+
+	# 添加到场景
+	get_parent().add_child(minion)
+	minion._ready()  # 手动初始化
+
