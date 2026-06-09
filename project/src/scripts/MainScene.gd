@@ -1,6 +1,27 @@
 extends Node2D
 ## Main 场景脚本 - 处理 UI 面板快捷键切换和快速存读档
 
+@onready var player: Node2D = $Player
+
+func _ready():
+	# 阶段2: 启动副本流程系统
+	_start_dungeon_flow()
+
+func _start_dungeon_flow():
+	# 获取当前副本ID（从GameState或默认值）
+	var dungeon_id = "dungeon_crypt_1"  # 默认第一个副本
+	if has_node("/root/GameState"):
+		var gs = get_node("/root/GameState")
+		if gs.has_method("get_current_dungeon"):
+			var current = gs.get_current_dungeon()
+			if current != "":
+				dungeon_id = current
+
+	# 启动副本流程
+	if has_node("/root/DungeonFlow"):
+		DungeonFlow.start_dungeon(dungeon_id, self, player)
+		print("[MainScene] 副本流程已启动: %s" % dungeon_id)
+
 func _input(event):
 	# UI 面板切换
 	if event.is_action_pressed("toggle_character_panel"):
