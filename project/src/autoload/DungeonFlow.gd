@@ -12,7 +12,7 @@ var current_dungeon_id: String = ""
 var current_wave: int = -1
 var waves: Array = []
 var enemies_alive: Array = []
-var boss_spawned: bool = false
+var _boss_active: bool = false
 var dungeon_active: bool = false
 
 # 场景引用
@@ -29,7 +29,7 @@ func start_dungeon(dungeon_id: String, scene: Node2D, player_ref: Node2D):
 	dungeon_scene = scene
 	player = player_ref
 	dungeon_active = true
-	boss_spawned = false
+	_boss_active = false
 	current_wave = -1
 	enemies_alive.clear()
 
@@ -112,11 +112,7 @@ func _start_next_wave():
 		for i in range(count):
 			_spawn_enemy(enemy_type)
 
-	# 显示波次提示
-	if has_node("/root/HUD"):
-		var hud = get_node("/root/HUD")
-		if hud.has_method("show_wave_text"):
-			hud.show_wave_text("第 %d 波" % (current_wave + 1))
+	# 波次提示由HUD通过wave_started信号处理（无需直接调用）
 
 ## 生成敌人
 func _spawn_enemy(enemy_type: String):
@@ -154,7 +150,7 @@ func _on_enemy_died(enemy: Node):
 	enemies_alive.erase(enemy)
 
 	# 检查波次是否清理完毕
-	if enemies_alive.is_empty() and not boss_spawned:
+	if enemies_alive.is_empty() and not _boss_active:
 		_on_wave_cleared()
 
 ## 波次清理
@@ -174,7 +170,7 @@ func _on_wave_cleared():
 ## 生成Boss
 func _spawn_boss():
 	print("[DungeonFlow] Boss登场！")
-	boss_spawned = true
+	_boss_active = true
 	boss_spawned.emit()
 
 	var dungeon_data = _get_dungeon_data(current_dungeon_id)
@@ -282,7 +278,7 @@ func reset():
 	current_wave = -1
 	waves.clear()
 	enemies_alive.clear()
-	boss_spawned = false
+	_boss_active = false
 	dungeon_active = false
 	player = null
 	dungeon_scene = null
