@@ -294,12 +294,19 @@ func handle_attack(delta):
 		auto_attack_enabled = !auto_attack_enabled
 		auto_attack_toggled.emit(auto_attack_enabled)
 
-	# A1: 战士怒气技能(class_skill键)
+	# 职业调优: class_skill(R键)根据职业分发
 	if Input.is_action_just_pressed("class_skill"):
 		if has_node("/root/ClassMechanicSystem"):
 			var cms = get_node("/root/ClassMechanicSystem")
-			if cms.has_method("activate_rage_skill"):
-				cms.activate_rage_skill()
+			var class_id = get_node("/root/GameState").get_current_class().get("id", "")
+			match class_id:
+				"class_warrior":
+					if cms.has_method("activate_rage_skill"):
+						cms.activate_rage_skill()
+				"class_knight":
+					if cms.has_method("activate_knight_shield"):
+						cms.activate_knight_shield()
+				# 其他职业暂无R键技能
 
 	var should_attack = false
 	if auto_attack_enabled:
@@ -373,10 +380,15 @@ func take_damage(damage: float):
 	AudioManager.play("hit")
 	hp_changed.emit(current_hp, max_hp)
 	# 受击红闪
+	# 旧代码(tween modulate,注释保留):
+	# if anim_sprite:
+	#   anim_sprite.modulate = Color(1.6, 0.6, 0.6)
+	#   var tween = create_tween()
+	#   tween.tween_property(anim_sprite, "modulate", Color.WHITE, 0.15)
+
+	# B1 shader接线: 玩家受击红闪shader
 	if anim_sprite:
-		anim_sprite.modulate = Color(1.6, 0.6, 0.6)
-		var tween = create_tween()
-		tween.tween_property(anim_sprite, "modulate", Color.WHITE, 0.15)
+		ShaderHelper.apply_hit_flash(anim_sprite, Color(1.5, 0.4, 0.4), 0.15)
 	# 伤害数字
 	DamageNumber.spawn(get_parent(), global_position + Vector2(0, -40), damage, false)
 	if current_hp <= 0:

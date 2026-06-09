@@ -35,6 +35,10 @@ func _setup_rarity_visual():
 	if vfx_level >= 2:
 		_add_glow(color, vfx_level)
 
+	# B1 shader接线: 稀有度描边发光
+	if visual:
+		ShaderHelper.apply_rarity_glow(visual, rarity)
+
 ## 高稀有度光柱
 func _add_drop_beam(color: Color):
 	var beam = ColorRect.new()

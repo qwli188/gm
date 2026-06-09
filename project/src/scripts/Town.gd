@@ -17,6 +17,8 @@ func _ready():
 	_setup_visuals()
 	_refresh_ui()
 	_create_town_locations()
+	# 模块6: 首次进入教学提示
+	_show_tutorial_if_needed()
 
 ## 设置视觉效果
 func _setup_visuals():
@@ -131,7 +133,7 @@ func _on_blacksmith_clicked():
 	upgrade_panel.visible = true
 	dungeon_panel.visible = false
 	_build_upgrade_list()
-	info_label.text = "[center][color=orange]铁匠铺 - 永久强化[/color]\n使用金币提升基础属性[/center]"
+	info_label.text = "[center][color=orange]铁匠铺 - 永久强化[/color]\n使用金币提升基础属性\n\n[color=yellow]装备强化系统[/color]\n词缀工坊可强化装备(+0到+15)\n每+1增加基础属性10%\n消耗金币+区域材料，有成功率[/center]"
 
 ## 副本入口点击
 func _on_dungeon_portal_clicked():
@@ -294,3 +296,36 @@ func _on_close_upgrade_panel():
 
 func _on_close_dungeon_panel():
 	dungeon_panel.visible = false
+
+
+# ============================================================
+# 模块6: 教学引导 (简化版)
+# ============================================================
+
+func _show_tutorial_if_needed():
+	# 检查是否首次进入
+	if GameState.has("tutorial_completed") and GameState.tutorial_completed:
+		return
+	
+	# 显示教学文本
+	info_label.text = """[center][color=yellow]🎮 新手引导 🎮[/color]
+
+[color=lime]欢迎来到黎明堡！[/color]
+
+[color=white]基础操作:[/color]
+• WASD - 移动
+• 鼠标左键 - 攻击 (可切换自动攻击)
+• 空格 - 闪避 (无敌帧)
+• R键 - 职业技能 (战士怒气/骑士圣盾)
+• Q键 - 打开背包
+• E键 - 拾取/交互
+
+[color=white]城镇功能:[/color]
+• [color=orange]铁匠铺[/color] - 永久升级基础属性
+• [color=purple]副本传送门[/color] - 进入6大区域战斗
+• [color=yellow]词缀工坊[/color] - 洗练/分解/强化装备
+
+[color=lime]点击任意建筑开始探索！[/color][/center]"""
+	
+	# 标记已查看
+	GameState.tutorial_completed = true

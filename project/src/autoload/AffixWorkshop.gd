@@ -146,3 +146,80 @@ func _roll_random_affix(rarity: String) -> String:
 	# TODO: 可根据稀有度调整词缀池或权重
 	var random_index = randi() % all_affixes.size()
 	return all_affixes[random_index].get("id", "")
+
+
+# ============================================================
+# 装备强化系统 (模块5)
+# ============================================================
+
+## 装备强化：+0到+15，消耗金币+材料，有成功率
+## 返回 {success: bool, new_level: int, cost: {gold, material}, message: String}
+func enhance_equipment(instance_id: String) -> Dictionary:
+	var eq_sys = get_node_or_null("/root/EquipmentSystem")
+	if not eq_sys:
+		return {success = false, message = "EquipmentSystem未找到"}
+
+	var instance = eq_sys.get_equipment_instance(instance_id)
+	if not instance:
+		return {success = false, message = "装备不存在"}
+
+	var current_level = instance.get("enhance_level", 0)
+	var config = ConfigLoader.get_balance_config().get("equipment_enhancement", {})
+	var max_level = config.get("max_level", 15)
+
+	if current_level >= max_level:
+		return {success = false, message = "已达最大强化等级+%d" % max_level}
+
+	var rarity = instance.get("rarity", "common")
+	var region = instance.get("region", "field")
+
+	# 计算消耗
+	var cost_table = config.get("costs", {}).get(rarity, config.get("costs", {}).get("common", {}))
+	var gold_cost = cost_table.get("gold_base", 50) + int(cost_table.get("gold_per_level", 25) * current_level)
+	var material_cost = int(cost_table.get("material_base", 1) + cost_table.get("material_per_level", 0.5) * current_level)
+
+	# 检查资源
+	var game_state = get_node_or_null("/root/GameState")
+	if not game_state:
+		return {success = false, message = "GameState未找到"}
+
+	if game_state.gold < gold_cost:
+		return {success = false, message = "金币不足(需要%d)" % gold_cost}
+
+	var material_id = "material_" + region
+	var current_material = game_state.materials.get(material_id, 0)
+	if current_material < material_cost:
+		return {success = false, message = "材料不足(需要%s x%d)" % [material_id, material_cost]}
+
+	# 扣除资源
+	game_state.gold -= gold_cost
+	game_state.materials[material_id] = current_material - material_cost
+
+	# 计算成功率
+	var success_rates = config.get("success_rates", {})
+	var success_rate = 1.0
+	if current_level >= 10:
+		success_rate = success_rates.get("11-15", 0.4)
+	elif current_level >= 5:
+		success_rate = success_rates.get("6-10", 0.7)
+	else:
+		success_rate = success_rates.get("1-5", 1.0)
+
+	var roll = randf()
+	var succeeded = roll < success_rate
+
+	if succeeded:
+		instance["enhance_level"] = current_level + 1
+		return {
+			success = true,
+			new_level = current_level + 1,
+			cost = {gold = gold_cost, material = material_cost},
+			message = "强化成功！装备现在是+%d" % (current_level + 1)
+		}
+	else:
+		return {
+			success = false,
+			new_level = current_level,
+			cost = {gold = gold_cost, material = material_cost},
+			message = "强化失败，装备保持+%d" % current_level
+		}

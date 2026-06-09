@@ -16,6 +16,8 @@ var rage_skill_cost: float = 100.0
 var rage_skill_active: bool = false
 var rage_skill_duration: float = 5.0
 var rage_skill_timer: float = 0.0
+var rage_skill_cooldown: float = 0.0  # 职业调优: 技能CD计时
+var rage_skill_cooldown_max: float = 5.0  # 职业调优: 技能CD时长(5秒)
 var rage_damage_bonus: float = 0.3  # 怒气技能期间伤害+30%
 var rage_damage_reduction: float = 0.2  # 怒气技能期间减伤+20%
 
@@ -35,6 +37,7 @@ var chain_threshold: float = 0.5  # 法力>50%时触发连锁
 var chain_range: float = 180.0
 var chain_damage_reduction: float = 0.2  # 连锁伤害递减20%
 var chain_max_targets: int = 4  # 最多弹射4次
+var _is_chaining: bool = false  # 职业调优: 防止连锁递归
 
 var _current_class_id: String = ""
 var _player: Node2D = null
@@ -148,6 +151,12 @@ func _update_warrior(delta):
 			rage_skill_active = false
 			print("[Warrior] 怒气技能结束")
 
+	# 职业调优: 怒气技能CD递减
+	if rage_skill_cooldown > 0:
+		rage_skill_cooldown -= delta
+		if rage_skill_cooldown < 0:
+			rage_skill_cooldown = 0
+
 # ============ 法师机制更新 ============
 func _update_mage(delta):
 	# 法力自动回复
@@ -182,6 +191,11 @@ func activate_rage_skill() -> bool:
 	if _current_class_id != "class_warrior":
 		return false
 
+	# 职业调优: CD检测防止无限循环
+	if rage_skill_cooldown > 0:
+		print("[Warrior] 怒气技能冷却中 (%.1fs)" % rage_skill_cooldown)
+		return false
+
 	if rage < rage_skill_cost:
 		print("[Warrior] 怒气不足")
 		return false
@@ -189,6 +203,7 @@ func activate_rage_skill() -> bool:
 	rage = 0.0
 	rage_skill_active = true
 	rage_skill_timer = rage_skill_duration
+	rage_skill_cooldown = rage_skill_cooldown_max  # 职业调优: 启动CD
 	rage_changed.emit(rage, rage_max)
 	rage_skill_activated.emit()
 
@@ -258,8 +273,14 @@ func trigger_chain_lightning(source_enemy: Node2D, base_damage: float, player_st
 	if _current_class_id != "class_mage":
 		return
 
+	# 职业调优: 防止递归调用(连锁伤害不再触发新连锁)
+	if _is_chaining:
+		return
+	_is_chaining = true
+
 	# 法力不足50%，不触发连锁
 	if mana < mana_max * chain_threshold:
+		_is_chaining = false
 		return
 
 	var all_enemies = get_tree().get_nodes_in_group("enemy")
@@ -295,6 +316,9 @@ func trigger_chain_lightning(source_enemy: Node2D, base_damage: float, player_st
 
 	if chained_targets.size() > 1:
 		print("[Mage] 法力连锁触发！弹射了 %d 个目标" % (chained_targets.size() - 1))
+
+	# 职业调优: 连锁结束，解除递归锁
+	_is_chaining = false
 
 # ============ 法师 - 查找最近未命中的敌人 ============
 func _find_nearest_unchained_enemy(from: Node2D, chained: Array, all_enemies: Array) -> Node2D:
@@ -346,19 +370,26 @@ func reset():
 	rage = 0.0
 	rage_skill_active = false
 	rage_skill_timer = 0.0
+	rage_skill_cooldown = 0.0  # 职业调优: 重置CD
 	# 游侠
 	precision_stacks = 0
 	precision_target = null
 	# 法师
 	mana = mana_max
+	_is_chaining = false  # 职业调优: 重置连锁锁
 	# 刺客
 	assassin_out_of_combat_timer = 0.0
 	assassin_stealth_active = false
+	assassin_original_alpha = 1.0  # 职业调优: 重置透明度
 	# 骑士
 	knight_shield_active = false
 	knight_shield_timer = 0.0
 	knight_shield_cooldown = 0.0
 	# 死灵
+	# 职业调优: 强制清理骷髅和尸体节点，防止await泄漏
+	for skeleton in necro_skeletons:
+		if is_instance_valid(skeleton):
+			skeleton.queue_free()
 	necro_skeletons.clear()
 	necro_summon_cooldown = 0.0
 	_cleanup_all_corpses()
@@ -440,9 +471,22 @@ func _update_knight(delta):
 		if knight_shield_timer <= 0:
 			_knight_deactivate_shield()
 
-	# 输入检测：空格键主动开盾(可扩展为技能系统调用)
-	if Input.is_action_just_pressed("ui_accept") and knight_shield_cooldown <= 0 and not knight_shield_active:
-		_knight_activate_shield()
+	# 职业调优: 改用class_skill(R键)统一输入,不再用ui_accept避免冲突
+	# 注: 实际触发由Player.gd调用activate_knight_shield()
+	# if Input.is_action_just_pressed("class_skill") and knight_shield_cooldown <= 0 and not knight_shield_active:
+	#     _knight_activate_shield()
+
+## 职业调优: 骑士圣盾公共接口(供Player.gd调用)
+func activate_knight_shield() -> bool:
+	if _current_class_id != "class_knight":
+		return false
+	if knight_shield_cooldown > 0:
+		print("[Knight] 圣盾冷却中 (%.1fs)" % knight_shield_cooldown)
+		return false
+	if knight_shield_active:
+		return false
+	_knight_activate_shield()
+	return true
 
 func _knight_activate_shield():
 	"""激活圣盾"""

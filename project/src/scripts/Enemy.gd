@@ -281,6 +281,9 @@ func apply_freeze(duration: float):
 	if anim_sprite:
 		anim_sprite.modulate = Color(0.6, 0.8, 1.2)  # 冰冻泛蓝
 	EffectSprite.spawn(get_parent(), "frost", global_position, 1.3)
+	# B1 shader接线: 冰冻视觉层
+	if anim_sprite:
+		ShaderHelper.apply_status_overlay(anim_sprite, "freeze", 0.6)
 
 func apply_slow(slow_percent: float, duration: float):
 	slow_multiplier = 1.0 - slow_percent
@@ -322,7 +325,9 @@ func _process(delta):
 			if is_frozen:
 				move_speed = base_move_speed
 				is_frozen = false
+				# B1 shader接线: 清除冰冻层
 				if anim_sprite:
+					ShaderHelper.remove_status_overlay(anim_sprite)
 					anim_sprite.modulate = SpriteLibrary.RANK_TINT.get(enemy_data.get("rank", "normal"), Color.WHITE)
 
 	if slow_timer > 0:
@@ -345,12 +350,17 @@ func _process(delta):
 
 ## 受击闪白
 func _flash_white():
+	# 旧代码(tween modulate闪白,注释保留):
+	# if anim_sprite:
+	#   anim_sprite.modulate = Color(2.5, 2.5, 2.5)
+	#   var rank = enemy_data.get("rank", "normal")
+	#   var base_tint = SpriteLibrary.RANK_TINT.get(rank, Color.WHITE)
+	#   var tween = create_tween()
+	#   tween.tween_property(anim_sprite, "modulate", base_tint, 0.12)
+
+	# B1 shader接线: 受击闪白shader
 	if anim_sprite:
-		anim_sprite.modulate = Color(2.5, 2.5, 2.5)
-		var rank = enemy_data.get("rank", "normal")
-		var base_tint = SpriteLibrary.RANK_TINT.get(rank, Color.WHITE)
-		var tween = create_tween()
-		tween.tween_property(anim_sprite, "modulate", base_tint, 0.12)
+		ShaderHelper.apply_hit_flash(anim_sprite, Color.WHITE, 0.12)
 
 
 # ============================================================
@@ -476,6 +486,13 @@ func die():
 	get_tree().create_timer(0.05, true, false, true).timeout.connect(func():
 		Engine.time_scale = 1.0
 	)
+
+	# B1 shader接线: 死亡溶解效果(替代瞬间消失)
+	if anim_sprite:
+		var dissolve_color = burst_color  # 复用爆裂颜色
+		var tween = ShaderHelper.apply_dissolve(anim_sprite, "out", 0.8, dissolve_color)
+		if tween:
+			await tween.finished
 
 	drop_loot()
 	drop_material()

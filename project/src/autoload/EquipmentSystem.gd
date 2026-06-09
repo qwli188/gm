@@ -217,6 +217,22 @@ func get_total_stats() -> Dictionary:
 		if item.is_empty():
 			continue
 		var stats = item.get("base_stats", {})
+
+		# 模块5: 应用装备强化加成
+		var enhance_level = item.get("enhance_level", 0)
+		if enhance_level > 0:
+			var config = ConfigLoader.get_balance_config().get("equipment_enhancement", {})
+			var bonus_per_level = config.get("stat_bonus_per_level", 0.1)
+			var enhance_mult = 1.0 + (enhance_level * bonus_per_level)
+			# 对所有数值属性应用强化倍率
+			var enhanced_stats = {}
+			for key in stats:
+				if typeof(stats[key]) in [TYPE_FLOAT, TYPE_INT]:
+					enhanced_stats[key] = stats[key] * enhance_mult
+				else:
+					enhanced_stats[key] = stats[key]
+			stats = enhanced_stats
+
 		total["damage"] += stats.get("damage", 0)
 		total["max_hp"] += stats.get("max_hp", 0)
 		total["armor"] += stats.get("armor", 0)

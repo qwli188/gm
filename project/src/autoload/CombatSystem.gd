@@ -97,18 +97,30 @@ func trigger_ignite(target: Node2D, dps: float, duration: float):
 	if not target.has_method("apply_ignite"):
 		return
 	target.apply_ignite(dps, duration)
+	# B1 shader接线: 点燃视觉反馈
+	var sprite = target.get_node_or_null("AnimatedSprite2D")
+	if sprite:
+		ShaderHelper.apply_status_overlay(sprite, "ignite", 0.5)
 
 ## 中毒效果
 func trigger_poison(target: Node2D, dps: float, duration: float):
 	if not target.has_method("apply_poison"):
 		return
 	target.apply_poison(dps, duration)
+	# B1 shader接线: 中毒视觉反馈
+	var sprite = target.get_node_or_null("AnimatedSprite2D")
+	if sprite:
+		ShaderHelper.apply_status_overlay(sprite, "poison", 0.5)
 
 ## 冰冻效果
 func trigger_freeze(target: Node2D, duration: float):
 	if not target.has_method("apply_freeze"):
 		return
 	target.apply_freeze(duration)
+	# B1 shader接线: 冰冻视觉反馈
+	var sprite = target.get_node_or_null("AnimatedSprite2D")
+	if sprite:
+		ShaderHelper.apply_status_overlay(sprite, "freeze", 0.6)
 
 ## 减速效果
 func trigger_slow(target: Node2D, slow_percent: float, duration: float):

@@ -317,5 +317,42 @@
       }
     },
     "design_note": "每集齐N个同标签触发协同加成。fire/crit/physical/cold/poison/undead/defense 7种流派，各3/5/7档。数值温和，3件套5-20%加成，5件套叠加更高，7件套质变。配合套装效果形成完整流派体系。"
+  },
+  "equipment_enhancement": {
+    "description": "装备强化系统(+0到+15)",
+    "max_level": 15,
+    "stat_bonus_per_level": 0.1,
+    "success_rates": {
+      "1-5": 1.0,
+      "6-10": 0.7,
+      "11-15": 0.4
+    },
+    "costs": {
+      "common": {
+        "gold_base": 50,
+        "material_base": 1,
+        "gold_per_level": 25,
+        "material_per_level": 0.5
+      },
+      "rare": {
+        "gold_base": 150,
+        "material_base": 3,
+        "gold_per_level": 75,
+        "material_per_level": 1.5
+      },
+      "epic": {
+        "gold_base": 300,
+        "material_base": 5,
+        "gold_per_level": 150,
+        "material_per_level": 2.5
+      },
+      "legendary": {
+        "gold_base": 600,
+        "material_base": 10,
+        "gold_per_level": 300,
+        "material_per_level": 5
+      }
+    },
+    "design_note": "装备强化消耗金币+区域材料。每+1增加基础属性10%。成功率阶梯：+1-5必成功(100%)，+6-10有风险(70%)，+11-15高风险(40%)。失败不掉级但损失材料。"
   }
 }
