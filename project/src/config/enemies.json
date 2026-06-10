@@ -1589,7 +1589,7 @@
       "rank": "boss",
       "region": "field",
       "base_stats": {
-        "hp": 2500,
+        "max_hp": 2500,
         "damage": 45,
         "armor": 25,
         "move_speed": 90
@@ -1600,9 +1600,12 @@
         "深渊裁决"
       ],
       "drop_table": {
-        "equipment_drop_chance": 0.8,
-        "gold_min": 150,
-        "gold_max": 300
+        "exp": 200,
+        "gold": {
+          "min": 150,
+          "max": 300
+        },
+        "equipment_drop_chance": 0.8
       },
       "display_name": "深渊传令·荒原末裔",
       "behavior": {

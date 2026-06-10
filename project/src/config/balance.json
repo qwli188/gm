@@ -6,7 +6,13 @@
     "base_exp": 10,
     "growth": 1.15,
     "max_level": 50,
-    "design_note": "前期快速升级（每10-20秒），后期渐慢。Growth 1.15 是温和曲线。"
+    "stats_per_level": {
+      "max_hp": 8,
+      "damage": 2
+    },
+    "attribute_points_per_level": 5,
+    "skill_points_per_level": 1,
+    "design_note": "前期快速升级（每10-20秒），后期渐慢。Growth 1.15 是温和曲线。每级 +8 HP/+2 damage 基础成长（持久 ARPG），外加 5 属性点 + 1 技能点供分配。"
   },
   "damage_formula": {
     "description": "最终伤害 = (基础+附加) * 增益 * 暴击 * 抗性系数",
@@ -90,18 +96,6 @@
       "epic_boost_per_level": 0.01
     },
     "design_note": "基础3%掉率，稀有度权重确保common最常见。高层副本提升稀有度，驱动挑战高难度。"
-  },
-  "skill_choice": {
-    "description": "升级三选一抽取规则",
-    "choices_count": 3,
-    "rarity_weights": {
-      "common": 60,
-      "uncommon": 25,
-      "rare": 12,
-      "legendary": 3
-    },
-    "synergy_boost": 1.5,
-    "design_note": "每次升级随机3个技能。已选某流派标签时，同标签技能权重*1.5，引导成型Build。"
   },
   "combat_balance": {
     "description": "战斗手感参数",
@@ -351,8 +345,33 @@
         "material_base": 10,
         "gold_per_level": 300,
         "material_per_level": 5
+      },
+      "mythic": {
+        "gold_base": 1200,
+        "material_base": 20,
+        "gold_per_level": 600,
+        "material_per_level": 10
       }
     },
     "design_note": "装备强化消耗金币+区域材料。每+1增加基础属性10%。成功率阶梯：+1-5必成功(100%)，+6-10有风险(70%)，+11-15高风险(40%)。失败不掉级但损失材料。"
+  },
+  "affix_workshop": {
+    "description": "词缀工坊（符文工匠NPC）：洗练（重roll词缀）+ 分解（装备→碎片）",
+    "reforge_cost": {
+      "common":    { "gold": 100,  "rune_shard": 1 },
+      "rare":      { "gold": 300,  "rune_shard": 3 },
+      "epic":      { "gold": 700,  "rune_shard": 6 },
+      "legendary": { "gold": 1500, "rune_shard": 12 },
+      "mythic":    { "gold": 3500, "rune_shard": 25 }
+    },
+    "dismantle_yield": {
+      "common": 1,
+      "rare": 3,
+      "epic": 6,
+      "legendary": 12,
+      "mythic": 25
+    },
+    "lock_cost_multiplier": 1.5,
+    "design_note": "成本随稀有度 1.0/1.4/1.9/2.6/3.5 倍率近似递增（向 D2/POE 工艺曲线靠拢）。锁定词缀使本次洗练费用x1.5。分解收益对称于洗练消耗，鼓励分解低价值装备转化为高价值洗练资源。"
   }
 }

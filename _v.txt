@@ -1,0 +1,80 @@
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+[ConfigLoader] 开始加载配置表...
+[ConfigLoader] 成功加载: equipment.json
+[ConfigLoader] 成功加载: affixes.json
+[ConfigLoader] 成功加载: skills.json
+[ConfigLoader] 成功加载: enemies.json
+[ConfigLoader] 成功加载: balance.json
+[ConfigLoader] 成功加载: dungeons.json
+[ConfigLoader] 成功加载: waves.json
+[ConfigLoader] 成功加载: classes.json
+[ConfigLoader] 成功加载: sets.json
+[ConfigLoader] 成功加载: vfx.json
+[ConfigLoader] 索引构建完成: 108 装备, 31 词缀, 62 技能, 37 敌人, 8 职业, 6 套装, 21 副本
+[ConfigLoader] 配置表加载完成
+[FileWatcher] 配置文件监听已启动
+[GameState] 全局状态初始化
+[AudioManager] 音效系统初始化
+[SpriteLibrary] 初始化
+[SkillSystem] 技能树系统初始化
+[AffixSystem] 词缀系统初始化
+[AffixWorkshop] 词缀工坊初始化
+[SaveSystem] 存档系统初始化
+[EquipmentSystem] 装备系统初始化 (8部位)
+[Inventory] 背包/仓库系统初始化 (背包40/仓库100)
+[TagSynergySystem] 标签联动系统初始化
+[ThemeGenerator] 初始化主题生成器
+[ThemeGenerator] 主题生成完成
+[DungeonFeatureSystem] 初始化
+[CombatSystem] 战斗系统初始化
+[ActiveSkillSystem] 主动技能系统初始化
+[ClassMechanicSystem] 职业核心机制系统初始化
+============================================================
+  DarkLoot v3 自动验收
+============================================================
+
+[TEST] 配置加载验收...
+  [OK] 装备配置: 108 件
+  [OK] 词缀配置: 31 个
+  [OK] 技能配置: 62 个
+  [OK] 敌人配置: 37 个
+  [OK] Boss: 6 个
+
+[TEST] Autoload 系统验收...
+  [OK] ConfigLoader
+  [OK] EquipmentSystem
+  [OK] AffixSystem
+  [OK] CombatSystem
+  [OK] ActiveSkillSystem
+  [OK] GameState
+  [OK] AudioManager
+  [OK] ClassMechanicSystem
+
+[TEST] 装备系统验收...
+[EquipmentSystem] 生成实例: 铁剑 (common, id=eq_inst_gtza7ohlzy17)
+  [OK] 装备实例生成: eq_inst_gtza7ohlzy17
+  [OK] 装备数据: 铁剑 (common)
+  [OK] 词缀效果汇总: 0 条
+
+[TEST] 战斗系统验收...
+  [OK] 伤害计算: 15.0 (暴击=true)
+  [OK] 方法: trigger_lifesteal
+  [OK] 方法: trigger_ignite
+  [OK] 方法: trigger_freeze
+  [OK] 方法: trigger_affix_summon
+  [OK] 方法: trigger_affix_chain
+
+============================================================
+  验收报告
+============================================================
+  [PASS] 全部通过
+
+============================================================
+  状态: PASS
+============================================================
+[ClassMechanicSystem] 当前职业: class_warrior
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2284)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:604)

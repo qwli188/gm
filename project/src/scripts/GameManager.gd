@@ -2,11 +2,10 @@ extends Node
 ## GameManager - 协调游戏流程和UI系统
 
 @onready var player: CharacterBody2D = get_parent().get_node("Player")
-@onready var level_up_ui: Control = get_parent().get_node("UILayer/LevelUpUI")
 @onready var equipment_pickup: Control = get_parent().get_node("UILayer/EquipmentPickup")
 @onready var game_over: Control = get_parent().get_node("UILayer/GameOver")
 
-# 玩家已学习的技能
+# 玩家已学习的技能（起手技能 + 技能树解锁，PR-7 后不再用升级三选一）
 var learned_skills: Dictionary = {}
 
 func _ready():
@@ -15,12 +14,7 @@ func _ready():
 
 	# 连接玩家信号
 	if player:
-		player.level_up.connect(_on_player_level_up)
 		player.player_died.connect(_on_player_died)
-
-	# 连接UI信号
-	if level_up_ui:
-		level_up_ui.skill_selected.connect(_on_skill_selected)
 
 	if equipment_pickup:
 		equipment_pickup.equipment_equipped.connect(_on_equipment_equipped)
@@ -49,62 +43,9 @@ func _grant_starting_skill():
 	print("[GameManager] 授予起手技能: %s" % skill.get("display_name", ""))
 
 ## 玩家升级时触发
-func _on_player_level_up(new_level: int):
-	print("[GameManager] 玩家升级到 %d 级，显示技能选择" % new_level)
-
-	# 从技能池随机抽取3个技能
-	var skill_choices = _draw_random_skills(3)
-
-	if skill_choices.size() == 3:
-		level_up_ui.show_level_up(skill_choices)
-	else:
-		push_error("[GameManager] 技能抽取失败，技能数量不足3个")
-
-## 从技能池随机抽取技能（按当前职业过滤）
-func _draw_random_skills(count: int) -> Array:
-	# 按职业过滤可用技能池
-	var class_id = ""
-	if has_node("/root/GameState"):
-		class_id = get_node("/root/GameState").selected_class_id
-	var skills_data = ConfigLoader.get_skills_for_class(class_id)
-	if skills_data.is_empty():
-		# 兜底：用全部技能
-		skills_data = ConfigLoader.skills_data.get("skills", [])
-	if skills_data.is_empty():
-		push_error("[GameManager] 技能配置为空")
-		return []
-
-	# 过滤掉已满级的技能
-	var available_skills = []
-	for skill in skills_data:
-		var skill_id = skill.get("id", "")
-		var current_level = learned_skills.get(skill_id, 0)
-		var max_level = skill.get("max_level", 5)
-		if current_level < max_level:
-			available_skills.append(skill)
-
-	if available_skills.size() < count:
-		push_warning("[GameManager] 可用技能不足 %d 个，只有 %d 个" % [count, available_skills.size()])
-		return available_skills
-
-	# 随机抽取
-	var choices = []
-	var indices = range(available_skills.size())
-	indices.shuffle()
-	for i in range(count):
-		choices.append(available_skills[indices[i]])
-	return choices
-
-## 玩家选择技能后
-func _on_skill_selected(skill_id: String):
-	print("[GameManager] 玩家选择技能: %s" % skill_id)
-
-	# 增加技能等级
-	var current_level = learned_skills.get(skill_id, 0)
-	learned_skills[skill_id] = current_level + 1
-
-	# 应用技能效果
-	_apply_skill_effect(skill_id, learned_skills[skill_id])
+## PR-7: 升级三选一已移除（roguelite 残留）。
+## 升级成长改为 Player._on_level_up 发放属性点（玩家在 CharacterPanel 分配）+ SP（技能树）。
+## 技能获取走固定技能树（SkillSystem）+ 装备词缀，不再随机抽取。
 
 ## 应用技能效果到玩家
 func _apply_skill_effect(skill_id: String, level: int):
@@ -220,7 +161,7 @@ const MAP_WIDTH = 30
 const MAP_HEIGHT = 20
 
 func _generate_battle_map():
-	var dungeon_id = GameState.selected_dungeon if GameState.selected_dungeon != "" else "dungeon_crypt_1"
+	var dungeon_id = GameState.selected_dungeon_id if GameState.selected_dungeon_id != "" else "dungeon_crypt_1"
 	var dungeon = ConfigLoader.get_dungeon_by_id(dungeon_id)
 	var region = dungeon.get("region", "field") if not dungeon.is_empty() else "field"
 
@@ -240,10 +181,21 @@ func _generate_battle_map():
 	ground.z_index = -20
 	main_scene.add_child(ground)
 	if floor_tex:
+		var variant_count = SpriteLibrary.count_floor_variants(region)
+		var variants = []
+		for vi in range(variant_count):
+			variants.append(SpriteLibrary.get_floor_variant(region, vi))
 		for ty in range(MAP_HEIGHT):
 			for tx in range(MAP_WIDTH):
 				var s = Sprite2D.new()
-				s.texture = floor_tex
+				# 多变体随机混铺打破网格重复感: 变体0占60%,其余均分
+				if variant_count > 0:
+					var pick = 0 if randf() < 0.6 else (1 + randi() % max(1, variant_count - 1))
+					s.texture = variants[pick]
+					if randf() < 0.5:
+						s.flip_h = true
+				else:
+					s.texture = floor_tex
 				s.centered = false
 				s.position = origin + Vector2(tx * TILE_SIZE, ty * TILE_SIZE)
 				s.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -259,7 +211,40 @@ func _generate_battle_map():
 	# 障碍物（使用生成的障碍物精灵 + 碰撞）
 	_create_obstacles(region, main_scene, map_w, map_h, center)
 
+	# 散布装饰道具(非阻挡氛围物): 蘑菇/骨堆/水晶/篝火
+	_scatter_props(region, main_scene, map_w, map_h, center)
+
+	# 按区域切换战斗 BGM
+	if has_node("/root/AudioManager"):
+		get_node("/root/AudioManager").play_bgm(region)
+
 	print("[GameManager] 生成 %s 区域地图（%dx%d 格）" % [region, MAP_WIDTH, MAP_HEIGHT])
+
+## 散布装饰道具(纯视觉,无碰撞) - 增强地图氛围
+func _scatter_props(region: String, parent: Node, map_w: float, map_h: float, center: Vector2):
+	var prop_count = SpriteLibrary.count_props(region)
+	if prop_count == 0:
+		return
+	var props = []
+	for pi in range(prop_count):
+		props.append(SpriteLibrary.get_prop(region, pi))
+	# 散布 18-24 个道具,避开玩家出生中心
+	var n = randi_range(18, 24)
+	for i in range(n):
+		var angle = randf() * TAU
+		var distance = randf_range(140, min(map_w, map_h) / 2.1)
+		var pos = center + Vector2(cos(angle), sin(angle)) * distance
+		var spr = Sprite2D.new()
+		spr.texture = props[randi() % prop_count]
+		spr.position = pos
+		spr.z_index = -4  # 在地板之上,角色之下
+		spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		spr.scale = Vector2(1.1, 1.1)
+		if randf() < 0.5:
+			spr.flip_h = true
+		# 轻微随机色调变化,避免完全一致
+		spr.modulate = Color(1.0, 1.0, 1.0).lerp(Color(0.85, 0.9, 1.0), randf() * 0.3)
+		parent.add_child(spr)
 
 func _create_obstacles(region: String, parent: Node, map_w: float, map_h: float, center: Vector2):
 	var obs_tex = SpriteLibrary.get_tile(region, true)

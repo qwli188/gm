@@ -77,8 +77,12 @@ func dismantle_equipment(instance_id: String) -> int:
 	var rarity = instance.get("rarity", "common")
 	var yield_count = _get_dismantle_yield(rarity)
 
-	# 从背包移除
-	EquipmentSystem.inventory.erase(instance_id)
+	# 从背包/仓库移除（PR-3 后由 Inventory 管理）
+	if has_node("/root/Inventory"):
+		Inventory.backpack.erase(instance_id)
+		Inventory.warehouse.erase(instance_id)
+		Inventory.backpack_changed.emit()
+		Inventory.warehouse_changed.emit()
 
 	# 从实例表删除
 	EquipmentSystem.equipment_instances.erase(instance_id)
@@ -118,10 +122,8 @@ func _consume_resources(cost: Dictionary):
 	var gold = cost.get("gold", 0)
 	var shards = cost.get("rune_shard", 0)
 
-	# 金币从 Player 扣除（单一数据源）
-	var player = get_tree().get_first_node_in_group("player")
-	if player:
-		player.gold -= gold
+	# 金币从持久钱包扣除（工坊是城镇活动，钱包 = GameState.total_gold 单一真源）
+	GameState.total_gold -= gold
 	GameState.add_material("rune_shard", -shards)
 
 ## 获取适用于指定槽位和稀有度的词缀列表
@@ -152,50 +154,42 @@ func _roll_random_affix(rarity: String) -> String:
 # 装备强化系统 (模块5)
 # ============================================================
 
-## 装备强化：+0到+15，消耗金币+材料，有成功率
+## 装备强化：+0到+15，消耗金币+符文碎片，有成功率
 ## 返回 {success: bool, new_level: int, cost: {gold, material}, message: String}
 func enhance_equipment(instance_id: String) -> Dictionary:
-	var eq_sys = get_node_or_null("/root/EquipmentSystem")
-	if not eq_sys:
-		return {success = false, message = "EquipmentSystem未找到"}
-
-	var instance = eq_sys.get_equipment_instance(instance_id)
-	if not instance:
+	if not EquipmentSystem.equipment_instances.has(instance_id):
 		return {success = false, message = "装备不存在"}
 
-	var current_level = instance.get("enhance_level", 0)
+	var instance = EquipmentSystem.equipment_instances[instance_id]
+	if instance.is_empty():
+		return {success = false, message = "装备不存在"}
+
+	var current_level = instance.get(Schema.K_ENHANCEMENT_LEVEL, 0)
 	var config = ConfigLoader.get_balance_config().get("equipment_enhancement", {})
 	var max_level = config.get("max_level", 15)
 
 	if current_level >= max_level:
 		return {success = false, message = "已达最大强化等级+%d" % max_level}
 
-	var rarity = instance.get("rarity", "common")
-	var region = instance.get("region", "field")
+	var rarity = instance.get(Schema.K_RARITY, Schema.RARITY_COMMON)
 
-	# 计算消耗
-	var cost_table = config.get("costs", {}).get(rarity, config.get("costs", {}).get("common", {}))
-	var gold_cost = cost_table.get("gold_base", 50) + int(cost_table.get("gold_per_level", 25) * current_level)
+	# 计算消耗（按稀有度，含 mythic 档；缺档兜底到 common）
+	var costs_all = config.get("costs", {})
+	var cost_table = costs_all.get(rarity, costs_all.get(Schema.RARITY_COMMON, {}))
+	var gold_cost = int(cost_table.get("gold_base", 50)) + int(cost_table.get("gold_per_level", 25) * current_level)
 	var material_cost = int(cost_table.get("material_base", 1) + cost_table.get("material_per_level", 0.5) * current_level)
 
-	# 检查资源
-	var game_state = get_node_or_null("/root/GameState")
-	if not game_state:
-		return {success = false, message = "GameState未找到"}
-
-	if game_state.gold < gold_cost:
+	# 检查资源（金币走持久钱包，材料统一用通用材料 rune_shard）
+	if GameState.total_gold < gold_cost:
 		return {success = false, message = "金币不足(需要%d)" % gold_cost}
-
-	var material_id = "material_" + region
-	var current_material = game_state.materials.get(material_id, 0)
-	if current_material < material_cost:
-		return {success = false, message = "材料不足(需要%s x%d)" % [material_id, material_cost]}
+	if GameState.get_material("rune_shard") < material_cost:
+		return {success = false, message = "符文碎片不足(需要%d)" % material_cost}
 
 	# 扣除资源
-	game_state.gold -= gold_cost
-	game_state.materials[material_id] = current_material - material_cost
+	GameState.total_gold -= gold_cost
+	GameState.add_material("rune_shard", -material_cost)
 
-	# 计算成功率
+	# 计算成功率（阶梯：1-5 必成，6-10 风险，11-15 高风险）
 	var success_rates = config.get("success_rates", {})
 	var success_rate = 1.0
 	if current_level >= 10:
@@ -205,11 +199,13 @@ func enhance_equipment(instance_id: String) -> Dictionary:
 	else:
 		success_rate = success_rates.get("1-5", 1.0)
 
-	var roll = randf()
-	var succeeded = roll < success_rate
+	var succeeded = randf() < success_rate
 
 	if succeeded:
-		instance["enhance_level"] = current_level + 1
+		instance[Schema.K_ENHANCEMENT_LEVEL] = current_level + 1
+		EquipmentSystem.equipment_instances[instance_id] = instance
+		# 通知玩家重算属性（强化加成立即生效）
+		EquipmentSystem._notify_player()
 		return {
 			success = true,
 			new_level = current_level + 1,
@@ -221,5 +217,5 @@ func enhance_equipment(instance_id: String) -> Dictionary:
 			success = false,
 			new_level = current_level,
 			cost = {gold = gold_cost, material = material_cost},
-			message = "强化失败，装备保持+%d" % current_level
+			message = "强化失败，装备保持+%d（材料已损失）" % current_level
 		}

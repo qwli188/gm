@@ -1,0 +1,65 @@
+{
+  "version": "1.0.0",
+  "achievements": [
+    {
+      "id": "ach_first_clear",
+      "name": "初次探险",
+      "desc": "通关枯骨地穴普通难度",
+      "reward_gold": 100
+    },
+    {
+      "id": "ach_hard_clear",
+      "name": "无畏挑战者",
+      "desc": "通关困难难度",
+      "reward_gold": 300
+    },
+    {
+      "id": "ach_expert_clear",
+      "name": "专家猎人",
+      "desc": "通关专家难度",
+      "reward_gold": 500
+    },
+    {
+      "id": "ach_abyss_clear",
+      "name": "深渊征服者",
+      "desc": "通关深渊难度",
+      "reward_gold": 1000
+    },
+    {
+      "id": "ach_speed_10min",
+      "name": "速通高手",
+      "desc": "10分钟内通关",
+      "reward_gold": 500
+    },
+    {
+      "id": "ach_no_death",
+      "name": "完美通关",
+      "desc": "不死通关",
+      "reward_gold": 800
+    },
+    {
+      "id": "ach_1k_kills",
+      "name": "千人斩",
+      "desc": "累计击杀1000个敌人",
+      "reward_gold": 200
+    },
+    {
+      "id": "ach_10k_kills",
+      "name": "万人斩",
+      "desc": "累计击杀10000个敌人",
+      "reward_gold": 1000
+    },
+    {
+      "id": "ach_collect_legend",
+      "name": "传奇猎人",
+      "desc": "收集1件传奇装备",
+      "reward_gold": 300
+    },
+    {
+      "id": "ach_collect_all_legend",
+      "name": "传奇大师",
+      "desc": "收集所有传奇装备",
+      "reward_gold": 2000
+    }
+  ]
+}

@@ -130,7 +130,6 @@ func _translate_rarity(rarity: String) -> String:
 		"epic": return "史诗"
 		"legendary": return "传奇"
 		"mythic": return "神话"
-		"uncommon": return "优秀"
 		_: return rarity
 
 ## 翻译属性名
@@ -165,9 +164,9 @@ func _get_rarity_color(rarity: String) -> Color:
 func _on_equip_pressed():
 	equipment_equipped.emit(current_item_data)
 
-	# 装备物品（新版 API：直接传 item_data，自动判断槽位）
+	# 拾取（PR-3 后:槽位空则穿戴，否则进 Inventory 背包；不再粗暴覆盖穿戴）
 	if not current_item_data.is_empty():
-		EquipmentSystem.equip_item(current_item_data)
+		EquipmentSystem.pickup_equipment(current_item_data)
 
 	# 恢复游戏并隐藏
 	get_tree().paused = false

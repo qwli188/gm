@@ -201,6 +201,37 @@
           }
         }
       ]
+    },
+    {
+      "id": "set_eternal_warrior",
+      "display_name": "永恒战士",
+      "description": "物理伤害极致流派",
+      "region": "all",
+      "god": "战争之神",
+      "bonuses": [
+        {
+          "pieces": 2,
+          "stats": {
+            "damage": 15
+          }
+        },
+        {
+          "pieces": 4,
+          "stats": {
+            "crit_chance": 0.1,
+            "crit_damage": 0.3
+          }
+        },
+        {
+          "pieces": 6,
+          "stats": {
+            "damage_mult": 0.25
+          },
+          "effects": {
+            "execute_below_20": 2.5
+          }
+        }
+      ]
     }
   ]
 }

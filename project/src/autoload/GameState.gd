@@ -45,13 +45,6 @@ func set_class(class_id: String):
 	print("[GameState] 选择职业: %s" % class_id)
 
 ## 进入副本：设置副本、波次、难度（Town 选择副本时调用）
-## 兼容别名：selected_dungeon
-var selected_dungeon: String:
-	get:
-		return selected_dungeon_id
-	set(value):
-		selected_dungeon_id = value
-
 func enter_dungeon(dungeon_id: String, tier: int = 1):
 	selected_dungeon_id = dungeon_id
 	var dungeon = ConfigLoader.get_dungeon_by_id(dungeon_id)

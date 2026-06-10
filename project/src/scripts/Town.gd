@@ -21,6 +21,9 @@ func _ready():
 	_show_tutorial_if_needed()
 	# 阶段1: 自动装备职业技能到槽位
 	_equip_class_skills()
+	# BGM: 城镇音乐
+	if has_node("/root/AudioManager"):
+		get_node("/root/AudioManager").play_bgm("town")
 
 ## 设置视觉效果
 func _setup_visuals():

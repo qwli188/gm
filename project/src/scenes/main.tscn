@@ -1,9 +1,8 @@
-[gd_scene load_steps=15 format=3 uid="uid://main_scene"]
+[gd_scene load_steps=14 format=3 uid="uid://main_scene"]
 
 [ext_resource type="Script" path="res://scripts/Player.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/EnemySpawner.gd" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/HUD.tscn" id="3"]
-[ext_resource type="PackedScene" path="res://scenes/LevelUpUI.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/EquipmentPickup.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://scenes/GameOver.tscn" id="6"]
 [ext_resource type="Script" path="res://scripts/GameManager.gd" id="7"]
@@ -50,8 +49,6 @@ script = ExtResource("2")
 layer = 10
 
 [node name="HUD" parent="UILayer" instance=ExtResource("3")]
-
-[node name="LevelUpUI" parent="UILayer" instance=ExtResource("4")]
 
 [node name="EquipmentPickup" parent="UILayer" instance=ExtResource("5")]
 

@@ -2028,6 +2028,34 @@
       "scaling": "增加召唤数量、提升继承比例、延长持续时间",
       "class": "class_necromancer",
       "max_level": 5
+    },
+    {
+      "id": "skill_ice_shard",
+      "display_name": "冰锥术",
+      "type": "active",
+      "class": "class_frost_witch",
+      "rarity": "common",
+      "effect": {
+        "kind": "projectile",
+        "base_damage": 20,
+        "cooldown": 2.5,
+        "damage_type": "frost"
+      },
+      "max_level": 5
+    },
+    {
+      "id": "skill_frost_aura",
+      "display_name": "冰霜光环",
+      "type": "active",
+      "class": "class_frost_witch",
+      "rarity": "rare",
+      "effect": {
+        "kind": "aura",
+        "radius": 150,
+        "tick_damage": 8,
+        "damage_type": "frost"
+      },
+      "max_level": 3
     }
   ]
 }

@@ -181,6 +181,52 @@
       },
       "starting_weapon": "weapon_bone_staff",
       "starting_skill": "skill_raise_skeleton"
+    },
+    {
+      "id": "class_frost_witch",
+      "display_name": "冰霜女巫",
+      "description": "掌控寒冰之力,减速与冰冻敌人",
+      "base_stats": {
+        "max_hp": 85,
+        "damage": 12,
+        "attack_speed": 0.9,
+        "move_speed": 310,
+        "crit_chance": 0.06,
+        "crit_damage": 1.6,
+        "armor": 2
+      },
+      "starting_weapon": "weapon_frost_staff",
+      "starting_skill": "skill_ice_shard",
+      "sprite_region": [
+        425,
+        408,
+        16,
+        16
+      ],
+      "mechanic": "冰霜层数,每层+5%减速,3层冰冻2秒"
+    },
+    {
+      "id": "class_shadow_archer",
+      "display_name": "暗影弓手",
+      "description": "高机动暴击流,隐身穿透",
+      "base_stats": {
+        "max_hp": 75,
+        "damage": 15,
+        "attack_speed": 1.3,
+        "move_speed": 340,
+        "crit_chance": 0.12,
+        "crit_damage": 2.0,
+        "armor": 3
+      },
+      "starting_weapon": "weapon_shadow_bow",
+      "starting_skill": "skill_shadow_arrow",
+      "sprite_region": [
+        425,
+        442,
+        16,
+        16
+      ],
+      "mechanic": "暗影形态,脱战5秒进入隐身,首次攻击+100%暴击"
     }
   ]
 }

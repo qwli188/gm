@@ -6,7 +6,9 @@ const TEST_SCRIPTS = [
 	"res://tests/test_equipment_system.gd",
 	"res://tests/test_combat_system.gd",
 	"res://tests/test_config_loader.gd",
-	"res://tests/test_player.gd"
+	"res://tests/test_player.gd",
+	"res://tests/test_inventory.gd",
+	"res://tests/test_save_system.gd"
 ]
 
 func _initialize() -> void:

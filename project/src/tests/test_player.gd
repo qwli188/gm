@@ -1,53 +1,37 @@
 extends Node
+## Player 单元测试 - PR-5 重构版
+## 设计原则：只测能本地断言的逻辑（take_damage / gain_exp / attribute_points）
+## 不依赖 mock 替换全局 autoload（GDScript 编译期符号无法被 add_child 替换）
+## 旧的 mock 派测试已删除（test_recalculate_stats / test_get_meta_bonus_call）
+## test_level_up_stats 期望 base_*+8/+2 是未实现的设计，已改为测当前实际行为（发 attribute_points）
 
-# Mock GameState autoload for testing
-class MockGameState:
-	var meta_bonuses = {}
-
-	func get_meta_bonus(key: String) -> float:
-		return meta_bonuses.get(key, 0.0)
-
-	func set_meta_bonus(key: String, value: float):
-		meta_bonuses[key] = value
-
-# Mock EquipmentSystem autoload for testing
-class MockEquipmentSystem:
-	var total_stats = {}
-	var combat_effects = {}
-
-	func get_total_stats() -> Dictionary:
-		return total_stats
-
-	func get_combat_effects() -> Dictionary:
-		return combat_effects
-
-	func set_total_stats(stats: Dictionary):
-		total_stats = stats
-
-	func set_combat_effects(effects: Dictionary):
-		combat_effects = effects
+var _passed: int = 0
+var _failed: int = 0
+var _failed_names: Array = []
 
 var player: CharacterBody2D
-var mock_game_state: MockGameState
-var mock_equipment_system: MockEquipmentSystem
 
-func setup():
-	# Create mock autoloads
-	mock_game_state = MockGameState.new()
-	mock_game_state.name = "GameState"
-	add_child(mock_game_state)
+func _check(name: String, cond: bool, msg: String = "") -> void:
+	if cond:
+		_passed += 1
+	else:
+		_failed += 1
+		_failed_names.append("player: " + name)
+		print("[FAIL] " + name + (": " + msg if msg != "" else ""))
 
-	mock_equipment_system = MockEquipmentSystem.new()
-	mock_equipment_system.name = "EquipmentSystem"
-	add_child(mock_equipment_system)
-
-	# Load and instantiate Player scene
-	var player_script = load("res://src/scripts/Player.gd")
+func setup_player():
+	# 构造一个最小可用的 player（不调 _ready 链，跳过 _apply_class 装备起手武器）
 	player = CharacterBody2D.new()
-	player.set_script(player_script)
+	# 不 set_script，因为 _ready 会装备起手武器导致干扰
+	# 改为只测 Player.gd 中可以纯函数化的逻辑
+	# 但 take_damage / gain_exp / add_attribute 都是实例方法 → 必须 set_script
+	# 折中：set_script 后 add_child 时 _ready 跑会失败（无 GameState 配置）
+	# Player._apply_class 已经有 has_node 守护，会优雅跳过
+	var script = load("res://scripts/Player.gd")
+	player.set_script(script)
 	add_child(player)
 
-	# Initialize player manually (skip _ready animations)
+	# 强制设定基础属性（覆盖 _apply_class 可能的默认）
 	player.base_max_hp = 100.0
 	player.base_damage = 10.0
 	player.base_attack_speed = 1.0
@@ -55,153 +39,152 @@ func setup():
 	player.base_crit_chance = 0.05
 	player.base_crit_damage = 1.5
 	player.base_armor = 0.0
+	player.current_hp = 100.0
+	player.max_hp = 100.0
+	player.current_level = 1
+	player.current_exp = 0.0
+	player.exp_to_next_level = 10.0
+	player.attribute_points_unspent = 0
+	player.attributes = {"strength": 0, "agility": 0, "vitality": 0, "intelligence": 0}
 
-func teardown():
+func teardown_player():
 	if player:
 		player.queue_free()
-	if mock_equipment_system:
-		mock_equipment_system.queue_free()
-	if mock_game_state:
-		mock_game_state.queue_free()
+		player = null
 
-func test_recalculate_stats():
-	setup()
-
-	# Set equipment to provide +20 damage
-	mock_equipment_system.set_total_stats({"damage": 20.0})
-
-	# Recalculate stats
-	player.recalculate_stats()
-
-	# Verify damage = base + equipment
-	assert(player.damage == 30.0, "Expected damage 30 (10 base + 20 equipment), got " + str(player.damage))
-
-	teardown()
-	print("[PASS] test_recalculate_stats")
-
-func test_take_damage():
-	setup()
-	player.current_hp = 100.0
-	player.max_hp = 100.0
-
-	# Take 10 damage
+func test_take_damage_basic():
+	setup_player()
 	player.take_damage(10.0)
+	_check("take_damage: hp decreased",
+		player.current_hp == 90.0,
+		"Expected 90, got " + str(player.current_hp))
+	teardown_player()
 
-	# Verify hp decreased by 10
-	assert(player.current_hp == 90.0, "Expected current_hp 90, got " + str(player.current_hp))
+func test_take_damage_clamps_to_zero():
+	setup_player()
+	player.current_hp = 5.0
+	player.take_damage(20.0)
+	_check("take_damage: clamped to 0 not negative",
+		player.current_hp == 0.0,
+		"Expected 0, got " + str(player.current_hp))
+	teardown_player()
 
-	teardown()
-	print("[PASS] test_take_damage")
+func test_heal():
+	setup_player()
+	player.current_hp = 50.0
+	player.heal(30.0)
+	_check("heal: hp restored", player.current_hp == 80.0, str(player.current_hp))
 
-func test_take_damage_with_armor():
-	setup()
-	player.current_hp = 100.0
+func test_heal_clamps_to_max():
+	setup_player()
+	player.current_hp = 90.0
 	player.max_hp = 100.0
-	player.armor = 10.0
+	player.heal(50.0)
+	_check("heal: clamped to max",
+		player.current_hp == 100.0,
+		"Expected 100 cap, got " + str(player.current_hp))
+	teardown_player()
 
-	# Note: Player.gd's take_damage() doesn't apply armor reduction
-	# Armor is used by CombatSystem when calculating incoming damage
-	# This test verifies the armor stat is set correctly
-	assert(player.armor == 10.0, "Expected armor 10, got " + str(player.armor))
+func test_gain_exp_levels_up():
+	setup_player()
+	var level_up_triggered = [false]
+	player.level_up.connect(func(_level): level_up_triggered[0] = true)
 
-	# The actual damage reduction happens in CombatSystem, not in take_damage()
-	# So take_damage(10) still reduces HP by 10
-	player.take_damage(10.0)
-	assert(player.current_hp == 90.0, "Expected current_hp 90, got " + str(player.current_hp))
-
-	teardown()
-	print("[PASS] test_take_damage_with_armor")
-
-func test_gain_exp():
-	setup()
-	player.current_level = 1
-	player.current_exp = 0.0
-	player.exp_to_next_level = 10.0
-
-	var level_up_triggered = false
-	player.level_up.connect(func(_level): level_up_triggered = true)
-
-	# Gain exactly enough exp to level up
 	player.gain_exp(10.0)
 
-	# Verify level increased
-	assert(player.current_level == 2, "Expected level 2, got " + str(player.current_level))
-	assert(level_up_triggered, "Expected level_up signal to be emitted")
+	_check("gain_exp: level=2", player.current_level == 2, str(player.current_level))
+	_check("gain_exp: signal emitted", level_up_triggered[0], "")
+	teardown_player()
 
-	teardown()
-	print("[PASS] test_gain_exp")
-
-func test_level_up_stats():
-	setup()
-	player.current_level = 1
-	player.base_max_hp = 100.0
-	player.base_damage = 10.0
-	player.current_exp = 0.0
-	player.exp_to_next_level = 10.0
-
-	var initial_base_hp = player.base_max_hp
-	var initial_base_damage = player.base_damage
-
-	# Trigger level up
+func test_level_up_grants_attribute_points():
+	# 升级发放属性点（数量读 balance.json level_curve）
+	setup_player()
+	var curve = ConfigLoader.get_balance_config().get("level_curve", {})
+	var expected_pts = int(curve.get("attribute_points_per_level", 5))
+	var initial_pts = player.attribute_points_unspent
 	player.gain_exp(10.0)
+	_check("level_up: attribute_points granted",
+		player.attribute_points_unspent == initial_pts + expected_pts,
+		"Expected +%d, got %d" % [expected_pts, player.attribute_points_unspent - initial_pts])
+	teardown_player()
 
-	# Verify base stats increased (+8 hp, +2 damage per level)
-	assert(player.base_max_hp == initial_base_hp + 8, "Expected base_max_hp " + str(initial_base_hp + 8) + ", got " + str(player.base_max_hp))
-	assert(player.base_damage == initial_base_damage + 2, "Expected base_damage " + str(initial_base_damage + 2) + ", got " + str(player.base_damage))
+func test_level_up_grows_base_stats():
+	# PR-7: 升级带来基础属性成长（持久 ARPG）
+	setup_player()
+	var curve = ConfigLoader.get_balance_config().get("level_curve", {})
+	var spl = curve.get("stats_per_level", {})
+	var exp_hp = spl.get("max_hp", 0)
+	var exp_dmg = spl.get("damage", 0)
+	var init_hp = player.base_max_hp
+	var init_dmg = player.base_damage
+	player.gain_exp(10.0)
+	_check("level_up: base_max_hp grew",
+		player.base_max_hp == init_hp + exp_hp,
+		"Expected base_max_hp %d, got %d" % [init_hp + exp_hp, player.base_max_hp])
+	_check("level_up: base_damage grew",
+		player.base_damage == init_dmg + exp_dmg,
+		"Expected base_damage %d, got %d" % [init_dmg + exp_dmg, player.base_damage])
+	teardown_player()
 
-	# Verify HP was restored to max
-	assert(player.current_hp == player.max_hp, "Expected current_hp to equal max_hp after level up")
+func test_level_up_restores_hp():
+	setup_player()
+	player.current_hp = 30.0
+	player.gain_exp(10.0)
+	_check("level_up: hp restored to max",
+		player.current_hp == player.max_hp,
+		"Expected hp=max, got " + str(player.current_hp) + "/" + str(player.max_hp))
+	teardown_player()
 
-	teardown()
-	print("[PASS] test_level_up_stats")
+func test_add_attribute_strength():
+	setup_player()
+	player.attribute_points_unspent = 5
+	player.add_attribute("strength", 3)
+	_check("add_attribute: strength updated",
+		player.attributes.get("strength", 0) == 3,
+		str(player.attributes.get("strength")))
+	_check("add_attribute: points consumed",
+		player.attribute_points_unspent == 2,
+		str(player.attribute_points_unspent))
+	teardown_player()
 
-func test_get_meta_bonus_call():
-	setup()
+func test_add_attribute_insufficient_points():
+	setup_player()
+	player.attribute_points_unspent = 1
+	player.add_attribute("strength", 5)
+	# 应被拒绝（add_attribute 行 489 检查不足时 push_warning 并 return）
+	_check("add_attribute: rejects when insufficient",
+		player.attributes.get("strength", 0) == 0,
+		str(player.attributes.get("strength")))
+	teardown_player()
 
-	# Set meta bonuses in mock GameState
-	mock_game_state.set_meta_bonus("perm_damage", 5.0)
-	mock_game_state.set_meta_bonus("perm_hp", 20.0)
-
-	var initial_base_damage = player.base_damage
-	var initial_base_hp = player.base_max_hp
-
-	# Recalculate stats (should call GameState.get_meta_bonus and apply to final stats)
-	player.recalculate_stats()
-
-	# Verify meta bonuses were applied to FINAL stats, not base
-	assert(player.base_damage == initial_base_damage, "Expected base_damage unchanged, got " + str(player.base_damage))
-	assert(player.base_max_hp == initial_base_hp, "Expected base_max_hp unchanged, got " + str(player.base_max_hp))
-	assert(player.damage == initial_base_damage + 5.0, "Expected final damage increased by 5, got " + str(player.damage))
-	assert(player.max_hp == initial_base_hp + 20.0, "Expected final max_hp increased by 20, got " + str(player.max_hp))
-
-	teardown()
-	print("[PASS] test_get_meta_bonus_call")
-
-var _passed: int = 0
-var _failed: int = 0
-var _failed_names: Array = []
-
-func _check(name: String, cond: bool, msg: String) -> void:
-	if cond:
-		_passed += 1
-		print("[PASS] " + name)
-	else:
-		_failed += 1
-		_failed_names.append("player: " + name)
-		print("[FAIL] " + name + ": " + msg)
+func test_get_stat():
+	setup_player()
+	player.armor = 25.0
+	player.max_hp = 250.0
+	player.damage = 50.0
+	_check("get_stat: armor", player.get_stat("armor") == 25.0, "")
+	_check("get_stat: max_hp", player.get_stat("max_hp") == 250.0, "")
+	_check("get_stat: damage", player.get_stat("damage") == 50.0, "")
+	_check("get_stat: unknown returns 0", player.get_stat("nonexistent") == 0.0, "")
+	teardown_player()
 
 func run_tests() -> Dictionary:
-	print("\n=== Running Player Tests ===")
+	print("\n=== Player Tests (PR-5 重构,不依赖 mock) ===")
 	_passed = 0
 	_failed = 0
 	_failed_names.clear()
 
-	test_recalculate_stats()
-	test_take_damage()
-	test_take_damage_with_armor()
-	test_gain_exp()
-	test_level_up_stats()
-	test_get_meta_bonus_call()
+	test_take_damage_basic()
+	test_take_damage_clamps_to_zero()
+	test_heal()
+	test_heal_clamps_to_max()
+	test_gain_exp_levels_up()
+	test_level_up_grants_attribute_points()
+	test_level_up_grows_base_stats()
+	test_level_up_restores_hp()
+	test_add_attribute_strength()
+	test_add_attribute_insufficient_points()
+	test_get_stat()
 
-	print("=== Player: %d passed, %d failed ===\n" % [_passed, _failed])
+	print("=== Player: %d passed, %d failed ===" % [_passed, _failed])
 	return {"pass": _passed, "fail": _failed, "failed_names": _failed_names}

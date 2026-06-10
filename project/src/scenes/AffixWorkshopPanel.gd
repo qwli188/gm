@@ -224,8 +224,8 @@ func _on_enhance_pressed():
 
 	# 刷新当前装备数据
 	if has_node("/root/EquipmentSystem"):
-		var fresh = EquipmentSystem.get_equipment_instance(instance_id)
-		if fresh:
+		var fresh = EquipmentSystem.get_equipment_instance_data(instance_id)
+		if not fresh.is_empty():
 			current_item = fresh
 
 	_refresh_ui()
@@ -262,11 +262,11 @@ func _get_enhance_info() -> String:
 	if instance_id == "" or not has_node("/root/EquipmentSystem"):
 		return ""
 
-	var instance = EquipmentSystem.get_equipment_instance(instance_id)
-	if not instance:
+	var instance = EquipmentSystem.equipment_instances.get(instance_id, {})
+	if instance.is_empty():
 		return ""
 
-	var current_level = instance.get("enhance_level", 0)
+	var current_level = instance.get(Schema.K_ENHANCEMENT_LEVEL, 0)
 	var config = ConfigLoader.get_balance_config().get("equipment_enhancement", {})
 	var max_level = config.get("max_level", 15)
 

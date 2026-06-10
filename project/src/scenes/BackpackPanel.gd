@@ -118,8 +118,9 @@ func _on_context_menu_selected(id: int, instance_id: String, popup: PopupMenu):
 	match id:
 		0: # 装备
 			equipment_equipped.emit(instance_id)
-			var item_data = Inventory.get_equipment_data(instance_id)
-			if EquipmentSystem.equip_item(item_data):
+			# PR-3: 走 equip_from_backpack —— 自动管理背包/穿戴实例转移
+			if EquipmentSystem.equip_from_backpack(instance_id):
+				var item_data = Inventory.get_equipment_data(instance_id)
 				print("[BackpackPanel] 装备: %s" % item_data.get("display_name", ""))
 		1: # 丢弃
 			equipment_discarded.emit(instance_id)

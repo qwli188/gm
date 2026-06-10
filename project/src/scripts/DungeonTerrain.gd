@@ -278,8 +278,9 @@ func _execute_interaction(inter: Area2D):
 	match action:
 		"gold":
 			var amount = 50 + randi() % 50
-			if has_node("/root/GameState"):
-				GameState.total_gold += amount
+			# 局内金币加到本局收益（Player.gold），局末由 Victory/GameOver 结算转入钱包
+			if is_instance_valid(_player_ref):
+				_player_ref.gold += amount
 			_show_interact_feedback(inter, "+%d 金币" % amount, Color.GOLD)
 		"material":
 			if has_node("/root/GameState"):
@@ -289,11 +290,36 @@ func _execute_interaction(inter: Area2D):
 			if _player_ref.has_method("heal"):
 				_player_ref.heal(_player_ref.max_hp * 0.2)
 			_show_interact_feedback(inter, "+20% 生命", Color(0.4, 1.0, 0.4))
-		"buff_warm", "buff_fly", "buff_haste":
-			_show_interact_feedback(inter, "获得增益!", Color(1.0, 0.85, 0.3))
+		"buff_warm":
+			# 火盆: 给玩家+15%伤害持续30秒
+			_apply_player_buff("warm", "damage_mult", 0.15, 30.0)
+			_show_interact_feedback(inter, "战意涌现 +15% 伤害 (30s)", Color(1.0, 0.55, 0.2))
+		"buff_fly":
+			# 战鼓: 给玩家+25%攻速持续25秒
+			_apply_player_buff("fly", "attack_speed_mult", 0.25, 25.0)
+			_show_interact_feedback(inter, "战鼓震响 +25% 攻速 (25s)", Color(1.0, 0.85, 0.3))
+		"buff_haste":
+			# 急速符文: +30%移速持续20秒
+			_apply_player_buff("haste", "move_speed_mult", 0.30, 20.0)
+			_show_interact_feedback(inter, "急速 +30% 移速 (20s)", Color(0.4, 0.9, 1.0))
 		"clear_poison":
-			# 清除附近危险区
-			_show_interact_feedback(inter, "毒池已净化", Color(0.4, 0.9, 0.2))
+			# 净化:清除附近所有敌人的中毒/点燃 + 玩家自身DOT清空
+			if is_instance_valid(_player_ref):
+				if "ignite_dps" in _player_ref:
+					_player_ref.ignite_dps = 0.0
+					_player_ref.ignite_timer = 0.0
+				if "poison_dps" in _player_ref:
+					_player_ref.poison_dps = 0.0
+					_player_ref.poison_timer = 0.0
+			# 净化半径200内的所有"危险池"
+			var purified = 0
+			for danger in get_tree().get_nodes_in_group("danger_zone"):
+				if not is_instance_valid(danger):
+					continue
+				if danger.global_position.distance_to(inter.global_position) <= 220.0:
+					danger.queue_free()
+					purified += 1
+			_show_interact_feedback(inter, "净化 (清除%d个毒池)" % purified, Color(0.4, 0.9, 0.2))
 		_:
 			_show_interact_feedback(inter, "已使用", Color.WHITE)
 
@@ -318,3 +344,60 @@ func _show_interact_feedback(inter: Area2D, text: String, color: Color):
 
 	if has_node("/root/AudioManager"):
 		AudioManager.play("coin")
+
+## 通用玩家buff(限时倍率加成,可叠加多种)
+## stat_key: "damage_mult" / "attack_speed_mult" / "move_speed_mult"
+func _apply_player_buff(buff_id: String, stat_key: String, value: float, duration: float):
+	if not is_instance_valid(_player_ref):
+		return
+	# 用 meta 存当前激活的 buff,避免重复叠加同名 buff
+	var active = _player_ref.get_meta("active_buffs", {})
+	if active.has(buff_id):
+		# 已有同名 buff: 刷新持续时间,不叠加数值
+		active[buff_id]["timer"] = duration
+		_player_ref.set_meta("active_buffs", active)
+		return
+	# 应用倍率到玩家属性
+	match stat_key:
+		"damage_mult":
+			_player_ref.damage *= (1.0 + value)
+		"attack_speed_mult":
+			_player_ref.attack_speed = min(3.0, _player_ref.attack_speed * (1.0 + value))
+		"move_speed_mult":
+			_player_ref.move_speed *= (1.0 + value)
+	active[buff_id] = {
+		"stat": stat_key,
+		"value": value,
+		"timer": duration,
+	}
+	_player_ref.set_meta("active_buffs", active)
+	# 启动一个一次性 Timer 在 duration 结束时回退
+	var t = Timer.new()
+	t.wait_time = duration
+	t.one_shot = true
+	t.autostart = true
+	add_child(t)
+	t.timeout.connect(func():
+		if not is_instance_valid(_player_ref):
+			t.queue_free()
+			return
+		var ab = _player_ref.get_meta("active_buffs", {})
+		if not ab.has(buff_id):
+			t.queue_free()
+			return
+		var b = ab[buff_id]
+		# 回退倍率(假设期间属性没被其他系统改写,简化做法)
+		match b["stat"]:
+			"damage_mult":
+				_player_ref.damage /= (1.0 + b["value"])
+			"attack_speed_mult":
+				_player_ref.attack_speed /= (1.0 + b["value"])
+			"move_speed_mult":
+				_player_ref.move_speed /= (1.0 + b["value"])
+		ab.erase(buff_id)
+		_player_ref.set_meta("active_buffs", ab)
+		t.queue_free()
+	)
+	# 视觉反馈:玩家身上短暂粒子
+	if has_node("/root/ParticleHelper") or ResourceLoader.exists("res://scripts/ParticleHelper.gd"):
+		ParticleHelper.spawn_levelup_aura(_player_ref.get_parent(), _player_ref)

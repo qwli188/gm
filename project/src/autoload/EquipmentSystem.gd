@@ -12,8 +12,8 @@ var equipped_items: Dictionary = {}
 # 装备实例仓库 {uuid_str: {template_id, rarity, rolled_affixes, enhancement_level, bound, acquired_at}}
 var equipment_instances: Dictionary = {}
 
-# 背包（存 instance_id 数组）
-var inventory: Array = []
+# 背包/仓库已拆分到独立的 Inventory autoload (PR-3)
+# EquipmentSystem 只持有装备实例池 + 穿戴状态，不再管理容器
 
 # 当前激活的套装效果缓存 {set_id: piece_count}
 var active_sets: Dictionary = {}
@@ -135,13 +135,60 @@ func equip_item(item_data: Dictionary) -> bool:
 	var instance_id = roll_equipment(template_id, item_data.get("rarity", ""))
 	return equip_item_by_id(instance_id)
 
+## 从背包穿戴（PR-3 添加）：
+## - 背包移除该实例
+## - 若该槽位有装备，把它放回背包
+## - 若背包满则拒绝（防止丢失原穿戴装备）
+## 返回 true=成功
+func equip_from_backpack(instance_id: String) -> bool:
+	if not has_node("/root/Inventory"):
+		# 兼容回退：直接穿戴
+		return equip_item_by_id(instance_id)
+	if not (instance_id in Inventory.backpack):
+		push_warning("[EquipmentSystem] 实例不在背包: %s" % instance_id)
+		return false
+	var item = get_equipment_instance_data(instance_id)
+	if item.is_empty():
+		return false
+	var slot = item.get("slot", "")
+	if not equipped_items.has(slot):
+		push_warning("[EquipmentSystem] 未知部位: %s" % slot)
+		return false
+
+	# 若原槽位有装备，先确保背包有空位（移除新装备会腾出 1 格 + 旧装备占 1 格 = 持平）
+	# 唯一需要拒绝的情形：背包满 且 原槽位为空（穿戴后无法把"新装备"格子留给可能的换下装备 —— 此时其实 OK）
+	# 实际:腾 1 占 1 持平,只要原本背包不超容,换装永远成功
+	var old_id = equipped_items.get(slot)
+	Inventory.backpack.erase(instance_id)
+	equipped_items[slot] = instance_id
+	if old_id != null:
+		Inventory.backpack.append(old_id)
+	Inventory.backpack_changed.emit()
+
+	_recompute_sets()
+	equipment_changed.emit()
+	_notify_player()
+	print("[EquipmentSystem] 从背包穿戴: %s [%s]" % [item.get("display_name", "?"), slot])
+	return true
+
 ## 卸下部位
 func unequip_item(slot: String):
-	if equipped_items.has(slot):
-		equipped_items[slot] = null
-		_recompute_sets()
-		equipment_changed.emit()
-		_notify_player()
+	if not equipped_items.has(slot):
+		return
+	var old_id = equipped_items[slot]
+	if old_id == null:
+		return
+	# 卸下:回背包(若背包满则拒绝,避免装备消失)
+	if has_node("/root/Inventory"):
+		if Inventory.is_backpack_full():
+			push_warning("[EquipmentSystem] 背包已满，无法卸下 %s" % slot)
+			return
+		Inventory.backpack.append(old_id)
+		Inventory.backpack_changed.emit()
+	equipped_items[slot] = null
+	_recompute_sets()
+	equipment_changed.emit()
+	_notify_player()
 
 ## 通知玩家重算属性
 func _notify_player():
@@ -219,7 +266,7 @@ func get_total_stats() -> Dictionary:
 		var stats = item.get("base_stats", {})
 
 		# 模块5: 应用装备强化加成
-		var enhance_level = item.get("enhance_level", 0)
+		var enhance_level = item.get(Schema.K_ENHANCEMENT_LEVEL, 0)
 		if enhance_level > 0:
 			var config = ConfigLoader.get_balance_config().get("equipment_enhancement", {})
 			var bonus_per_level = config.get("stat_bonus_per_level", 0.1)
@@ -325,6 +372,40 @@ func _merge_affix_effect(effects: Dictionary, affix: Dictionary):
 		"mult_stat":
 			var stat = eff.get("stat", "")
 			effects[stat + "_mult"] = effects.get(stat + "_mult", 0.0) + eff.get("value", 0)
+		"on_hit_chance":
+			# 通用 on_hit 触发框架: 把 sub_effect 转成扁平字段供 CombatSystem 直接读
+			# 多件相同子效果叠加 chance 上限 0.6,duration 取最大
+			var chance = eff.get("chance", 0.0)
+			var sub = eff.get("sub_effect", {})
+			match sub.get("kind", ""):
+				"stun":
+					effects["stun_chance"] = min(0.6, effects.get("stun_chance", 0.0) + chance)
+					effects["stun_duration"] = max(effects.get("stun_duration", 0.0), sub.get("duration", 0))
+				"freeze":
+					effects["freeze_chance"] = min(0.6, effects.get("freeze_chance", 0.0) + chance)
+					effects["freeze_duration"] = max(effects.get("freeze_duration", 0.0), sub.get("duration", 0))
+				"slow":
+					effects["slow_chance"] = min(0.8, effects.get("slow_chance", 0.0) + chance)
+					effects["slow_percent"] = max(effects.get("slow_percent", 0.0), sub.get("value", 0))
+					effects["slow_duration"] = max(effects.get("slow_duration", 0.0), sub.get("duration", 0))
+				"ignite":
+					effects["ignite_chance"] = min(0.8, effects.get("ignite_chance", 0.0) + chance)
+					effects["ignite_dps"] = max(effects.get("ignite_dps", 0.0), sub.get("dps", 10))
+					effects["ignite_duration"] = max(effects.get("ignite_duration", 0.0), sub.get("duration", 3))
+				"poison":
+					effects["poison_chance"] = min(0.8, effects.get("poison_chance", 0.0) + chance)
+					effects["poison_dps"] = max(effects.get("poison_dps", 0.0), sub.get("dps", 8))
+					effects["poison_duration"] = max(effects.get("poison_duration", 0.0), sub.get("duration", 4))
+				"summon":
+					# 召唤词缀: 命中时按概率召唤伴生骷髅/活尸,由 CombatSystem 触发
+					effects["summon_chance"] = min(0.5, effects.get("summon_chance", 0.0) + chance)
+					effects["summon_duration"] = max(effects.get("summon_duration", 0.0), sub.get("duration", 8))
+					effects["summon_damage"] = max(effects.get("summon_damage", 0.0), sub.get("damage", 6))
+				"chain":
+					# 连锁词缀: 命中时按概率链向附近敌人
+					effects["chain_chance"] = min(0.5, effects.get("chain_chance", 0.0) + chance)
+					effects["chain_targets"] = max(effects.get("chain_targets", 0), sub.get("targets", 2))
+					effects["chain_damage_mult"] = max(effects.get("chain_damage_mult", 0.0), sub.get("damage_mult", 0.5))
 		_:
 			pass
 
@@ -422,7 +503,8 @@ func _spawn_drop_item(item_data: Dictionary, position: Vector2):
 		return
 	var drop_scene = load("res://scenes/DropItem.tscn")
 	if drop_scene == null:
-		inventory.append(item_data)
+		# DropItem 场景丢失：放弃掉落（避免污染状态）
+		push_error("[EquipmentSystem] DropItem.tscn 加载失败，掉落丢弃")
 		return
 	var drop = drop_scene.instantiate()
 	drop.global_position = position
@@ -452,24 +534,29 @@ func get_rarity_vfx_level(rarity: String) -> int:
 		"mythic": return 4
 		_: return 0
 
-## 拾取装备
+## 拾取装备：进入 Inventory 背包；若对应槽位为空则自动穿戴
+## 注意：背包已拆分到 Inventory autoload，此处只是路由
 func pickup_equipment(item_data: Dictionary):
 	var instance_id = item_data.get("instance_id", "")
-	if instance_id != "":
-		inventory.append(instance_id)
-		print("[EquipmentSystem] 拾取: %s (id=%s)" % [item_data.get("display_name", "?"), instance_id])
-		var slot = item_data.get("slot", "weapon")
-		if equipped_items.has(slot) and equipped_items[slot] == null:
-			equip_item_by_id(instance_id)
-	else:
-		# 兼容旧代码：直接是模板数据
+	if instance_id == "":
+		# 兼容旧代码：直接传模板数据，先生成实例
 		var template_id = item_data.get("id", "")
-		if template_id != "":
-			var new_instance_id = roll_equipment(template_id, item_data.get("rarity", ""))
-			inventory.append(new_instance_id)
-			var slot = item_data.get("slot", "weapon")
-			if equipped_items.has(slot) and equipped_items[slot] == null:
-				equip_item_by_id(new_instance_id)
+		if template_id == "":
+			return
+		instance_id = roll_equipment(template_id, item_data.get(Schema.K_RARITY, ""))
+
+	print("[EquipmentSystem] 拾取: %s (id=%s)" % [item_data.get("display_name", "?"), instance_id])
+
+	var slot = item_data.get("slot", "weapon")
+	# 若对应槽位为空：直接穿戴（不进背包）
+	if equipped_items.has(slot) and equipped_items[slot] == null:
+		equip_item_by_id(instance_id)
+	else:
+		# 否则进背包（背包满则丢弃实例池中的实例）
+		if has_node("/root/Inventory"):
+			if not Inventory.add_to_backpack(instance_id):
+				push_warning("[EquipmentSystem] 背包已满，丢弃: %s" % instance_id)
+				equipment_instances.erase(instance_id)
 
 func _on_config_reloaded(file_name: String) -> void:
 	if file_name in ["equipment.json", "affixes.json", "sets.json"]:
@@ -510,14 +597,7 @@ func deserialize_equipped(data: Dictionary):
 	_notify_player()
 	print("[EquipmentSystem] 恢复穿戴: %d 件" % data.size())
 
-## 序列化背包
-func serialize_backpack() -> Array:
-	return inventory.duplicate()
-
-## 反序列化背包
-func deserialize_backpack(data: Array):
-	inventory = data.duplicate()
-	print("[EquipmentSystem] 恢复背包: %d 件" % inventory.size())
+# serialize_backpack / deserialize_backpack 已迁移到 Inventory.serialize() / deserialize() (PR-3)
 
 
 ## B3: 装备tooltip生成(委托RarityVisuals)

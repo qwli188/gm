@@ -124,7 +124,7 @@ func _physics_process(delta):
 				_use_regional_boss_skill()
 			else:
 				_use_boss_skill()
-			skill_cooldown = randf_range(8.0, 12.0)
+			skill_cooldown = randf_range(6.0, 9.0)  # 6-9秒CD
 
 	# 击退衰减(优先于 AI:被击退时不执行追击)
 	if _knockback_decay > 0:
@@ -248,130 +248,7 @@ func _enter_phase(phase: int):
 		_summon_adds(2)
 		skill_cooldown = min(skill_cooldown, 2.2)
 
-func _update_hp_bar():
-	if _hp_bar:
-		_hp_bar.max_value = max_hp
-		_hp_bar.value = max(0, current_hp)
 
-## 状态效果
-var ignite_timer: float = 0.0
-var ignite_dps: float = 0.0
-var poison_timer: float = 0.0
-var poison_dps: float = 0.0
-var freeze_timer: float = 0.0
-var is_frozen: bool = false
-var slow_timer: float = 0.0
-var base_move_speed: float = 0.0
-var slow_multiplier: float = 1.0
-var stun_timer: float = 0.0
-var is_stunned: bool = false
-
-func apply_ignite(dps: float, duration: float):
-	ignite_dps = max(ignite_dps, dps)  # 取最高DPS
-	ignite_timer = max(ignite_timer, duration)  # 刷新持续时间
-	EffectSprite.spawn(get_parent(), "fire", global_position, 1.2)
-
-func apply_poison(dps: float, duration: float):
-	poison_dps = max(poison_dps, dps)
-	poison_timer = max(poison_timer, duration)
-	EffectSprite.spawn(get_parent(), "poison", global_position, 1.2)
-
-func apply_freeze(duration: float):
-	if not is_frozen:
-		base_move_speed = move_speed
-	is_frozen = true
-	freeze_timer = duration
-	move_speed = 0  # 冰冻时无法移动
-	if anim_sprite:
-		anim_sprite.modulate = Color(0.6, 0.8, 1.2)  # 冰冻泛蓝
-	EffectSprite.spawn(get_parent(), "frost", global_position, 1.3)
-	# B1 shader接线: 冰冻视觉层
-	if anim_sprite:
-		ShaderHelper.apply_status_overlay(anim_sprite, "freeze", 0.6)
-
-func apply_slow(slow_percent: float, duration: float):
-	slow_multiplier = 1.0 - slow_percent
-	slow_timer = duration
-
-func apply_stun(duration: float):
-	is_stunned = true
-	stun_timer = duration
-	# 眩晕使用冰冻的停止逻辑，但不变色
-	if not is_frozen:
-		base_move_speed = move_speed
-	move_speed = 0
-
-var _dot_tick: float = 0.0
-
-func _process(delta):
-	# 点燃伤害
-	if ignite_timer > 0:
-		ignite_timer -= delta
-		current_hp -= ignite_dps * delta
-		_dot_tick += delta
-		if _dot_tick >= 0.5:
-			_dot_tick = 0.0
-			EffectSprite.spawn(get_parent(), "fire", global_position, 0.9)
-		if ignite_timer <= 0:
-			ignite_dps = 0
-
-	# 中毒伤害
-	if poison_timer > 0:
-		poison_timer -= delta
-		current_hp -= poison_dps * delta
-		if poison_timer <= 0:
-			poison_dps = 0
-
-	# 冰冻/减速恢复
-	if freeze_timer > 0:
-		freeze_timer -= delta
-		if freeze_timer <= 0:
-			if is_frozen:
-				move_speed = base_move_speed
-				is_frozen = false
-				# B1 shader接线: 清除冰冻层
-				if anim_sprite:
-					ShaderHelper.remove_status_overlay(anim_sprite)
-					anim_sprite.modulate = SpriteLibrary.RANK_TINT.get(enemy_data.get("rank", "normal"), Color.WHITE)
-
-	if slow_timer > 0:
-		slow_timer -= delta
-		if slow_timer <= 0:
-			slow_multiplier = 1.0
-
-	if stun_timer > 0:
-		stun_timer -= delta
-		if stun_timer <= 0:
-			is_stunned = false
-			if not is_frozen:
-				move_speed = base_move_speed
-
-	_update_hp_bar()
-
-	# 死亡检查
-	if current_hp <= 0:
-		die()
-
-## 受击闪白
-func _flash_white():
-	# 旧代码(tween modulate闪白,注释保留):
-	# if anim_sprite:
-	#   anim_sprite.modulate = Color(2.5, 2.5, 2.5)
-	#   var rank = enemy_data.get("rank", "normal")
-	#   var base_tint = SpriteLibrary.RANK_TINT.get(rank, Color.WHITE)
-	#   var tween = create_tween()
-	#   tween.tween_property(anim_sprite, "modulate", base_tint, 0.12)
-
-	# B1 shader接线: 受击闪白shader
-	if anim_sprite:
-		ShaderHelper.apply_hit_flash(anim_sprite, Color.WHITE, 0.12)
-
-
-# ============================================================
-# Boss 技能系统：AOE 冲击波 / 地刺预警 / 召唤援军
-# ============================================================
-
-## 选择并释放一个 Boss 技能（阶段越高可用技能越多）
 func _use_boss_skill():
 	if not player or not is_instance_valid(player):
 		return
@@ -563,50 +440,125 @@ func call_equipment_drop():
 	if has_node("/root/EquipmentSystem"):
 		get_node("/root/EquipmentSystem").drop_random_equipment(global_position)
 
-static func load_enemy_config() -> Dictionary:
-	var file_path = "res://config/enemies.json"
-	if not FileAccess.file_exists(file_path):
-		push_error("Enemy config not found: " + file_path)
-		return {}
+func _update_hp_bar():
+	if _hp_bar:
+		_hp_bar.max_value = max_hp
+		_hp_bar.value = max(0, current_hp)
 
-	var file = FileAccess.open(file_path, FileAccess.READ)
-	var json_string = file.get_as_text()
-	file.close()
+## 状态效果
+var ignite_timer: float = 0.0
+var ignite_dps: float = 0.0
+var poison_timer: float = 0.0
+var poison_dps: float = 0.0
+var freeze_timer: float = 0.0
+var is_frozen: bool = false
+var slow_timer: float = 0.0
+var base_move_speed: float = 0.0
+var slow_multiplier: float = 1.0
+var stun_timer: float = 0.0
+var is_stunned: bool = false
 
-	var json = JSON.new()
-	var error = json.parse(json_string)
-	if error != OK:
-		push_error("Failed to parse enemies.json")
-		return {}
+func apply_ignite(dps: float, duration: float):
+	ignite_dps = max(ignite_dps, dps)  # 取最高DPS
+	ignite_timer = max(ignite_timer, duration)  # 刷新持续时间
+	EffectSprite.spawn(get_parent(), "fire", global_position, 1.2)
 
-	return json.data
+func apply_poison(dps: float, duration: float):
+	poison_dps = max(poison_dps, dps)
+	poison_timer = max(poison_timer, duration)
+	EffectSprite.spawn(get_parent(), "poison", global_position, 1.2)
 
-static func create_enemy(enemy_id: String, spawn_position: Vector2) -> Node2D:
-	var config = load_enemy_config()
-	if config.is_empty():
-		return null
+func apply_freeze(duration: float):
+	if not is_frozen:
+		base_move_speed = move_speed
+	is_frozen = true
+	freeze_timer = duration
+	move_speed = 0  # 冰冻时无法移动
+	if anim_sprite:
+		anim_sprite.modulate = Color(0.6, 0.8, 1.2)  # 冰冻泛蓝
+	EffectSprite.spawn(get_parent(), "frost", global_position, 1.3)
+	# B1 shader接线: 冰冻视觉层
+	if anim_sprite:
+		ShaderHelper.apply_status_overlay(anim_sprite, "freeze", 0.6)
 
-	var enemy_list = config.get("enemies", [])
-	var enemy_data = null
-	for e in enemy_list:
-		if e.id == enemy_id:
-			enemy_data = e
-			break
+func apply_slow(slow_percent: float, duration: float):
+	slow_multiplier = 1.0 - slow_percent
+	slow_timer = duration
 
-	if not enemy_data:
-		push_error("Enemy ID not found: " + enemy_id)
-		return null
+func apply_stun(duration: float):
+	is_stunned = true
+	stun_timer = duration
+	# 眩晕使用冰冻的停止逻辑，但不变色
+	if not is_frozen:
+		base_move_speed = move_speed
+	move_speed = 0
 
-	var enemy_scene = preload("res://scripts/Enemy.gd")
-	var enemy = CharacterBody2D.new()
-	enemy.set_script(enemy_scene)
-	enemy.enemy_data = enemy_data
-	enemy.global_position = spawn_position
+var _dot_tick: float = 0.0
 
-	return enemy
+func _process(delta):
+	# 点燃伤害
+	if ignite_timer > 0:
+		ignite_timer -= delta
+		current_hp -= ignite_dps * delta
+		_dot_tick += delta
+		if _dot_tick >= 0.5:
+			_dot_tick = 0.0
+			EffectSprite.spawn(get_parent(), "fire", global_position, 0.9)
+		if ignite_timer <= 0:
+			ignite_dps = 0
+
+	# 中毒伤害
+	if poison_timer > 0:
+		poison_timer -= delta
+		current_hp -= poison_dps * delta
+		if poison_timer <= 0:
+			poison_dps = 0
+
+	# 冰冻/减速恢复
+	if freeze_timer > 0:
+		freeze_timer -= delta
+		if freeze_timer <= 0:
+			if is_frozen:
+				move_speed = base_move_speed
+				is_frozen = false
+				# B1 shader接线: 清除冰冻层
+				if anim_sprite:
+					ShaderHelper.remove_status_overlay(anim_sprite)
+					anim_sprite.modulate = SpriteLibrary.RANK_TINT.get(enemy_data.get("rank", "normal"), Color.WHITE)
+
+	if slow_timer > 0:
+		slow_timer -= delta
+		if slow_timer <= 0:
+			slow_multiplier = 1.0
+
+	if stun_timer > 0:
+		stun_timer -= delta
+		if stun_timer <= 0:
+			is_stunned = false
+			if not is_frozen:
+				move_speed = base_move_speed
+
+	_update_hp_bar()
+
+	# 死亡检查
+	if current_hp <= 0:
+		die()
+
+## 受击闪白（shader 实现）
+func _flash_white():
+	if anim_sprite:
+		ShaderHelper.apply_hit_flash(anim_sprite, Color.WHITE, 0.12)
 
 
 # ============================================================
+# Boss 技能系统：AOE 冲击波 / 地刺预警 / 召唤援军 + 区域专属技能
+# ============================================================
+
+# ============================================================
+# 阶段1: 区域专属Boss技能 (模块3扩展)
+# ============================================================
+
+## 使用区域专属技能（覆盖通用技能）
 # 阶段1: 区域专属Boss技能 (模块3扩展)
 # ============================================================
 
@@ -887,13 +839,11 @@ func _skill_bone_whirlwind():
 	whirlwind.global_position = global_position
 	whirlwind.name = "BoneWhirlwind"
 
-	# 添加视觉（旋转的骨刺精灵）
-	var sprite = Sprite2D.new()
-	sprite.texture = SPRITE_SHEET  # 复用敌人sprite
-	sprite.region_enabled = true
-	sprite.region_rect = Rect2(408, 238, 16, 16)  # 骨头精灵
-	sprite.scale = Vector2(3, 3)
-	sprite.modulate = Color(0.9, 0.9, 1.2)
+	# 添加视觉（旋转的骨刺精灵 - 用 ColorRect 占位）
+	var sprite = ColorRect.new()
+	sprite.custom_minimum_size = Vector2(48, 48)
+	sprite.color = Color(0.9, 0.9, 1.2, 0.7)
+	sprite.pivot_offset = Vector2(24, 24)
 	whirlwind.add_child(sprite)
 
 	# 添加碰撞体

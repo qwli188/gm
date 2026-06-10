@@ -25,8 +25,8 @@ func run_tests() -> Dictionary:
 	test_reload_config()
 	test_invalid_path_safety()
 
-	# 输出测试总结
-	print_summary()
+	# 输出测试总结并返回汇总（供 test_runner 聚合）
+	return print_summary()
 
 ## 测试1: 启动后所有配置数据非空
 func test_load_all_configs():
@@ -281,15 +281,18 @@ func log_result(test_name: String, passed: bool, failures: Array):
 			print("    - " + failure)
 	print("")
 
-## 打印测试总结
-func print_summary():
+## 打印测试总结，并返回 {pass, fail, failed_names} 供 test_runner 聚合
+func print_summary() -> Dictionary:
 	print("=== 测试总结 ===")
 	var total = test_results.size()
 	var passed = 0
+	var failed_names: Array = []
 
 	for result in test_results:
 		if result.passed:
 			passed += 1
+		else:
+			failed_names.append(result.name)
 
 	var failed = total - passed
 	print("总计: %d | 通过: %d | 失败: %d" % [total, passed, failed])
@@ -300,3 +303,4 @@ func print_summary():
 		print("⚠ 部分测试失败，请检查上方详情")
 
 	print("\n=== ConfigLoader 单元测试结束 ===\n")
+	return {"pass": passed, "fail": failed, "failed_names": failed_names}

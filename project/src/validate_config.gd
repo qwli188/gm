@@ -30,6 +30,7 @@ func _initialize() -> void:
 	_validate_cross_references()
 	_validate_value_ranges()
 	_validate_rarity_progression()
+	_validate_schema_whitelist()
 	_print_results()
 
 	quit(1 if errors.size() > 0 else 0)
@@ -319,6 +320,71 @@ func _equipment_power(item: Dictionary) -> float:
 	power += item.get("affix_slots", 0) * 8.0
 
 	return power
+
+## 6. Schema 白名单校验（PR-5 添加）
+##    所有 rarity/slot/class 必须在 Schema 常量中；禁止旧的 uncommon、enhance_level 等
+func _validate_schema_whitelist():
+	# 装备 rarity / slot
+	for item in ConfigLoader.get_all_equipment():
+		var id = item.get("id", "?")
+		var rarity = item.get("rarity", "")
+		if rarity != "" and not Schema.is_valid_rarity(rarity):
+			errors.append("[%s] rarity 非法: '%s' (合法: %s)" % [id, rarity, Schema.RARITIES])
+		var slot = item.get("slot", "")
+		if slot != "" and not Schema.is_valid_slot(slot):
+			errors.append("[%s] slot 非法: '%s' (合法: %s)" % [id, slot, Schema.SLOTS])
+
+	# 套装 rarity（可选字段，但若有必须合法）
+	for s in ConfigLoader.get_all_sets():
+		var rarity = s.get("rarity", "")
+		if rarity != "" and not Schema.is_valid_rarity(rarity):
+			errors.append("[set %s] rarity 非法: '%s'" % [s.get("id", "?"), rarity])
+
+	# 技能 class 字段（"all" 或 Schema.CLASS_IDS 之一）
+	for sk in ConfigLoader.get_all_skills():
+		var cls = sk.get("class", "all")
+		if cls != "all" and not Schema.is_valid_class(cls):
+			errors.append("[skill %s] class 非法: '%s' (合法: %s 或 'all')" % [
+				sk.get("id", "?"), cls, Schema.CLASS_IDS])
+
+	# 副本 unlock.clear_<id> 引用必须存在
+	for d in ConfigLoader.get_all_dungeons():
+		var unlock = d.get("unlock", {})
+		var prereq = unlock.get("clear_dungeon", "")
+		if prereq != "" and ConfigLoader.get_dungeon_by_id(prereq).is_empty():
+			errors.append("[dungeon %s] unlock.clear_dungeon 引用不存在的副本: '%s'" % [
+				d.get("id", "?"), prereq])
+
+	# balance.json class_mechanics 键名必须是去前缀的 6 个职业短名
+	var mechanics = ConfigLoader.balance_data.get("class_mechanics", {})
+	if mechanics is Dictionary:
+		var allowed_short = Schema.CLASS_SHORT.values()
+		for key in mechanics:
+			if not (key in allowed_short) and key != "description" and key != "design_note":
+				warnings.append("[balance.class_mechanics] 未知键: '%s' (合法: %s)" % [key, allowed_short])
+
+	# 禁止 JSON 中出现旧字段名 enhance_level / 旧稀有度 uncommon
+	var raw_balance = ConfigLoader.balance_data
+	if _has_forbidden_token(raw_balance, "uncommon"):
+		errors.append("[balance.json] 含旧稀有度名 'uncommon'，已废弃合并入 'rare'")
+	for item in ConfigLoader.equipment_data.get("items", []):
+		if item.has("enhance_level"):
+			errors.append("[%s] 字段名错误: 'enhance_level' 应为 '%s'" % [
+				item.get("id", "?"), Schema.K_ENHANCEMENT_LEVEL])
+
+## 递归查找字典里是否含某个键名（用于检测旧字段残留）
+func _has_forbidden_token(d, token: String) -> bool:
+	if d is Dictionary:
+		for k in d:
+			if k == token:
+				return true
+			if _has_forbidden_token(d[k], token):
+				return true
+	elif d is Array:
+		for v in d:
+			if _has_forbidden_token(v, token):
+				return true
+	return false
 
 ## 加载 schema
 func _load_schema() -> Dictionary:

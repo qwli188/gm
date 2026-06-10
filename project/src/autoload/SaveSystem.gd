@@ -209,6 +209,7 @@ func _collect_character_data() -> Dictionary:
 		"gold": 0,
 		"equipped": {},
 		"backpack": [],
+		"warehouse": [],
 		"attributes": {"strength": 0, "agility": 0, "vitality": 0, "intelligence": 0},
 		"attribute_points_unspent": 0,
 		"learned_skills": {},
@@ -218,9 +219,9 @@ func _collect_character_data() -> Dictionary:
 	if has_node("/root/GameState"):
 		char_data["class_id"] = get_node("/root/GameState").selected_class_id
 
-	# Player 的等级/经验/金币/属性点
+	# Player 的等级/经验/金币/属性点（防御性访问：兼容残缺/Mock player）
 	var player = _find_player()
-	if player:
+	if player and player.get("current_level") != null:
 		char_data["level"] = player.current_level
 		char_data["current_exp"] = player.current_exp
 		char_data["gold"] = player.gold
@@ -235,8 +236,12 @@ func _collect_character_data() -> Dictionary:
 		var eq = get_node("/root/EquipmentSystem")
 		if eq.has_method("serialize_equipped"):
 			char_data["equipped"] = eq.serialize_equipped()
-		if eq.has_method("serialize_backpack"):
-			char_data["backpack"] = eq.serialize_backpack()
+
+	# 背包/仓库（PR-3 后由 Inventory autoload 管理）
+	if has_node("/root/Inventory"):
+		var inv_data = Inventory.serialize()
+		char_data["backpack"] = inv_data.get("backpack", [])
+		char_data["warehouse"] = inv_data.get("warehouse", [])
 
 	# 技能树数据（从 SkillSystem 收集）
 	if has_node("/root/SkillSystem"):
@@ -313,12 +318,17 @@ func _apply_save_data(data: Dictionary):
 		var eq = get_node("/root/EquipmentSystem")
 		if eq.has_method("deserialize_equipped"):
 			eq.deserialize_equipped(char_data.get("equipped", {}))
-		if eq.has_method("deserialize_backpack"):
-			eq.deserialize_backpack(char_data.get("backpack", []))
 
-	# 5. 玩家等级/经验/金币/属性加点
+	# 背包/仓库（PR-3 后由 Inventory autoload 管理）
+	if has_node("/root/Inventory"):
+		Inventory.deserialize({
+			"backpack": char_data.get("backpack", []),
+			"warehouse": char_data.get("warehouse", []),
+		})
+
+	# 5. 玩家等级/经验/金币/属性加点（防御性：兼容残缺/Mock player）
 	var player = _find_player()
-	if player:
+	if player and player.get("current_level") != null:
 		player.current_level = char_data.get("level", 1)
 		player.current_exp = char_data.get("current_exp", 0.0)
 		player.gold = char_data.get("gold", 0)
@@ -345,7 +355,11 @@ func _find_player():
 	var tree = get_tree()
 	if tree == null:
 		return null
-	return tree.get_first_node_in_group("player")
+	var p = tree.get_first_node_in_group("player")
+	# 防御:queue_free 中或已失效的节点应视为无 player
+	if p == null or not is_instance_valid(p):
+		return null
+	return p
 
 ## 解析旧格式副本 key（"clear_crypt_1_t1" -> "dungeon_crypt_1"）
 func _parse_legacy_dungeon_key(legacy_key: String) -> String:

@@ -182,6 +182,10 @@ func test_apply_lifesteal():
 	else:
 		log_test(test_name, false, "Expected heal=20.0, got " + str(mock_player.healed_amount))
 
+	# 清理 MockPlayer（否则残留在 group "player" 中干扰 SaveSystem 等其它测试）
+	mock_player.queue_free()
+	target.queue_free()
+
 	mock_player.queue_free()
 	target.queue_free()
 

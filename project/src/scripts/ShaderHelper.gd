@@ -6,7 +6,7 @@ class_name ShaderHelper
 # ============ 稀有度描边发光 ============
 
 ## 应用稀有度描边（给装备图标/掉落物）
-## rarity: "common"|"uncommon"|"rare"|"epic"|"legendary"|"mythic"
+## rarity: "common"|"rare"|"epic"|"legendary"|"mythic"（见 Schema.RARITIES）
 static func apply_rarity_glow(node: CanvasItem, rarity: String) -> void:
 	var shader := load("res://shaders/rarity_outline.gdshader") as Shader
 	if not shader:
@@ -22,10 +22,6 @@ static func apply_rarity_glow(node: CanvasItem, rarity: String) -> void:
 			mat.set_shader_parameter("outline_color", Color(0.5, 0.5, 0.5))
 			mat.set_shader_parameter("outline_width", 1.0)
 			mat.set_shader_parameter("glow_intensity", 0.0)
-		"uncommon":
-			mat.set_shader_parameter("outline_color", Color(0.3, 0.8, 0.3))
-			mat.set_shader_parameter("outline_width", 1.5)
-			mat.set_shader_parameter("glow_intensity", 0.3)
 		"rare":
 			mat.set_shader_parameter("outline_color", Color(0.3, 0.5, 1.0))
 			mat.set_shader_parameter("outline_width", 2.0)

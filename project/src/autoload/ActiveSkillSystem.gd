@@ -365,9 +365,9 @@ func _execute_manual_skill(skill_data: Dictionary):
 		"channel":
 			_cast_channel(effect)
 		"projectile":
-			_cast_projectile(effect)
+			_cast_projectile_manual(effect)
 		"aura":
-			_cast_aura(effect)
+			_cast_aura_manual(effect)
 		_:
 			push_error("[ActiveSkillSystem] 未知的技能类型:", kind)
 
@@ -520,8 +520,8 @@ func _cast_channel(effect: Dictionary):
 	print("[Skill] 持续施法技能 - 待实现")
 	# 需要特殊的输入锁定+持续伤害系统
 
-## projectile: 发射投射物
-func _cast_projectile(effect: Dictionary):
+## projectile: 发射投射物（手动版 - 由 1/2/3 键触发）
+func _cast_projectile_manual(effect: Dictionary):
 	if not player:
 		return
 
@@ -532,7 +532,7 @@ func _cast_projectile(effect: Dictionary):
 	var damage_type = effect.get("damage_type", "physical")
 
 	# 获取射击方向（朝向最近敌人）
-	var nearest = _find_nearest_enemy()
+	var nearest = _nearest_enemy()
 	var direction = Vector2.RIGHT
 	if nearest:
 		direction = (nearest.global_position - player.global_position).normalized()
@@ -550,14 +550,14 @@ func _cast_projectile(effect: Dictionary):
 			offset_angle = -angle_spread / 2 + (angle_spread / (projectile_count - 1)) * i
 
 		var proj_dir = direction.rotated(offset_angle)
-		_spawn_projectile(proj_dir, damage, speed, pierce, damage_type)
+		_spawn_projectile_manual(proj_dir, damage, speed, pierce, damage_type)
 
 	# 特效
 	AudioManager.play("attack")
 	print("[Skill] 投射物释放: %d发, 伤害%d" % [projectile_count, damage])
 
-## 生成投射物实体
-func _spawn_projectile(direction: Vector2, damage: float, speed: float, pierce: bool, dtype: String):
+## 生成投射物实体（手动版）
+func _spawn_projectile_manual(direction: Vector2, damage: float, speed: float, pierce: bool, dtype: String):
 	var projectile = Area2D.new()
 	projectile.global_position = player.global_position
 	projectile.name = "Projectile"
@@ -613,8 +613,8 @@ func _spawn_projectile(direction: Vector2, damage: float, speed: float, pierce: 
 	if is_instance_valid(projectile):
 		projectile.queue_free()
 
-## aura: 光环效果（持续存在的范围buff/debuff）
-func _cast_aura(effect: Dictionary):
+## aura: 光环效果（手动版 - 持续存在的范围buff/debuff）
+func _cast_aura_manual(effect: Dictionary):
 	if not player:
 		return
 

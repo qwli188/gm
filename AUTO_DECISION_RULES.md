@@ -18,7 +18,7 @@
 
 ### **自动化操作**
 - ✅ 运行 `validate_config.gd` 校验配置
-- ✅ 运行 `add_equipment.py` / `gen_assets.py` 生成内容
+- ✅ 运行 `tools/add_equipment.py` / `tools/gen_assets.py` 生成内容
 - ✅ 运行 Godot headless 测试加载
 - ✅ 读取任何文件（代码/配置/文档）
 - ✅ 使用 Grep/Glob/Read 工具搜索信息

@@ -2544,5 +2544,51 @@
       "vfx_level": 0,
       "design_note": "职业起手武器，新手起步装。"
     }
+  ],
+  "equipment": [
+    {
+      "id": "weapon_frost_staff",
+      "display_name": "霜冻法杖",
+      "slot": "weapon",
+      "rarity": "rare",
+      "base_stats": {
+        "damage": 18,
+        "attack_speed": 0.95
+      },
+      "fixed_affixes": [
+        "affix_freeze"
+      ],
+      "set_id": "set_frost"
+    },
+    {
+      "id": "helmet_ice_crown",
+      "display_name": "冰冠",
+      "slot": "helmet",
+      "rarity": "epic",
+      "base_stats": {
+        "max_hp": 25,
+        "armor": 8
+      },
+      "fixed_affixes": [
+        "affix_chill"
+      ],
+      "set_id": "set_frost"
+    },
+    {
+      "id": "weapon_eternal_winter",
+      "display_name": "永冬之杖",
+      "slot": "weapon",
+      "rarity": "legendary",
+      "base_stats": {
+        "damage": 32,
+        "attack_speed": 0.85
+      },
+      "fixed_affixes": [
+        "affix_freeze",
+        "affix_frost_nova"
+      ],
+      "set_id": "set_frost",
+      "special_effect": "攻击时15%触发冰霜新星(200范围冰冻3秒)"
+    }
   ]
 }

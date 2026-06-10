@@ -128,10 +128,10 @@ func recalculate_stats():
 	combat_stats = {}
 
 	# 2. 叠加局外永久强化（GameState 管理）
-	var perm_damage = GameState.get_meta_bonus("perm_damage")
-	var perm_max_hp = GameState.get_meta_bonus("perm_max_hp")
-	base_damage += perm_damage
-	base_max_hp += perm_max_hp
+	#    加到最终值 damage/max_hp，绝不回写 base_*（base_* 是裸装持久值，
+	#    回写会导致每次 recalculate 累加膨胀 + 滞后一帧的状态污染）
+	damage += GameState.get_meta_bonus("perm_damage")
+	max_hp += GameState.get_meta_bonus("perm_max_hp")
 
 	# 3. 叠加属性加点效果
 	_apply_attribute_bonuses()
@@ -400,14 +400,7 @@ func take_damage(damage: float):
 	current_hp = clamp(current_hp, 0, max_hp)
 	AudioManager.play("hit")
 	hp_changed.emit(current_hp, max_hp)
-	# 受击红闪
-	# 旧代码(tween modulate,注释保留):
-	# if anim_sprite:
-	#   anim_sprite.modulate = Color(1.6, 0.6, 0.6)
-	#   var tween = create_tween()
-	#   tween.tween_property(anim_sprite, "modulate", Color.WHITE, 0.15)
-
-	# B1 shader接线: 玩家受击红闪shader
+	# 受击红闪（shader 实现）
 	if anim_sprite:
 		ShaderHelper.apply_hit_flash(anim_sprite, Color(1.5, 0.4, 0.4), 0.15)
 	# 伤害数字
@@ -455,9 +448,21 @@ func _calculate_exp_to_next_level():
 func _on_level_up():
 	print("[Player] 升级到 %d 级！" % current_level)
 
-	# 给予属性点
-	attribute_points_unspent += 5
+	# 从 balance.json 读取每级成长（持久 ARPG：等级带来基础属性成长）
+	var curve = ConfigLoader.get_balance_config().get("level_curve", {})
+	var stats_per_level = curve.get("stats_per_level", {})
+	base_max_hp += stats_per_level.get("max_hp", 0)
+	base_damage += stats_per_level.get("damage", 0)
+
+	# 给予属性点（玩家在 CharacterPanel 分配）
+	var attr_pts = int(curve.get("attribute_points_per_level", 5))
+	attribute_points_unspent += attr_pts
 	attribute_points_changed.emit(attribute_points_unspent)
+
+	# 给予技能点（玩家在 SkillTreePanel 分配）
+	var sp = int(curve.get("skill_points_per_level", 1))
+	if sp > 0 and has_node("/root/SkillSystem"):
+		get_node("/root/SkillSystem").add_skill_points(sp)
 
 	recalculate_stats()
 	current_hp = max_hp  # 升级回满血

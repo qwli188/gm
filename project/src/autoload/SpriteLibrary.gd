@@ -148,6 +148,32 @@ func get_tile(region: String, is_obstacle: bool = false) -> Texture2D:
 	path = GEN + "tiles/%s%s.png" % [prefix, "field"]
 	return load(path) if ResourceLoader.exists(path) else null
 
+## 地板变体(0..3) - 用于随机混铺打破网格感; 缺失则回退默认floor
+func get_floor_variant(region: String, variant: int) -> Texture2D:
+	var path := GEN + "tiles/floor_%s_%d.png" % [region, variant]
+	if ResourceLoader.exists(path):
+		return load(path)
+	return get_tile(region, false)
+
+## 区域装饰道具(0..3) - 非阻挡氛围物; 缺失返回 null
+func get_prop(region: String, variant: int) -> Texture2D:
+	var path := GEN + "props/prop_%s_%d.png" % [region, variant]
+	return load(path) if ResourceLoader.exists(path) else null
+
+## 区域可用地板变体数(探测连续存在的 floor_<region>_N)
+func count_floor_variants(region: String) -> int:
+	var n := 0
+	while ResourceLoader.exists(GEN + "tiles/floor_%s_%d.png" % [region, n]):
+		n += 1
+	return n
+
+## 区域可用道具数
+func count_props(region: String) -> int:
+	var n := 0
+	while ResourceLoader.exists(GEN + "props/prop_%s_%d.png" % [region, n]):
+		n += 1
+	return n
+
 ## UI 纹理
 func get_ui(name: String) -> Texture2D:
 	var path := GEN + "ui/%s.png" % name

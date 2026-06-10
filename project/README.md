@@ -1,6 +1,6 @@
 # DarkLoot ARPG - 开发者文档
 
-> 暗黑奇幻 Loot ARPG - 装备构筑深度的 Roguelite 割草游戏
+> 暗黑奇幻 Loot ARPG - 装备构筑深度的持久角色刷宝游戏
 > 基于 GameForge 框架开发 | 配置表驱动架构
 
 ---

@@ -144,6 +144,13 @@ func get_enemy_by_id(id: String) -> Dictionary:
 func get_balance_param(key: String, default_value = null):
 	return balance_data.get(key, default_value)
 
+## 获取完整 balance 配置（只读视图）
+## 说明：balance_data 是 Dictionary（引用语义），调用方只读不应改写。
+## 多处系统（EquipmentSystem/AffixWorkshop/ClassMechanicSystem/TagSynergySystem/Player）
+## 通过此方法读取 balance.json，语义比直接访问 balance_data 更清晰。
+func get_balance_config() -> Dictionary:
+	return balance_data
+
 ## 获取所有装备列表（8部位全合并）
 func get_all_equipment() -> Array:
 	var result = []

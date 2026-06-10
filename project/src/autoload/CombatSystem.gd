@@ -49,17 +49,21 @@ func apply_damage(target: Node2D, damage: float, attacker_stats: Dictionary, is_
 	if lifesteal > 0:
 		trigger_lifesteal(damage, lifesteal)
 
-	# 触发点燃
+	# 触发点燃 (支持 ignite_chance 概率门控,默认100%以兼容旧词缀)
 	var ignite_dps = attacker_stats.get("ignite_dps", 0)
 	var ignite_duration = attacker_stats.get("ignite_duration", 0)
 	if ignite_dps > 0 and ignite_duration > 0:
-		trigger_ignite(target, ignite_dps, ignite_duration)
+		var ignite_chance = attacker_stats.get("ignite_chance", 1.0)
+		if ignite_chance >= 1.0 or randf() < ignite_chance:
+			trigger_ignite(target, ignite_dps, ignite_duration)
 
-	# 触发中毒
+	# 触发中毒 (支持 poison_chance 概率门控)
 	var poison_dps = attacker_stats.get("poison_dps", 0)
 	var poison_duration = attacker_stats.get("poison_duration", 0)
 	if poison_dps > 0 and poison_duration > 0:
-		trigger_poison(target, poison_dps, poison_duration)
+		var poison_chance = attacker_stats.get("poison_chance", 1.0)
+		if poison_chance >= 1.0 or randf() < poison_chance:
+			trigger_poison(target, poison_dps, poison_duration)
 
 	# 触发冰冻
 	var freeze_chance = attacker_stats.get("freeze_chance", 0.0)
@@ -84,6 +88,16 @@ func apply_damage(target: Node2D, damage: float, attacker_stats: Dictionary, is_
 	var stun_duration = attacker_stats.get("stun_duration", 0.0)
 	if stun_chance > 0 and randf() < stun_chance:
 		trigger_stun(target, stun_duration)
+
+	# 触发召唤词缀(命中时按概率召唤伴生)
+	var summon_chance = attacker_stats.get("summon_chance", 0.0)
+	if summon_chance > 0 and randf() < summon_chance:
+		trigger_affix_summon(target.global_position, attacker_stats)
+
+	# 触发连锁词缀(命中时弹射给附近敌人)
+	var chain_chance = attacker_stats.get("chain_chance", 0.0)
+	if chain_chance > 0 and randf() < chain_chance:
+		trigger_affix_chain(target, damage, attacker_stats)
 
 ## 吸血效果
 func trigger_lifesteal(damage: float, lifesteal_percent: float):
@@ -133,6 +147,122 @@ func trigger_stun(target: Node2D, duration: float):
 	if not target.has_method("apply_stun"):
 		return
 	target.apply_stun(duration)
+
+## 召唤词缀效果(命中时召唤友方伴生)
+## 这是装备词缀的本地实现,不走 ActiveSkillSystem.summons 池
+func trigger_affix_summon(pos: Vector2, attacker_stats: Dictionary):
+	var scene = get_tree().current_scene
+	if scene == null:
+		return
+	var damage = attacker_stats.get("summon_damage", 6.0)
+	var duration = attacker_stats.get("summon_duration", 8.0)
+	var minion = CharacterBody2D.new()
+	minion.add_to_group("minion")
+	minion.global_position = pos + Vector2(randf_range(-30, 30), randf_range(-30, 30))
+	var visual = ColorRect.new()
+	visual.size = Vector2(16, 16)
+	visual.position = Vector2(-8, -8)
+	visual.color = Color(0.65, 0.85, 0.55, 0.9)
+	minion.add_child(visual)
+	var col = CollisionShape2D.new()
+	var shape = CircleShape2D.new()
+	shape.radius = 8
+	col.shape = shape
+	minion.add_child(col)
+	minion.set_meta("damage", damage)
+	minion.set_meta("life", duration)
+	minion.set_meta("attack_cd", 0.0)
+	minion.set_script(_minion_script())
+	scene.add_child(minion)
+	# 召唤特效
+	if has_node("/root/EffectSprite") or ResourceLoader.exists("res://scripts/EffectSprite.gd"):
+		EffectSprite.spawn(scene, "poison", pos, 1.1)
+
+## 连锁词缀效果(命中目标时弹射给附近敌人)
+func trigger_affix_chain(origin: Node2D, damage: float, attacker_stats: Dictionary):
+	var targets_count = int(attacker_stats.get("chain_targets", 2))
+	var damage_mult = attacker_stats.get("chain_damage_mult", 0.5)
+	if targets_count <= 0 or not is_instance_valid(origin):
+		return
+	var chained = [origin]
+	var current = origin
+	for i in range(targets_count):
+		var next = _find_nearest_unchained(current, chained, 200.0)
+		if next == null:
+			break
+		# 视觉:画一条短暂闪电
+		_draw_chain_bolt(current.global_position, next.global_position)
+		if next.has_method("take_damage"):
+			next.take_damage(damage * damage_mult, false)
+		chained.append(next)
+		current = next
+
+func _find_nearest_unchained(origin: Node2D, exclude: Array, max_range: float) -> Node2D:
+	var nearest = null
+	var min_d = max_range
+	for e in get_tree().get_nodes_in_group("enemy"):
+		if not is_instance_valid(e) or e in exclude:
+			continue
+		var d = origin.global_position.distance_to(e.global_position)
+		if d < min_d:
+			min_d = d
+			nearest = e
+	return nearest
+
+func _draw_chain_bolt(from: Vector2, to: Vector2):
+	var scene = get_tree().current_scene
+	if scene == null:
+		return
+	var line = Line2D.new()
+	line.add_point(from)
+	line.add_point(to)
+	line.width = 3.0
+	line.default_color = Color(0.6, 0.9, 1.0, 0.9)
+	line.z_index = 50
+	scene.add_child(line)
+	var tw = line.create_tween()
+	tw.tween_property(line, "modulate:a", 0.0, 0.18)
+	tw.tween_callback(line.queue_free)
+
+func _minion_script() -> GDScript:
+	var src = """
+extends CharacterBody2D
+func _physics_process(delta):
+	var life = get_meta(\"life\") - delta
+	set_meta(\"life\", life)
+	if life <= 0:
+		queue_free()
+		return
+	var cd = get_meta(\"attack_cd\") - delta
+	set_meta(\"attack_cd\", cd)
+	var target = _nearest_enemy()
+	if target == null:
+		return
+	var dist = global_position.distance_to(target.global_position)
+	if dist > 35:
+		var dir = (target.global_position - global_position).normalized()
+		velocity = dir * 160
+		move_and_slide()
+	elif cd <= 0:
+		if target.has_method(\"take_damage\"):
+			target.take_damage(get_meta(\"damage\"))
+		set_meta(\"attack_cd\", 0.9)
+func _nearest_enemy():
+	var nearest = null
+	var min_d = 99999.0
+	for e in get_tree().get_nodes_in_group(\"enemy\"):
+		if not is_instance_valid(e):
+			continue
+		var d = global_position.distance_to(e.global_position)
+		if d < min_d:
+			min_d = d
+			nearest = e
+	return nearest
+"""
+	var gd = GDScript.new()
+	gd.source_code = src
+	gd.reload()
+	return gd
 
 ## 玩家攻击检测（Area2D）- 三方合并: A1职业机制 + A2刺客背刺 + B2粒子
 func check_player_attack(attack_area: Area2D, player_stats: Dictionary):
