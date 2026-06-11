@@ -9,3 +9,10 @@ godot_verify_full.txt
 _v.txt
 verify_*.txt
 *.log
+
+# 法线贴图（由 tools/gen_normal_maps.py 基于源 sprite 重生成，不入库）
+*_n.png
+*_n.png.import
+
+# 类型审计报告（一次性产物，决策已沉淀到提交信息）
+type_audit_report.txt

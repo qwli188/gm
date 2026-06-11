@@ -7,7 +7,6 @@ Kenney素材自动下载与集成
 """
 import urllib.request
 import zipfile
-import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
@@ -15,6 +14,9 @@ KENNEY_DIR = ROOT / "project" / "src" / "assets" / "kenney"
 KENNEY_DIR.mkdir(parents=True, exist_ok=True)
 
 # Kenney免费素材包(CC0许可)
+# 注：kenney.nl 网站结构变更后，部分直链 URL 可能失效。
+# 新增素材推荐手动从 kenney.nl 或 kenney.itch.io 下载，放入 assets/kenney/ 子目录。
+# 已确认可用的早期 URL 保留如下：
 KENNEY_PACKS = [
     {
         "name": "tiny_dungeon",
@@ -26,6 +28,11 @@ KENNEY_PACKS = [
         "url": "https://kenney.nl/content/3-assets/79-micro-roguelike/micro-roguelike.zip",
         "desc": "Roguelike角色/怪物"
     },
+    # 待集成素材（URL 失效后需手动放入对应目录）：
+    # - rpg_urban_pack: 城镇场景(建筑/NPC)
+    # - platformer_pack_redux: 通用角色动画
+    # - particle_pack: 粒子特效
+    # 推荐方式：从 https://kenney.itch.io/kenney-game-assets 下载 All-in-1 整包
 ]
 
 def download_pack(pack):
