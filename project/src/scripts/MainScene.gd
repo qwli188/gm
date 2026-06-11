@@ -6,6 +6,33 @@ extends Node2D
 func _ready():
 	# 阶段2: 启动副本流程系统
 	_start_dungeon_flow()
+	# P2: 生成随行 AI 队友
+	_spawn_companions()
+
+## P2: 在玩家附近生成随行 AI 队友（Companion）
+func _spawn_companions():
+	if not has_node("/root/PartySystem"):
+		return
+	var companions = get_node("/root/PartySystem").get_companion_characters()
+	if companions.is_empty():
+		return
+	var companion_script = load("res://scripts/Companion.gd")
+	if companion_script == null:
+		push_error("[MainScene] Companion.gd 加载失败")
+		return
+	var idx = 0
+	for char_data in companions:
+		var c = CharacterBody2D.new()
+		c.set_script(companion_script)
+		c.setup(char_data)
+		# 在玩家身后散开排布
+		var angle = PI + (idx - 1) * 0.5
+		var offset = Vector2(cos(angle), sin(angle)) * 70.0
+		add_child(c)
+		if player and is_instance_valid(player):
+			c.global_position = player.global_position + offset
+		idx += 1
+	print("[MainScene] 生成 %d 个随行队友" % companions.size())
 
 func _start_dungeon_flow():
 	# 获取当前副本ID（从GameState或默认值）

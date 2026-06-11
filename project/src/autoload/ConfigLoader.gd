@@ -17,6 +17,7 @@ var waves_data: Dictionary = {}
 var classes_data: Dictionary = {}
 var sets_data: Dictionary = {}
 var vfx_data: Dictionary = {}
+var territory_data: Dictionary = {}
 
 # O(1) 查找索引（id -> 数据字典）
 var _equipment_index: Dictionary = {}
@@ -47,6 +48,7 @@ func load_all_configs():
 	classes_data = load_json_config("classes.json")
 	sets_data = load_json_config("sets.json")
 	vfx_data = load_json_config("vfx.json")
+	territory_data = load_json_config("territory.json")
 	_build_indexes()
 
 ## 构建 ID 索引（加载后调用一次）
@@ -215,6 +217,36 @@ func get_all_dungeons() -> Array:
 func get_vfx_for_rarity(rarity: String) -> Dictionary:
 	return vfx_data.get("rarity_vfx", {}).get(rarity, {})
 
+## ============ 领地系统 ============
+## 获取建筑定义（by id）
+func get_building_def(building_id: String) -> Dictionary:
+	for b in territory_data.get("buildings", []):
+		if b.get("id", "") == building_id:
+			return b
+	return {}
+
+## 获取所有可建造建筑定义
+func get_all_buildings() -> Array:
+	return territory_data.get("buildings", [])
+
+## 获取领地某等级的定义
+func get_territory_level_def(level: int) -> Dictionary:
+	for lv in territory_data.get("territory_levels", []):
+		if int(lv.get("level", 0)) == level:
+			return lv
+	return {}
+
+## 领地最高等级
+func get_territory_max_level() -> int:
+	var mx = 1
+	for lv in territory_data.get("territory_levels", []):
+		mx = max(mx, int(lv.get("level", 1)))
+	return mx
+
+## 获取基础建材定义列表
+func get_basic_materials() -> Array:
+	return territory_data.get("basic_materials", [])
+
 ## 热重载单个配置文件
 func reload_config(file_name: String) -> bool:
 	var path = "res://config/" + file_name
@@ -235,6 +267,7 @@ func reload_config(file_name: String) -> bool:
 		"sets.json": sets_data = data
 		"balance.json": balance_data = data
 		"vfx.json": vfx_data = data
+		"territory.json": territory_data = data
 		_:
 			push_warning("[ConfigLoader] 未知配置: " + file_name)
 			return false

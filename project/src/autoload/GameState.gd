@@ -32,6 +32,9 @@ var cleared_dungeons: Dictionary = {}
 # 材料系统(区域专属材料用于改造)
 var materials: Dictionary = {}
 
+# 新手教学是否已完成（持久，避免每次进城重弹）
+var tutorial_completed: bool = false
+
 func _ready():
 	print("[GameState] 全局状态初始化")
 

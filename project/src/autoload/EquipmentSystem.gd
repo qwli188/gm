@@ -249,15 +249,17 @@ func _merge_set_tier(bonuses: Dictionary, tier: Dictionary):
 
 ## ============ 属性汇总 ============
 ## 汇总所有装备的基础属性 + 套装加成（供 Player.recalculate_stats 调用）
-func get_total_stats() -> Dictionary:
+## equipped_map 默认用当前操控角色的 equipped_items；传入其他角色的
+## {slot: instance_id} 可计算任意角色的面板（P2 AI 队友用，不切换全局状态）。
+func get_total_stats(equipped_map: Dictionary = equipped_items) -> Dictionary:
 	var total = {
 		"damage": 0.0, "max_hp": 0.0, "armor": 0.0,
 		"crit_chance": 0.0, "crit_damage": 0.0,
 		"attack_speed_mult": 1.0, "move_speed_mult": 1.0, "hp_regen": 0.0
 	}
 
-	for slot in equipped_items:
-		var instance_id = equipped_items[slot]
+	for slot in equipped_map:
+		var instance_id = equipped_map[slot]
 		if instance_id == null:
 			continue
 		var item = get_equipment_instance_data(instance_id)

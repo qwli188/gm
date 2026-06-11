@@ -1,0 +1,143 @@
+{
+  "_comment": "领地系统配置 - 建筑/升级/材料消耗。出击制：建筑产出在每次出击结算（P3）。",
+  "basic_materials": [
+    {
+      "id": "timber",
+      "display_name": "木材",
+      "description": "野外采集的基础建材，领地建造的根本",
+      "source": "野外采集点 / 副本伐木"
+    },
+    {
+      "id": "stone_block",
+      "display_name": "石料",
+      "description": "开采的石材，用于高级建筑与城墙",
+      "source": "野外采集点 / 矿井副本"
+    },
+    {
+      "id": "food",
+      "display_name": "粮食",
+      "description": "供养居民的口粮，居民数量受粮食产出限制",
+      "source": "农田产出 / 野外采集"
+    }
+  ],
+  "territory_levels": [
+    {
+      "level": 1,
+      "display_name": "营地",
+      "building_slots": 3,
+      "resident_cap": 5,
+      "upgrade_cost": {"gold": 500, "timber": 20, "stone_block": 10}
+    },
+    {
+      "level": 2,
+      "display_name": "村落",
+      "building_slots": 5,
+      "resident_cap": 12,
+      "upgrade_cost": {"gold": 2000, "timber": 60, "stone_block": 40, "bone_dust": 10}
+    },
+    {
+      "level": 3,
+      "display_name": "城镇",
+      "building_slots": 7,
+      "resident_cap": 25,
+      "upgrade_cost": {"gold": 8000, "timber": 150, "stone_block": 120, "frost_shard": 20, "plague_essence": 20}
+    },
+    {
+      "level": 4,
+      "display_name": "要塞",
+      "building_slots": 9,
+      "resident_cap": 40,
+      "upgrade_cost": {"gold": 25000, "timber": 350, "stone_block": 300, "ember_core": 30, "void_fragment": 20}
+    },
+    {
+      "level": 5,
+      "display_name": "堡垒之城",
+      "building_slots": 12,
+      "resident_cap": 60,
+      "upgrade_cost": {"gold": 80000, "timber": 800, "stone_block": 700, "void_fragment": 50, "rune_shard": 40}
+    }
+  ],
+  "buildings": [
+    {
+      "id": "townhall",
+      "display_name": "领主大厅",
+      "category": "core",
+      "description": "领地的核心，等级决定领地上限。每个领地自带一座，不可拆除。",
+      "max_level": 5,
+      "unique": true,
+      "build_cost": {},
+      "per_level": {"defense_bonus": 0.1}
+    },
+    {
+      "id": "lumber_mill",
+      "display_name": "伐木场",
+      "category": "production",
+      "description": "每次出击归来产出木材。等级越高产量越大。",
+      "max_level": 5,
+      "build_cost": {"gold": 300, "timber": 10},
+      "upgrade_cost_per_level": {"gold": 400, "timber": 20, "stone_block": 10},
+      "produces": {"material": "timber", "base_per_sortie": 8, "per_level": 5}
+    },
+    {
+      "id": "quarry",
+      "display_name": "采石场",
+      "category": "production",
+      "description": "每次出击归来产出石料。",
+      "max_level": 5,
+      "build_cost": {"gold": 400, "timber": 15},
+      "upgrade_cost_per_level": {"gold": 500, "timber": 25, "stone_block": 15},
+      "produces": {"material": "stone_block", "base_per_sortie": 6, "per_level": 4}
+    },
+    {
+      "id": "farm",
+      "display_name": "农田",
+      "category": "production",
+      "description": "产出粮食，提高居民数量上限。",
+      "max_level": 5,
+      "build_cost": {"gold": 300, "timber": 12},
+      "upgrade_cost_per_level": {"gold": 400, "timber": 20},
+      "produces": {"material": "food", "base_per_sortie": 10, "per_level": 6},
+      "per_level": {"resident_cap_bonus": 3}
+    },
+    {
+      "id": "house",
+      "display_name": "民居",
+      "category": "housing",
+      "description": "提供居民居住空间，每级增加可招募居民数。",
+      "max_level": 5,
+      "build_cost": {"gold": 200, "timber": 15, "stone_block": 5},
+      "upgrade_cost_per_level": {"gold": 300, "timber": 25, "stone_block": 10},
+      "per_level": {"resident_cap_bonus": 4}
+    },
+    {
+      "id": "barracks",
+      "display_name": "兵营",
+      "category": "military",
+      "description": "训练与驻扎士兵，提升领地驻军上限与防御战实力。",
+      "max_level": 5,
+      "build_cost": {"gold": 600, "timber": 20, "stone_block": 20},
+      "upgrade_cost_per_level": {"gold": 800, "timber": 30, "stone_block": 30, "bone_dust": 5},
+      "per_level": {"garrison_cap_bonus": 2, "soldier_power_bonus": 0.1}
+    },
+    {
+      "id": "wall",
+      "display_name": "城墙",
+      "category": "military",
+      "description": "提升领地防御值，削弱来袭怪物的首轮冲击。",
+      "max_level": 5,
+      "build_cost": {"gold": 500, "stone_block": 30},
+      "upgrade_cost_per_level": {"gold": 700, "stone_block": 50, "frost_shard": 5},
+      "per_level": {"defense_bonus": 0.15}
+    },
+    {
+      "id": "watchtower",
+      "display_name": "哨塔",
+      "category": "military",
+      "description": "防御战中提供远程火力，自动攻击来袭怪物。",
+      "max_level": 5,
+      "build_cost": {"gold": 700, "timber": 25, "stone_block": 25},
+      "upgrade_cost_per_level": {"gold": 900, "stone_block": 40, "void_fragment": 5},
+      "per_level": {"tower_damage": 15}
+    }
+  ]
+}

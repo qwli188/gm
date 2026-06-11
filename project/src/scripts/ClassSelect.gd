@@ -149,6 +149,9 @@ func _on_confirm():
 		return
 	print("[ClassSelect] 确认职业: %s" % selected_class_id)
 	GameState.set_class(selected_class_id)
+	# 多角色：创建角色并写入名册（自动设为操控角色）
+	if has_node("/root/RosterSystem"):
+		get_node("/root/RosterSystem").create_character(selected_class_id)
 	# 进入新手村
 	get_tree().change_scene_to_file("res://scenes/Town.tscn")
 

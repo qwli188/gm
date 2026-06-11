@@ -158,13 +158,18 @@ func _get_save_path(slot: int) -> String:
 ## 从 Player / EquipmentSystem / GameState 收集持久数据
 func _collect_save_data(slot: int) -> Dictionary:
 	var now_iso = Time.get_datetime_string_from_system(true)
+	# 先把操控角色的实时状态同步进名册档案，再序列化
+	if has_node("/root/RosterSystem"):
+		get_node("/root/RosterSystem").sync_before_save()
 	var data = {
-		"version": "1.0.0",
+		"version": "2.0.0",
 		"slot_id": slot,
 		"created_at": now_iso,
 		"last_played": now_iso,
 		"playtime_seconds": 0,
-		"character": _collect_character_data(),
+		"character": _collect_character_data(),  # 保留：兼容旧读取器/摘要显示
+		"roster": _collect_roster_data(),
+		"territory": _collect_territory_data(),
 		"equipment_instances": {},
 		"world_state": _collect_world_state(),
 		"meta_progression": _collect_meta_progression(),
@@ -251,6 +256,18 @@ func _collect_character_data() -> Dictionary:
 
 	return char_data
 
+## 收集角色名册（多角色，v2.0+）
+func _collect_roster_data() -> Dictionary:
+	if has_node("/root/RosterSystem"):
+		return get_node("/root/RosterSystem").serialize()
+	return {}
+
+## 收集领地数据（v2.0+）
+func _collect_territory_data() -> Dictionary:
+	if has_node("/root/TerritorySystem"):
+		return get_node("/root/TerritorySystem").serialize()
+	return {}
+
 ## 收集世界状态
 func _collect_world_state() -> Dictionary:
 	var ws = {"unlocked_dungeons": [], "cleared_dungeons": {}}
@@ -265,11 +282,12 @@ func _collect_world_state() -> Dictionary:
 
 ## 收集局外永久进度
 func _collect_meta_progression() -> Dictionary:
-	var meta = {"total_gold_earned": 0, "meta_upgrades": {}}
+	var meta = {"total_gold_earned": 0, "meta_upgrades": {}, "materials": {}}
 	if has_node("/root/GameState"):
 		var gs = get_node("/root/GameState")
 		meta["total_gold_earned"] = gs.total_gold
 		meta["meta_upgrades"] = gs.meta_upgrades.duplicate(true)
+		meta["materials"] = gs.materials.duplicate(true)
 	return meta
 
 ## ============ 数据应用（加载时）============
@@ -312,12 +330,29 @@ func _apply_save_data(data: Dictionary):
 		var meta = data.get("meta_progression", {})
 		gs.total_gold = meta.get("total_gold_earned", 0)
 		gs.meta_upgrades = meta.get("meta_upgrades", {})
+		gs.materials = meta.get("materials", {})
 
 	# 4. 恢复穿戴与背包（在实例就绪后）
+	#    注意：多角色名册恢复要在穿戴恢复之前，由名册决定操控角色的 equipped。
+	_restore_roster(data, char_data)
+
+	# 4b. 恢复领地
+	if has_node("/root/TerritorySystem"):
+		var territory_data = data.get("territory", {})
+		if territory_data is Dictionary and not territory_data.is_empty():
+			get_node("/root/TerritorySystem").deserialize(territory_data)
+
 	if has_node("/root/EquipmentSystem"):
 		var eq = get_node("/root/EquipmentSystem")
 		if eq.has_method("deserialize_equipped"):
-			eq.deserialize_equipped(char_data.get("equipped", {}))
+			# 操控角色的 equipped 来自名册档案（已在 _restore_roster 里灌好）
+			# 这里用名册操控角色的 equipped，回退到旧 char_data.equipped
+			var equipped = char_data.get("equipped", {})
+			if has_node("/root/RosterSystem"):
+				var active = get_node("/root/RosterSystem").get_active_character()
+				if not active.is_empty():
+					equipped = active.get("equipped", {})
+			eq.deserialize_equipped(equipped)
 
 	# 背包/仓库（PR-3 后由 Inventory autoload 管理）
 	if has_node("/root/Inventory"):
@@ -327,28 +362,55 @@ func _apply_save_data(data: Dictionary):
 		})
 
 	# 5. 玩家等级/经验/金币/属性加点（防御性：兼容残缺/Mock player）
+	#    多角色：操控角色的私有数据优先取自名册档案，回退到旧 char_data。
+	var active_char = _get_active_char_or_legacy(char_data)
 	var player = _find_player()
 	if player and player.get("current_level") != null:
-		player.current_level = char_data.get("level", 1)
-		player.current_exp = char_data.get("current_exp", 0.0)
+		player.current_level = active_char.get("level", 1)
+		player.current_exp = active_char.get("exp", char_data.get("current_exp", 0.0))
 		player.gold = char_data.get("gold", 0)
 		# 恢复属性加点数据
 		if player.get("attributes") != null:
-			player.attributes = char_data.get("attributes", {"strength": 0, "agility": 0, "vitality": 0, "intelligence": 0})
+			player.attributes = active_char.get("attributes", {"strength": 0, "agility": 0, "vitality": 0, "intelligence": 0})
 		if player.get("attribute_points_unspent") != null:
-			player.attribute_points_unspent = char_data.get("attribute_points_unspent", 0)
+			player.attribute_points_unspent = active_char.get("attribute_points", char_data.get("attribute_points_unspent", 0))
 		if player.has_method("_calculate_exp_to_next_level"):
 			player._calculate_exp_to_next_level()
 		if player.has_method("recalculate_stats"):
 			player.recalculate_stats()
 
-	# 6. 恢复技能树数据
+	# 6. 恢复技能树数据（操控角色的技能取自名册档案）
 	if has_node("/root/SkillSystem"):
 		var ss = get_node("/root/SkillSystem")
-		ss.learned_skills = char_data.get("learned_skills", {})
-		ss.skill_points_unspent = char_data.get("skill_points_unspent", 0)
+		ss.learned_skills = active_char.get("learned_skills", char_data.get("learned_skills", {}))
+		ss.skill_points_unspent = active_char.get("skill_points", char_data.get("skill_points_unspent", 0))
 		# 触发信号更新UI
 		ss.skill_points_changed.emit(ss.skill_points_unspent)
+
+## 恢复名册：新档读 roster；旧档把单角色 char_data 迁移成名册。
+func _restore_roster(data: Dictionary, char_data: Dictionary):
+	if not has_node("/root/RosterSystem"):
+		return
+	var rs = get_node("/root/RosterSystem")
+	var roster_data = data.get("roster", {})
+	if roster_data is Dictionary and not roster_data.get("characters", []).is_empty():
+		# 新档：直接反序列化名册
+		rs.deserialize(roster_data)
+		# 同步操控角色的职业到 GameState
+		var active = rs.get_active_character()
+		if not active.is_empty() and has_node("/root/GameState"):
+			get_node("/root/GameState").selected_class_id = active.get("class_id", "class_warrior")
+	else:
+		# 旧档：单角色迁移成名册第一个角色
+		rs.migrate_from_legacy(char_data)
+
+## 取操控角色档案；无名册时回退到旧 char_data（字段名做映射）
+func _get_active_char_or_legacy(char_data: Dictionary) -> Dictionary:
+	if has_node("/root/RosterSystem"):
+		var active = get_node("/root/RosterSystem").get_active_character()
+		if not active.is_empty():
+			return active
+	return char_data
 
 ## 查找当前场景中的 Player 节点
 func _find_player():
