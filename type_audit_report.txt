@@ -1,0 +1,350 @@
+# GDScript 静态类型审计报告
+## 扫描范围：30个autoload单例 + Enemy.gd (1294行) + Town.gd (2015行)
+
+## 一、高优先级问题：需要补充类型标注
+
+### 1.1 容器类型缺泛型标注（Array[T]）- 影响 API 清晰度
+
+#### ConfigLoader.gd - 返回配置数据的核心API（优先级最高）
+ConfigLoader.gd:193 - 容器泛型缺失 - func get_all_equipment() -> Array
+  → 应为 -> Array[Dictionary]，返回装备配置字典数组
+
+ConfigLoader.gd:205 - 容器泛型缺失 - func get_all_affixes() -> Array
+  → 应为 -> Array[Dictionary]，返回词缀配置字典数组
+
+ConfigLoader.gd:210 - 容器泛型缺失 - func get_all_skills() -> Array
+  → 应为 -> Array[Dictionary]
+
+ConfigLoader.gd:225 - 容器泛型缺失 - func get_all_classes() -> Array
+  → 应为 -> Array[Dictionary]
+
+ConfigLoader.gd:235 - 容器泛型缺失 - func get_all_sets() -> Array
+  → 应为 -> Array[Dictionary]
+
+ConfigLoader.gd:245 - 容器泛型缺失 - func get_skills_for_class(class_id: String) -> Array
+  → 应为 -> Array[Dictionary]
+
+ConfigLoader.gd:260 - 容器泛型缺失 - func get_all_dungeons() -> Array
+  → 应为 -> Array[Dictionary]
+
+ConfigLoader.gd:279 - 容器泛型缺失 - func get_all_buildings() -> Array
+  → 应为 -> Array[Dictionary]
+
+ConfigLoader.gd:300 - 容器泛型缺失 - func get_basic_materials() -> Array
+  → 应为 -> Array[Dictionary]
+
+ConfigLoader.gd:309 - 容器泛型缺失 - func get_all_talents() -> Array
+  → 应为 -> Array[Dictionary]
+
+#### 其他系统的容器类型
+AchievementSystem.gd:13 - 容器泛型缺失 - func get_all_achievements() -> Array
+  → 应为 -> Array[Dictionary]
+
+BuildPresets.gd:24 - 容器泛型缺失 - func get_presets(char_id: String) -> Array
+  → 应为 -> Array[Dictionary]
+
+PartySystem.gd:87 - 容器泛型缺失 - func get_companion_characters() -> Array
+  → 应为 -> Array[Dictionary]
+
+RosterSystem.gd:95 - 容器泛型缺失 - func get_other_characters() -> Array
+  → 应为 -> Array[Dictionary]
+
+SaveSystem.gd:110 - 容器泛型缺失 - func get_save_slots() -> Array
+  → 应为 -> Array[Dictionary]
+
+EndgameSystem.gd:45 - 容器泛型缺失 - func get_all_modifiers() -> Array
+  → 应为 -> Array[Dictionary]
+
+### 1.2 返回值类型不明确
+
+ConfigLoader.gd:180 - 缺返回值标注 - func get_balance_param(key: String, default_value = null)
+  → 当前返回 Variant（因为 default_value = null）
+  → 建议方案：
+     a) 标注为 -> Variant（简单但类型信息丢失）
+     b) 拆分为类型化函数（如 get_balance_int/get_balance_float）
+
+### 1.3 Enemy.gd 公开函数缺返回值标注（14个void函数）
+
+Enemy.gd:70 - 缺返回值标注 - func apply_difficulty(hp_mult: float, dmg_mult: float)
+Enemy.gd:170 - 缺返回值标注 - func chase_player(_delta)
+Enemy.gd:186 - 缺返回值标注 - func attack()
+Enemy.gd:211 - 缺返回值标注 - func take_damage(damage_amount: float, is_crit: bool = false)
+Enemy.gd:248 - 缺返回值标注 - func apply_knockback(attacker_pos: Vector2, is_crit: bool)
+Enemy.gd:389 - 缺返回值标注 - func die()
+Enemy.gd:448 - 缺返回值标注 - func drop_loot()
+Enemy.gd:464 - 缺返回值标注 - func drop_material()
+Enemy.gd:504 - 缺返回值标注 - func call_equipment_drop()
+Enemy.gd:531 - 缺返回值标注 - func apply_ignite(dps: float, duration: float)
+Enemy.gd:537 - 缺返回值标注 - func apply_poison(dps: float, duration: float)
+Enemy.gd:543 - 缺返回值标注 - func apply_freeze(duration: float)
+Enemy.gd:557 - 缺返回值标注 - func apply_slow(slow_percent: float, duration: float)
+Enemy.gd:562 - 缺返回值标注 - func apply_stun(duration: float)
+
+### 1.4 autoload 系统中的 void 函数（70个，可选标注）
+
+这些函数都是副作用函数（无返回值），GDScript 允许省略 -> void，但明确标注可提升可读性。
+
+#### 事件注册类
+AchievementSystem.gd:36 - 缺返回值标注 - func register_boss_kill(boss_id: String)
+AchievementSystem.gd:41 - 缺返回值标注 - func register_trial_floor(floor: int)
+AchievementSystem.gd:45 - 缺返回值标注 - func register_set_collected(_set_id: String)
+AchievementSystem.gd:49 - 缺返回值标注 - func register_paragon_level(level: int)
+AchievementSystem.gd:53 - 缺返回值标注 - func register_dungeon_clear(_dungeon_id: String, difficulty: int)
+
+#### 状态修改类
+ActiveSkillSystem.gd:21 - 缺返回值标注 - func reset()
+ActiveSkillSystem.gd:28 - 缺返回值标注 - func register_skill(skill_data: Dictionary, level: int)
+ActiveSkillSystem.gd:326 - 缺返回值标注 - func equip_manual_skill(slot_index: int, skill_id: String)
+AffixSystem.gd:14 - 缺返回值标注 - func apply_affix_effect(affix_data: Dictionary)
+AffixSystem.gd:84 - 缺返回值标注 - func clear_all_affixes()
+
+#### 音频类
+AudioManager.gd:82 - 缺返回值标注 - func play(name: String, volume_db: float = 0.0)
+AudioManager.gd:97 - 缺返回值标注 - func play_bgm(region_id: String)
+AudioManager.gd:130 - 缺返回值标注 - func stop_bgm()
+
+#### 战斗效果类
+CombatSystem.gd:41 - 缺返回值标注 - func apply_damage(target: Node2D, damage: float, attacker_stats: Dictionary, is_crit: bool = false)
+CombatSystem.gd:104 - 缺返回值标注 - func trigger_lifesteal(damage: float, lifesteal_percent: float)
+CombatSystem.gd:112 - 缺返回值标注 - func trigger_ignite(target: Node2D, dps: float, duration: float)
+CombatSystem.gd:123 - 缺返回值标注 - func trigger_poison(target: Node2D, dps: float, duration: float)
+CombatSystem.gd:134 - 缺返回值标注 - func trigger_freeze(target: Node2D, duration: float)
+CombatSystem.gd:145 - 缺返回值标注 - func trigger_slow(target: Node2D, slow_percent: float, duration: float)
+CombatSystem.gd:152 - 缺返回值标注 - func trigger_stun(target: Node2D, duration: float)
+CombatSystem.gd:160 - 缺返回值标注 - func trigger_affix_summon(pos: Vector2, attacker_stats: Dictionary)
+CombatSystem.gd:190 - 缺返回值标注 - func trigger_affix_chain(origin: Node2D, damage: float, attacker_stats: Dictionary)
+CombatSystem.gd:280 - 缺返回值标注 - func check_player_attack(attack_area: Area2D, player_stats: Dictionary)
+CombatSystem.gd:347 - 缺返回值标注 - func enemy_attack_player(enemy_damage: float, player: Node2D)
+
+#### 职业机制类
+ClassMechanicSystem.gd:176 - 缺返回值标注 - func on_player_hit_enemy()
+ClassMechanicSystem.gd:189 - 缺返回值标注 - func on_player_damaged()
+ClassMechanicSystem.gd:248 - 缺返回值标注 - func on_ranger_hit_target(target: Node2D)
+ClassMechanicSystem.gd:282 - 缺返回值标注 - func on_mage_cast()
+ClassMechanicSystem.gd:292 - 缺返回值标注 - func trigger_chain_lightning(source_enemy: Node2D, base_damage: float, player_stats: Dictionary)
+ClassMechanicSystem.gd:396 - 缺返回值标注 - func reset()
+ClassMechanicSystem.gd:474 - 缺返回值标注 - func assassin_on_attack()
+ClassMechanicSystem.gd:732 - 缺返回值标注 - func take_damage(amount: float)
+ClassMechanicSystem.gd:755 - 缺返回值标注 - func necro_register_corpse(pos: Vector2)
+
+#### 配置加载类
+ConfigLoader.gd:45 - 缺返回值标注 - func load_all_configs()
+DungeonFeatureSystem.gd:522 - 缺返回值标注 - func set_arena(arena: Node)
+
+#### 副本流程类
+DungeonFlow.gd:14 - 缺返回值标注 - func start_dungeon(dungeon_id: String, scene: Node2D, _player_ref: Node2D)
+DungeonFlow.gd:51 - 缺返回值标注 - func reset()
+
+#### 末期系统类
+EndgameSystem.gd:67 - 缺返回值标注 - func clear_modifiers()
+EndgameSystem.gd:142 - 缺返回值标注 - func abort_trial()
+EndgameSystem.gd:247 - 缺返回值标注 - func deserialize(data: Dictionary)
+
+#### 装备系统类
+EquipmentSystem.gd:200 - 缺返回值标注 - func unequip_item(slot: String)
+EquipmentSystem.gd:648 - 缺返回值标注 - func pickup_equipment(item_data: Dictionary)
+EquipmentSystem.gd:686 - 缺返回值标注 - func deserialize_instances(data: Dictionary)
+EquipmentSystem.gd:702 - 缺返回值标注 - func deserialize_equipped(data: Dictionary)
+
+#### 反馈系统类
+FeedbackSystem.gd:61 - 缺返回值标注 - func hitstop(duration: float)
+FeedbackSystem.gd:78 - 缺返回值标注 - func shake(intensity: float, duration: float = 0.15)
+FeedbackSystem.gd:96 - 缺返回值标注 - func slowmo(scale: float = 0.35, duration: float = 0.4)
+FeedbackSystem.gd:110 - 缺返回值标注 - func flash(node: CanvasItem, color: Color = Color.WHITE, duration: float = 0.1)
+FeedbackSystem.gd:157 - 缺返回值标注 - func set_loot_filter(threshold: int)
+
+#### 游戏状态类
+GameState.gd:68 - 缺返回值标注 - func set_current_character(char_id: String)
+GameState.gd:74 - 缺返回值标注 - func gain_paragon_level(levels: int)
+GameState.gd:139 - 缺返回值标注 - func deserialize(data: Dictionary)
+GameState.gd:276 - 缺返回值标注 - func deserialize_legacy_dungeon_progress(data: Dictionary)
+GameState.gd:289 - 缺返回值标注 - func deserialize_legacy_paragon(data: Dictionary)
+
+#### 背包系统类
+Inventory.gd:125 - 缺返回值标注 - func add_material(mat_id: String, count: int)
+Inventory.gd:130 - 缺返回值标注 - func remove_material(mat_id: String, count: int)
+Inventory.gd:208 - 缺返回值标注 - func deserialize(data: Dictionary)
+
+#### 队伍系统类
+PartySystem.gd:68 - 缺返回值标注 - func set_companion(index: int, char_id: String)
+PartySystem.gd:74 - 缺返回值标注 - func clear_companion(index: int)
+
+#### 任务系统类
+QuestSystem.gd:52 - 缺返回值标注 - func accept_quest(quest_id: String)
+QuestSystem.gd:81 - 缺返回值标注 - func register_boss_kill(boss_id: String)
+QuestSystem.gd:99 - 缺返回值标注 - func register_dungeon_clear(dungeon_id: String)
+QuestSystem.gd:110 - 缺返回值标注 - func register_paragon_level(level: int)
+QuestSystem.gd:121 - 缺返回值标注 - func claim_reward(quest_id: String)
+QuestSystem.gd:198 - 缺返回值标注 - func deserialize(data: Dictionary)
+
+#### 名册系统类
+RosterSystem.gd:382 - 缺返回值标注 - func deserialize(data: Dictionary)
+RosterSystem.gd:393 - 缺返回值标注 - func deserialize_legacy_character_progress(data: Dictionary)
+RosterSystem.gd:400 - 缺返回值标注 - func deserialize_legacy_equipment(data: Dictionary)
+
+#### 存档系统类
+SaveSystem.gd:30 - 缺返回值标注 - func on_game_start()
+SaveSystem.gd:100 - 缺返回值标注 - func _write_save_file(path: String, data: Dictionary)
+
+#### 技能系统类
+SkillSystem.gd:24 - 缺返回值标注 - func unlock_skill(skill_id: String)
+SkillSystem.gd:32 - 缺返回值标注 - func upgrade_skill(skill_id: String)
+SkillSystem.gd:38 - 缺返回值标注 - func add_skill_points(amount: int)
+
+#### 标签协同系统类
+TagSynergySystem.gd:22 - 缺返回值标注 - func reset()
+
+#### 领地系统类
+TerritorySystem.gd:432 - 缺返回值标注 - func deserialize(data: Dictionary)
+TerritorySystem.gd:535 - 缺返回值标注 - func deserialize_legacy_residents(data: Dictionary)
+TerritorySystem.gd:565 - 缺返回值标注 - func deserialize_legacy_buildings(data: Dictionary)
+
+#### 其他系统类
+AchievementSystem.gd:104 - 缺返回值标注 - func deserialize(data: Dictionary)
+BuildPresets.gd:146 - 缺返回值标注 - func deserialize(data: Dictionary)
+ThemeGenerator.gd:227 - 缺返回值标注 - func _process_walls(tilemap: TileMap, used_cells: Array[Vector2i])
+
+## 二、统计汇总
+
+### autoload 系统（30个文件）
+- 公开函数缺返回值标注：81 个
+  - 其中容器泛型缺失（Array → Array[T]）：16 个 ⚠️ 高优先级
+  - 其中返回 Variant 需明确类型：1 个 (get_balance_param) ⚠️ 中优先级
+  - 其中返回 void（副作用函数）：约 64 个 ℹ️ 可选标注
+
+### Enemy.gd（1294行）
+- 公开函数缺返回值标注：14 个（全部为 void 副作用函数）
+
+### Town.gd（2015行）
+- 公开函数缺返回值标注：0 个 ✓ 类型标注完整
+
+## 三、优先级建议
+
+### 🔴 立即补充（本周完成，影响 API 清晰度）
+
+#### 1. ConfigLoader 的 10 个 get_all_* 函数 + 1 个 get_balance_param
+- 补充 `-> Array[Dictionary]` 泛型标注
+- 这些是配置驱动架构的核心 API，被所有系统调用
+- 影响范围：EquipmentSystem/AffixWorkshop/SkillSystem 等
+- **工作量：11 处修改，约 30 分钟**
+
+#### 2. 其他系统的 6 个 Array 返回值
+- AchievementSystem/BuildPresets/PartySystem/RosterSystem/SaveSystem/EndgameSystem
+- **工作量：6 处修改，约 20 分钟**
+
+**第一阶段总计：17 处修改，约 1 小时**
+
+### 🟡 重构时补充（提升可维护性）
+
+#### 1. Enemy.gd 的 14 个公开函数
+- 待拆分文件时同步补充 `-> void` 标注
+- 非紧急，但有助于重构时理解副作用边界
+
+#### 2. autoload 中的 64 个 void 函数
+- 可选补充 `-> void`（GDScript 允许省略）
+- 优先级：事件注册类 > 状态修改类 > 反馈效果类
+
+### 🟢 不必补充（推断已足够）
+
+1. **变量声明** - `var x = 5` 已推断为 int，不必强制标注
+2. **私有函数** - `func _internal()` 内部实现细节，按需标注
+3. **简单赋值返回** - `return true/false/0/""` 类型明确
+
+## 四、工程策略
+
+### ❌ 不建议：全量标注
+- 721 个函数 + 2399 个变量 = 成本巨大
+- GDScript 有类型推断，强制标注收益递减
+
+### ✅ 建议：增量标注策略
+
+**第一阶段（本周）- 核心 API 类型明确化**
+- 补充 ConfigLoader 的 11 个核心 API
+- 补充其他系统 6 个 Array 函数
+- **总工作量：17 处修改，1 小时**
+
+**第二阶段（重构 Enemy.gd 时）- 副作用边界明确化**
+- 同步补充 Enemy.gd 的 14 个函数标注
+- 拆分职责时明确各模块的类型契约
+
+**第三阶段（按需）- 按需渐进式补充**
+- 遇到类型相关 bug 时，局部补充标注辅助排查
+- 新增代码强制要求类型标注（可通过 CI 检查）
+
+## 五、实施检查清单
+
+### 示例修改
+
+```gdscript
+# ConfigLoader.gd 修改示例
+# 修改前
+func get_all_equipment() -> Array:
+    return equipment_data.get("items", [])
+
+# 修改后
+func get_all_equipment() -> Array[Dictionary]:
+    return equipment_data.get("items", [])
+```
+
+```gdscript
+# ConfigLoader.gd get_balance_param 修改建议
+# 方案 A：标注为 Variant（简单但类型信息丢失）
+func get_balance_param(key: String, default_value = null) -> Variant:
+    return balance_data.get(key, default_value)
+
+# 方案 B：保持现状，依赖推断（实际上已经是 Variant）
+# 无需修改
+```
+
+### 需修改文件清单（第一阶段 - 17 处）
+
+- [ ] /d/桌面/CC工具/gm/project/src/autoload/ConfigLoader.gd (11处)
+  - [ ] L193: get_all_equipment() -> Array[Dictionary]
+  - [ ] L205: get_all_affixes() -> Array[Dictionary]
+  - [ ] L210: get_all_skills() -> Array[Dictionary]
+  - [ ] L225: get_all_classes() -> Array[Dictionary]
+  - [ ] L235: get_all_sets() -> Array[Dictionary]
+  - [ ] L245: get_skills_for_class() -> Array[Dictionary]
+  - [ ] L260: get_all_dungeons() -> Array[Dictionary]
+  - [ ] L279: get_all_buildings() -> Array[Dictionary]
+  - [ ] L300: get_basic_materials() -> Array[Dictionary]
+  - [ ] L309: get_all_talents() -> Array[Dictionary]
+  - [ ] L180: get_balance_param() -> Variant (或保持现状)
+
+- [ ] /d/桌面/CC工具/gm/project/src/autoload/AchievementSystem.gd (1处)
+  - [ ] L13: get_all_achievements() -> Array[Dictionary]
+
+- [ ] /d/桌面/CC工具/gm/project/src/autoload/BuildPresets.gd (1处)
+  - [ ] L24: get_presets() -> Array[Dictionary]
+
+- [ ] /d/桌面/CC工具/gm/project/src/autoload/PartySystem.gd (1处)
+  - [ ] L87: get_companion_characters() -> Array[Dictionary]
+
+- [ ] /d/桌面/CC工具/gm/project/src/autoload/RosterSystem.gd (1处)
+  - [ ] L95: get_other_characters() -> Array[Dictionary]
+
+- [ ] /d/桌面/CC工具/gm/project/src/autoload/SaveSystem.gd (1处)
+  - [ ] L110: get_save_slots() -> Array[Dictionary]
+
+- [ ] /d/桌面/CC工具/gm/project/src/autoload/EndgameSystem.gd (1处)
+  - [ ] L45: get_all_modifiers() -> Array[Dictionary]
+
+### 延后文件清单（第二阶段）
+
+- [ ] /d/桌面/CC工具/gm/project/src/scripts/Enemy.gd (14处，重构时补充)
+
+## 六、结论
+
+**是否建议立即大规模补类型？**
+❌ 否。建议**仅在重构时按需补充**，但有 17 个核心 API 需立即补充泛型标注。
+
+**理由：**
+1. GDScript 的类型推断已覆盖大部分场景
+2. 强制标注 2399 个变量成本过高，收益递减
+3. 但 **容器泛型标注**（Array[T]）对 API 清晰度影响巨大，必须补充
+4. ConfigLoader 作为配置驱动架构的核心，其类型契约必须明确
+
+**建议行动：**
+1. 本周完成 17 个核心 API 的泛型标注（1 小时）
+2. Enemy.gd 重构时同步补充类型标注
+3. 新增代码要求类型标注（通过 code review 或 CI 检查）

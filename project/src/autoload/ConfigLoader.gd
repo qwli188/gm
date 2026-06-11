@@ -177,7 +177,7 @@ func get_enemy_by_id(id: String) -> Dictionary:
 
 
 ## 获取数值平衡参数
-func get_balance_param(key: String, default_value = null):
+func get_balance_param(key: String, default_value = null) -> Variant:
 	return balance_data.get(key, default_value)
 
 
@@ -190,8 +190,8 @@ func get_balance_config() -> Dictionary:
 
 
 ## 获取所有装备列表（8部位全合并）
-func get_all_equipment() -> Array:
-	var result = []
+func get_all_equipment() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
 	# 新结构：统一 items 数组
 	result.append_array(equipment_data.get("items", []))
 	# 兼容旧结构：分类数组
@@ -202,13 +202,17 @@ func get_all_equipment() -> Array:
 
 
 ## 获取所有词缀列表
-func get_all_affixes() -> Array:
-	return affixes_data.get("affixes", [])
+func get_all_affixes() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	result.assign(affixes_data.get("affixes", []))
+	return result
 
 
 ## 获取所有技能列表
-func get_all_skills() -> Array:
-	return skills_data.get("skills", [])
+func get_all_skills() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	result.assign(skills_data.get("skills", []))
+	return result
 
 
 ## 根据 id 查找装备（武器/护甲/饰品全找，O(1) 索引查找）
@@ -222,8 +226,10 @@ func get_class_by_id(id: String) -> Dictionary:
 
 
 ## 获取所有职业
-func get_all_classes() -> Array:
-	return classes_data.get("classes", [])
+func get_all_classes() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	result.assign(classes_data.get("classes", []))
+	return result
 
 
 ## 根据 id 查找套装（O(1) 索引查找）
@@ -232,8 +238,10 @@ func get_set_by_id(id: String) -> Dictionary:
 
 
 ## 获取所有套装
-func get_all_sets() -> Array:
-	return sets_data.get("sets", [])
+func get_all_sets() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	result.assign(sets_data.get("sets", []))
+	return result
 
 
 ## 根据 id 查找技能（O(1) 索引查找）
@@ -242,8 +250,8 @@ func get_skill_by_id(id: String) -> Dictionary:
 
 
 ## 获取某职业可用的技能（class 字段匹配或 "all" 通用）
-func get_skills_for_class(class_id: String) -> Array:
-	var result = []
+func get_skills_for_class(class_id: String) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
 	for s in skills_data.get("skills", []):
 		var cls = s.get("class", "all")
 		if cls == "all" or cls == class_id:
@@ -257,8 +265,10 @@ func get_dungeon_by_id(id: String) -> Dictionary:
 
 
 ## 获取所有副本
-func get_all_dungeons() -> Array:
-	return dungeons_data.get("dungeons", [])
+func get_all_dungeons() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	result.assign(dungeons_data.get("dungeons", []))
+	return result
 
 
 ## 获取稀有度特效配置
@@ -276,8 +286,10 @@ func get_building_def(building_id: String) -> Dictionary:
 
 
 ## 获取所有可建造建筑定义
-func get_all_buildings() -> Array:
-	return territory_data.get("buildings", [])
+func get_all_buildings() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	result.assign(territory_data.get("buildings", []))
+	return result
 
 
 ## 获取领地某等级的定义
@@ -297,8 +309,10 @@ func get_territory_max_level() -> int:
 
 
 ## 获取基础建材定义列表
-func get_basic_materials() -> Array:
-	return territory_data.get("basic_materials", [])
+func get_basic_materials() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	result.assign(territory_data.get("basic_materials", []))
+	return result
 
 
 ## ============ P6 天赋星图 ============
@@ -306,8 +320,10 @@ func get_talent_def(talent_id: String) -> Dictionary:
 	return _talents_index.get(talent_id, {})
 
 
-func get_all_talents() -> Array:
-	return talents_data.get("talents", [])
+func get_all_talents() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	result.assign(talents_data.get("talents", []))
+	return result
 
 
 ## 把已解锁的天赋节点效果聚合成扁平字典 {effect_key: total_value}

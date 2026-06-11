@@ -107,8 +107,8 @@ func auto_save(slot: int = 1):
 
 
 ## 列出已有存档（返回每个槽位的摘要信息）
-func get_save_slots() -> Array:
-	var slots = []
+func get_save_slots() -> Array[Dictionary]:
+	var slots: Array[Dictionary] = []
 	for i in range(1, MAX_SLOTS + 1):
 		var file_path = _get_save_path(i)
 		if not FileAccess.file_exists(file_path):

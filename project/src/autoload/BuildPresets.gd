@@ -21,8 +21,10 @@ func _ready():
 	print("[BuildPresets] BD 预设系统初始化")
 
 
-func get_presets(char_id: String) -> Array:
-	return presets.get(char_id, [])
+func get_presets(char_id: String) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	result.assign(presets.get(char_id, []))
+	return result
 
 
 ## 保存当前角色当前装备/属性/技能为某槽预设。slot_index 0~2

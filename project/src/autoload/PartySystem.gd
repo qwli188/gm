@@ -84,9 +84,9 @@ func sanitize():
 
 
 ## 获取随行角色档案列表（出击时 MainScene 用来 spawn）
-func get_companion_characters() -> Array:
+func get_companion_characters() -> Array[Dictionary]:
 	sanitize()
-	var result = []
+	var result: Array[Dictionary] = []
 	if has_node("/root/RosterSystem"):
 		for cid in companion_ids:
 			var c = RosterSystem.get_character(cid)

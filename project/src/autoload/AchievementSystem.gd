@@ -10,10 +10,12 @@ func _ready():
 	print("[AchievementSystem] 成就系统初始化")
 
 
-func get_all_achievements() -> Array:
+func get_all_achievements() -> Array[Dictionary]:
 	if has_node("/root/ConfigLoader"):
 		var cfg = get_node("/root/ConfigLoader").config
-		return cfg.get("achievements", [])
+		var result: Array[Dictionary] = []
+		result.assign(cfg.get("achievements", []))
+		return result
 	return []
 
 

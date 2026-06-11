@@ -42,8 +42,10 @@ func get_modifier_def(mod_id: String) -> Dictionary:
 	return {}
 
 
-func get_all_modifiers() -> Array:
-	return ConfigLoader.get_endgame_config().get("dungeon_modifiers", {}).get("modifiers", [])
+func get_all_modifiers() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	result.assign(ConfigLoader.get_endgame_config().get("dungeon_modifiers", {}).get("modifiers", []))
+	return result
 
 
 func max_modifiers() -> int:

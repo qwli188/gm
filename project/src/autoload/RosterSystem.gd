@@ -92,8 +92,8 @@ func is_full() -> bool:
 
 
 ## 返回除操控角色外、可作为队友/可部署的角色（P2/P5 用）
-func get_other_characters() -> Array:
-	var result = []
+func get_other_characters() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
 	for c in characters:
 		if c.get("char_id", "") != active_char_id:
 			result.append(c)
