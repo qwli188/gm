@@ -1,3 +1,11 @@
 .godot/
 *.tmp
 .claude/worktrees/
+
+# 过程性产物（Godot 运行输出 / 验证日志），不入库
+*_verify.txt
+verify_out.txt
+godot_verify_full.txt
+_v.txt
+verify_*.txt
+*.log
