@@ -15,9 +15,29 @@ var _life: float = 0.0
 const DURATION := 1.0
 var _is_crit: bool = false
 var _bounce_tween: Tween
+var _is_heal: bool = false
+
+## 累计伤害更新：FeedbackSystem 0.3s 窗口内的同目标伤害合并
+func update_amount(new_amount: float, is_crit: bool):
+	if _label == null:
+		return
+	_is_crit = _is_crit or is_crit
+	_life = max(0.0, _life - 0.3)  # 重置部分生命，使飘字续命
+	_label.text = ("+" if _is_heal else "") + str(int(round(new_amount)))
+	if _is_crit:
+		_label.text += "!"
+		_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
+		_label.add_theme_font_size_override("font_size", 42)
+	# 弹一下表示又被打了
+	if _bounce_tween:
+		_bounce_tween.kill()
+	_bounce_tween = create_tween()
+	_label.scale = Vector2(1.3, 1.3)
+	_bounce_tween.tween_property(_label, "scale", Vector2(1.0, 1.0), 0.10).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func _setup(amount: float, is_crit: bool, is_heal: bool) -> void:
 	_is_crit = is_crit
+	_is_heal = is_heal
 	_label = Label.new()
 	_label.text = ("+" if is_heal else "") + str(int(round(amount)))
 	var color := Color(1, 1, 1)

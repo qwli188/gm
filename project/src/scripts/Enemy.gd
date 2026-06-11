@@ -362,11 +362,18 @@ func die():
 		burst_color = Color(0.8, 0.2, 0.8)  # 精英紫色
 	ParticleHelper.spawn_death_burst(get_parent(), global_position, burst_color)
 
-	# B2: 击杀定格(0.05秒,增强打击感)
-	Engine.time_scale = 0.0
-	get_tree().create_timer(0.05, true, false, true).timeout.connect(func():
-		Engine.time_scale = 1.0
-	)
+	# B2: 击杀定格 / Boss 慢镜头（P8 路由到 FeedbackSystem）
+	if has_node("/root/FeedbackSystem"):
+		if rank == "boss":
+			get_node("/root/FeedbackSystem").slowmo(0.35, 0.5)
+			get_node("/root/FeedbackSystem").shake(14.0, 0.35)
+		else:
+			get_node("/root/FeedbackSystem").hitstop(0.05)
+	else:
+		Engine.time_scale = 0.0
+		get_tree().create_timer(0.05, true, false, true).timeout.connect(func():
+			Engine.time_scale = 1.0
+		)
 
 	# B1 shader接线: 死亡溶解效果(替代瞬间消失)
 	if anim_sprite:
@@ -377,6 +384,10 @@ func die():
 
 	drop_loot()
 	drop_material()
+
+	# P9: 通知任务系统（kill_tag / kill_boss）
+	if has_node("/root/QuestSystem"):
+		get_node("/root/QuestSystem").register_kill(enemy_data)
 
 	# 通知玩家击杀
 	if player and player.has_method("on_enemy_killed"):

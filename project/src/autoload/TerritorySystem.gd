@@ -65,7 +65,30 @@ func _make_resident() -> Dictionary:
 		"name": names[randi() % names.size()] + str(randi() % 100),
 		"job": "idle",  # idle / farmer / miner / lumberjack / soldier
 		"assigned_building": "",  # 分配到的建筑 id，空表示闲置
+		"sorties_worked": 0,  # P9: 该居民跟过的出击次数（仅当被分配时累计）
 	}
+
+## P9: 居民等级（学徒/熟练/大师/宗师）—— 由 sorties_worked 决定
+func get_resident_stage(resident_idx: int) -> Dictionary:
+	if resident_idx < 0 or resident_idx >= residents.size():
+		return {}
+	var sorties = int(residents[resident_idx].get("sorties_worked", 0))
+	var stages = ConfigLoader.territory_data.get("resident_evolution", {}).get("stages", [])
+	var current = {}
+	for s in stages:
+		if sorties >= int(s.get("min_sorties", 0)):
+			current = s
+	return current
+
+## P9: 该建筑分配居民的总产出乘数（每居民按等级加成）
+func building_resident_production_mult(building_id: String) -> float:
+	var total = 0.0
+	for i in residents.size():
+		if residents[i].get("assigned_building", "") == building_id:
+			var stage = get_resident_stage(i)
+			# 每居民贡献 0.10 × 等级倍率（基础 1.0 → 学徒 0.10、熟练 0.125、大师 0.16、宗师 0.20）
+			total += 0.10 * float(stage.get("production_mult", 1.0))
+	return min(1.0 + total, 2.5)  # 上限 2.5x
 
 ## 分配居民到建筑(提升产出 / 兵营转为驻军)
 func assign_resident(resident_idx: int, building_id: String) -> bool:
@@ -308,17 +331,115 @@ func settle_sortie() -> Dictionary:
 			continue
 		var lv = get_building_level(bid)
 		var amount = int(prod.get("base_per_sortie", 0)) + int(prod.get("per_level", 0)) * (lv - 1)
-		# P3: 居民加成（每个居民 +10%，上限 +100%）
-		var workers = count_assigned_to(bid)
-		var worker_mult = min(1.0 + workers * 0.1, 2.0)
+		# P9: 居民加成（按等级 production_mult 加权）
+		var worker_mult = building_resident_production_mult(bid)
 		amount = int(float(amount) * worker_mult)
 		if amount > 0:
 			GameState.add_material(mat, amount)
 			gains[mat] = gains.get(mat, 0) + amount
+	# P9: 给被分配的居民 +1 sorties_worked，用于晋升
+	for i in residents.size():
+		if residents[i].get("assigned_building", "") != "":
+			residents[i]["sorties_worked"] = int(residents[i].get("sorties_worked", 0)) + 1
+	# P9: 商人刷新
+	_maybe_refresh_merchant()
+	# P9: 任务系统刷新
+	if has_node("/root/QuestSystem"):
+		QuestSystem.maybe_refresh(sortie_count)
 	if not gains.is_empty():
 		_emit_dirty()
 		print("[TerritorySystem] 出击结算产出: %s" % str(gains))
 	return gains
+
+## ============ P9 流浪商人 ============
+var merchant_stock: Array = []          # 当前可购商品 [{id, display_name, ...}]
+var merchant_last_refresh_sortie: int = 0
+signal merchant_refreshed()
+
+func _maybe_refresh_merchant():
+	var cfg = ConfigLoader.territory_data.get("merchant", {})
+	var every = int(cfg.get("refresh_every_n_sorties", 3))
+	if every <= 0:
+		return
+	if sortie_count - merchant_last_refresh_sortie < every and not merchant_stock.is_empty():
+		return
+	refresh_merchant()
+
+## 强制刷新商人库存（出击结算 / 测试用）
+func refresh_merchant():
+	var cfg = ConfigLoader.territory_data.get("merchant", {})
+	var pool = cfg.get("stock_pool", [])
+	var stock_size = int(cfg.get("stock_size", 4))
+	merchant_stock.clear()
+	# 加权抽样（无放回）
+	var pool_copy = pool.duplicate()
+	for i in stock_size:
+		if pool_copy.is_empty():
+			break
+		var total_w = 0
+		for it in pool_copy:
+			total_w += int(it.get("weight", 1))
+		var roll = randi() % max(total_w, 1)
+		var acc = 0
+		var picked_idx = 0
+		for j in pool_copy.size():
+			acc += int(pool_copy[j].get("weight", 1))
+			if roll < acc:
+				picked_idx = j
+				break
+		merchant_stock.append(pool_copy[picked_idx].duplicate(true))
+		pool_copy.remove_at(picked_idx)
+	merchant_last_refresh_sortie = sortie_count
+	merchant_refreshed.emit()
+	_emit_dirty()
+	print("[TerritorySystem] 商人刷新, %d 件库存" % merchant_stock.size())
+
+## 购买商人商品。返回 {ok, reason}
+func buy_from_merchant(item_id: String) -> Dictionary:
+	var idx = -1
+	for i in merchant_stock.size():
+		if merchant_stock[i].get("id", "") == item_id:
+			idx = i
+			break
+	if idx < 0:
+		return {"ok": false, "reason": "商品不存在"}
+	var item = merchant_stock[idx]
+	var cost = int(item.get("cost_gold", 0))
+	if GameState.total_gold < cost:
+		return {"ok": false, "reason": "金币不足"}
+	GameState.total_gold -= cost
+	# 发货
+	var item_type = item.get("type", "")
+	match item_type:
+		"random_equipment":
+			var rarity = item.get("rarity", "rare")
+			# 从该稀有度池里随便抽一件
+			var pool_eq = ConfigLoader.get_all_equipment().filter(func(e): return e.get("rarity", "") == rarity)
+			if pool_eq.is_empty():
+				pool_eq = ConfigLoader.get_all_equipment()
+			if pool_eq.is_empty():
+				return {"ok": false, "reason": "装备池为空"}
+			var pick = pool_eq[randi() % pool_eq.size()]
+			var inst_id = EquipmentSystem.roll_equipment(pick.get("id", ""), rarity)
+			if has_node("/root/Inventory") and inst_id != "":
+				if not Inventory.add_to_backpack(inst_id):
+					EquipmentSystem.equipment_instances.erase(inst_id)
+					GameState.total_gold += cost
+					return {"ok": false, "reason": "背包已满"}
+		"material":
+			var mat_id = item.get("material_id", "")
+			var amount = int(item.get("amount", 0))
+			if mat_id != "":
+				GameState.add_material(mat_id, amount)
+		_:
+			GameState.total_gold += cost
+			return {"ok": false, "reason": "未知商品类型"}
+	# 售出后从库存移除
+	merchant_stock.remove_at(idx)
+	merchant_refreshed.emit()
+	_emit_dirty()
+	print("[TerritorySystem] 购买: %s -%d 金" % [item.get("display_name", "?"), cost])
+	return {"ok": true, "reason": ""}
 
 ## ============ P4: 防御战触发 ============
 const DEFENSE_INTERVAL := 5  # 每 5 次出击触发一次防御
@@ -363,6 +484,10 @@ func serialize() -> Dictionary:
 		"buildings": buildings.duplicate(),
 		"garrison": garrison.duplicate(true),
 		"residents": residents.duplicate(true),
+		"sortie_count": sortie_count,
+		"last_defense_result": last_defense_result,
+		"merchant_stock": merchant_stock.duplicate(true),
+		"merchant_last_refresh_sortie": merchant_last_refresh_sortie,
 	}
 
 func deserialize(data: Dictionary):
@@ -370,6 +495,11 @@ func deserialize(data: Dictionary):
 	buildings = data.get("buildings", {}).duplicate()
 	garrison = data.get("garrison", []).duplicate(true)
 	residents = data.get("residents", []).duplicate(true)
+	sortie_count = int(data.get("sortie_count", 0))
+	last_defense_result = String(data.get("last_defense_result", ""))
+	merchant_stock = data.get("merchant_stock", []).duplicate(true)
+	merchant_last_refresh_sortie = int(data.get("merchant_last_refresh_sortie", 0))
 	_ensure_townhall()
 	territory_changed.emit()
+	merchant_refreshed.emit()
 	print("[TerritorySystem] 加载领地: Lv.%d, %d 建筑" % [level, buildings.size()])

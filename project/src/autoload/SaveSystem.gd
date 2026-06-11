@@ -162,7 +162,7 @@ func _collect_save_data(slot: int) -> Dictionary:
 	if has_node("/root/RosterSystem"):
 		get_node("/root/RosterSystem").sync_before_save()
 	var data = {
-		"version": "2.0.0",
+		"version": "2.1.0",
 		"slot_id": slot,
 		"created_at": now_iso,
 		"last_played": now_iso,
@@ -170,6 +170,9 @@ func _collect_save_data(slot: int) -> Dictionary:
 		"character": _collect_character_data(),  # 保留：兼容旧读取器/摘要显示
 		"roster": _collect_roster_data(),
 		"territory": _collect_territory_data(),
+		"endgame": _collect_endgame_data(),
+		"quests": _collect_quest_data(),
+		"build_presets": _collect_preset_data(),
 		"equipment_instances": {},
 		"world_state": _collect_world_state(),
 		"meta_progression": _collect_meta_progression(),
@@ -268,6 +271,24 @@ func _collect_territory_data() -> Dictionary:
 		return get_node("/root/TerritorySystem").serialize()
 	return {}
 
+## P7 收集末期内容数据（试炼塔进度等）
+func _collect_endgame_data() -> Dictionary:
+	if has_node("/root/EndgameSystem"):
+		return get_node("/root/EndgameSystem").serialize()
+	return {}
+
+## P9 收集任务系统数据
+func _collect_quest_data() -> Dictionary:
+	if has_node("/root/QuestSystem"):
+		return get_node("/root/QuestSystem").serialize()
+	return {}
+
+## P10 收集 BD 预设数据
+func _collect_preset_data() -> Dictionary:
+	if has_node("/root/BuildPresets"):
+		return get_node("/root/BuildPresets").serialize()
+	return {}
+
 ## 收集世界状态
 func _collect_world_state() -> Dictionary:
 	var ws = {"unlocked_dungeons": [], "cleared_dungeons": {}}
@@ -288,6 +309,18 @@ func _collect_meta_progression() -> Dictionary:
 		meta["total_gold_earned"] = gs.total_gold
 		meta["meta_upgrades"] = gs.meta_upgrades.duplicate(true)
 		meta["materials"] = gs.materials.duplicate(true)
+		# P6: 巅峰系统持久化（账号级共享）
+		meta["paragon"] = {
+			"level": gs.paragon_level,
+			"exp": gs.paragon_exp,
+			"points_unspent": gs.paragon_points_unspent,
+			"allocations": gs.paragon_allocations.duplicate(true),
+		}
+		# P6: 天赋星图持久化
+		meta["talents"] = {
+			"unlocked": gs.unlocked_talents.duplicate(true),
+			"points_unspent": gs.talent_points_unspent,
+		}
 	return meta
 
 ## ============ 数据应用（加载时）============
@@ -331,6 +364,16 @@ func _apply_save_data(data: Dictionary):
 		gs.total_gold = meta.get("total_gold_earned", 0)
 		gs.meta_upgrades = meta.get("meta_upgrades", {})
 		gs.materials = meta.get("materials", {})
+		# P6: 恢复巅峰系统
+		var paragon = meta.get("paragon", {})
+		gs.paragon_level = int(paragon.get("level", 0))
+		gs.paragon_exp = float(paragon.get("exp", 0.0))
+		gs.paragon_points_unspent = int(paragon.get("points_unspent", 0))
+		gs.paragon_allocations = paragon.get("allocations", {}).duplicate(true)
+		# P6: 恢复天赋星图
+		var talents = meta.get("talents", {})
+		gs.unlocked_talents = talents.get("unlocked", {}).duplicate(true)
+		gs.talent_points_unspent = int(talents.get("points_unspent", 0))
 
 	# 4. 恢复穿戴与背包（在实例就绪后）
 	#    注意：多角色名册恢复要在穿戴恢复之前，由名册决定操控角色的 equipped。
@@ -341,6 +384,24 @@ func _apply_save_data(data: Dictionary):
 		var territory_data = data.get("territory", {})
 		if territory_data is Dictionary and not territory_data.is_empty():
 			get_node("/root/TerritorySystem").deserialize(territory_data)
+
+	# 4c. P7 恢复末期内容进度
+	if has_node("/root/EndgameSystem"):
+		var endgame_data = data.get("endgame", {})
+		if endgame_data is Dictionary and not endgame_data.is_empty():
+			get_node("/root/EndgameSystem").deserialize(endgame_data)
+
+	# 4d. P9 恢复任务系统
+	if has_node("/root/QuestSystem"):
+		var quest_data = data.get("quests", {})
+		if quest_data is Dictionary and not quest_data.is_empty():
+			get_node("/root/QuestSystem").deserialize(quest_data)
+
+	# 4e. P10 恢复 BD 预设
+	if has_node("/root/BuildPresets"):
+		var preset_data = data.get("build_presets", {})
+		if preset_data is Dictionary and not preset_data.is_empty():
+			get_node("/root/BuildPresets").deserialize(preset_data)
 
 	if has_node("/root/EquipmentSystem"):
 		var eq = get_node("/root/EquipmentSystem")

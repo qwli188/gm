@@ -1,0 +1,65 @@
+{
+  "_comment": "P7 末期内容：地图词缀（dungeon_modifiers）+ 试炼塔（trial_tower）+ 裂隙（rifts）",
+  "version": "1.0.0",
+  "dungeon_modifiers": {
+    "description": "进副本前可选 0-3 条词缀。每条提升敌人某项 / 削弱玩家某项，回报是掉落+经验加成与稀有度提升。",
+    "max_active": 3,
+    "modifiers": [
+      {"id": "mod_savage", "display_name": "凶暴", "effect": {"enemy_dmg_mult": 0.30}, "drop_bonus": 0.15, "exp_bonus": 0.10, "rarity_boost": 0.05, "design_note": "敌人伤害+30%"},
+      {"id": "mod_juggernaut", "display_name": "厚甲", "effect": {"enemy_hp_mult": 0.50}, "drop_bonus": 0.20, "exp_bonus": 0.15, "rarity_boost": 0.05, "design_note": "敌人血量+50%"},
+      {"id": "mod_swift", "display_name": "迅捷", "effect": {"enemy_speed_mult": 0.40}, "drop_bonus": 0.10, "exp_bonus": 0.10, "design_note": "敌人移动/攻速+40%"},
+      {"id": "mod_fragile_player", "display_name": "薄甲冒险", "effect": {"player_armor_mult": -0.30}, "drop_bonus": 0.20, "exp_bonus": 0.15, "design_note": "玩家护甲-30%"},
+      {"id": "mod_glass_cannon", "display_name": "瓷瓶", "effect": {"player_max_hp_mult": -0.30, "player_damage_mult": 0.20}, "drop_bonus": 0.25, "exp_bonus": 0.10, "rarity_boost": 0.05, "design_note": "玩家血量-30%但伤害+20%"},
+      {"id": "mod_swarm", "display_name": "蜂拥", "effect": {"spawn_count_mult": 0.50}, "drop_bonus": 0.25, "exp_bonus": 0.20, "design_note": "敌人数量+50%（EnemySpawner 读取）"},
+      {"id": "mod_elemental_fury", "display_name": "元素之怒", "effect": {"enemy_aoe_chance": 0.20}, "drop_bonus": 0.15, "exp_bonus": 0.10, "rarity_boost": 0.05, "design_note": "敌人附带元素伤害（CombatSystem 读取）"},
+      {"id": "mod_no_potions", "display_name": "禁药", "effect": {"healing_mult": -0.50}, "drop_bonus": 0.20, "exp_bonus": 0.15, "design_note": "回血效率-50%"},
+      {"id": "mod_treasure", "display_name": "藏宝", "effect": {"enemy_hp_mult": 0.20, "enemy_dmg_mult": 0.10}, "drop_bonus": 0.40, "exp_bonus": 0.05, "rarity_boost": 0.10, "design_note": "敌人微强但掉率+40%"},
+      {"id": "mod_endless_night", "display_name": "永夜", "effect": {"enemy_hp_mult": 0.30, "enemy_dmg_mult": 0.20, "spawn_count_mult": 0.20}, "drop_bonus": 0.30, "exp_bonus": 0.25, "rarity_boost": 0.10, "design_note": "全面增强敌人，回报丰厚"}
+    ]
+  },
+  "trial_tower": {
+    "description": "试炼塔：连续 N 层，逐层难度提升。每 5 层一个 Boss 层。完成层数永久记录，给奖励。",
+    "max_floors": 100,
+    "boss_every_n_floors": 5,
+    "hp_mult_per_floor": 0.10,
+    "dmg_mult_per_floor": 0.07,
+    "drop_bonus_per_floor": 0.02,
+    "rewards_per_5_floors": {
+      "gold": 1500,
+      "rune_shard": 20,
+      "void_fragment": 2,
+      "design_note": "每 5 层结算一次奖励"
+    },
+    "milestone_rewards": {
+      "10": {"talent_points": 1, "gold": 5000, "design_note": "10层里程碑：1天赋点+5k金"},
+      "25": {"talent_points": 2, "gold": 15000, "void_fragment": 10, "design_note": "25层"},
+      "50": {"talent_points": 3, "gold": 50000, "void_fragment": 30, "design_note": "50层"},
+      "100": {"talent_points": 5, "gold": 200000, "void_fragment": 100, "design_note": "顶峰：超量奖励"}
+    },
+    "design_note": "试炼塔提供清晰的‘下一座山’。装备越好层数越深，循环驱动构筑。"
+  },
+  "rifts": {
+    "description": "裂隙副本：随机生成的临时副本，限时清完，掉特殊材料 rift_essence。",
+    "essence_material_id": "rift_essence",
+    "time_limit_seconds": 300,
+    "wave_count_range": [8, 15],
+    "rewards_on_clear": {
+      "rift_essence_min": 5,
+      "rift_essence_max": 15,
+      "gold_min": 1000,
+      "gold_max": 3000
+    },
+    "modifier_chance": 0.7,
+    "modifier_pool_size": 2,
+    "design_note": "裂隙是‘速冲型’副本：300 秒清完赚回血，超时无奖励。每次随机 0-2 个 modifier。rift_essence 用于兑换神话装备/特殊词缀。"
+  },
+  "rift_shop": {
+    "description": "用 rift_essence 在城镇兑换的物品",
+    "items": [
+      {"id": "shop_random_legendary", "display_name": "传奇宝箱", "cost": 50, "type": "random_equipment", "rarity": "legendary"},
+      {"id": "shop_random_mythic", "display_name": "神话宝箱", "cost": 200, "type": "random_equipment", "rarity": "mythic"},
+      {"id": "shop_void_fragment_pack", "display_name": "虚空碎片袋", "cost": 30, "type": "material", "material_id": "void_fragment", "amount": 10},
+      {"id": "shop_rune_shard_pack", "display_name": "符文碎片袋", "cost": 10, "type": "material", "material_id": "rune_shard", "amount": 50}
+    ]
+  }
+}

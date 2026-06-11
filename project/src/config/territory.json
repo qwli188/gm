@@ -139,5 +139,43 @@
       "upgrade_cost_per_level": {"gold": 900, "stone_block": 40, "void_fragment": 5},
       "per_level": {"tower_damage": 15}
     }
-  ]
+  ],
+  "resident_evolution": {
+    "description": "P9 居民进化：累计出击若干次后晋升为大师，产出加成翻倍",
+    "stages": [
+      {"id": "novice",  "display_name": "学徒", "min_sorties": 0,  "production_mult": 1.0},
+      {"id": "skilled", "display_name": "熟练", "min_sorties": 5,  "production_mult": 1.25},
+      {"id": "master",  "display_name": "大师", "min_sorties": 15, "production_mult": 1.6},
+      {"id": "grandmaster", "display_name": "宗师", "min_sorties": 40, "production_mult": 2.0}
+    ],
+    "design_note": "居民每次出击产出经验+1。累计跨档提升等级（学徒→熟练→大师→宗师）。每次提升伴随产出加成。"
+  },
+  "merchant": {
+    "description": "P9 流浪商人：每 N 次出击刷新一次商品（账号级，绑领地）",
+    "refresh_every_n_sorties": 3,
+    "stock_size": 4,
+    "stock_pool": [
+      {"id": "merch_random_rare",  "display_name": "稀有装备宝盒",  "weight": 60, "type": "random_equipment", "rarity": "rare",      "cost_gold": 800},
+      {"id": "merch_random_epic",  "display_name": "史诗装备宝盒",  "weight": 25, "type": "random_equipment", "rarity": "epic",      "cost_gold": 3000},
+      {"id": "merch_random_legendary","display_name": "传奇装备宝盒","weight": 8, "type": "random_equipment", "rarity": "legendary", "cost_gold": 10000},
+      {"id": "merch_rune_pack",    "display_name": "符文碎片袋",   "weight": 80, "type": "material", "material_id": "rune_shard",     "amount": 30, "cost_gold": 600},
+      {"id": "merch_void_pack",    "display_name": "虚空碎片袋",   "weight": 30, "type": "material", "material_id": "void_fragment",  "amount": 5,  "cost_gold": 1500},
+      {"id": "merch_food_pack",    "display_name": "粮食补给",     "weight": 100,"type": "material", "material_id": "food",           "amount": 50, "cost_gold": 200},
+      {"id": "merch_set_token",    "display_name": "套装碎片",     "weight": 20, "type": "material", "material_id": "set_token",      "amount": 1,  "cost_gold": 4000}
+    ],
+    "design_note": "每次商人刷新会从池子里加权挑选 stock_size 件商品。商品当次出击未买就失效，下次刷新替换。"
+  },
+  "resident_quests": {
+    "description": "P9 居民悬赏任务：居民/NPC 给的副本目标，完成给奖励",
+    "active_max": 3,
+    "refresh_every_n_sorties": 2,
+    "templates": [
+      {"id": "quest_kill_undead", "display_name": "肃清亡灵", "type": "kill_tag", "tag": "undead", "target_count": 30, "rewards": {"gold": 500, "rune_shard": 5, "exp_bonus": 0.1}},
+      {"id": "quest_clear_dungeon", "display_name": "清剿副本", "type": "clear_dungeon", "rewards": {"gold": 800, "rune_shard": 8, "void_fragment": 1}},
+      {"id": "quest_drop_legendary", "display_name": "猎获传奇", "type": "drop_rarity", "rarity": "legendary", "target_count": 1, "rewards": {"gold": 1500, "void_fragment": 3}},
+      {"id": "quest_kill_boss", "display_name": "斩首", "type": "kill_boss", "target_count": 1, "rewards": {"gold": 2000, "rune_shard": 15, "void_fragment": 2}},
+      {"id": "quest_collect_food", "display_name": "粮草", "type": "collect_material", "material_id": "food", "target_count": 30, "rewards": {"gold": 300, "talent_points": 0}}
+    ],
+    "design_note": "任务是'本次出击的目标'：进副本接，回城判进度。多种类型（kill_tag/clear_dungeon/drop_rarity/kill_boss/collect_material）让玩家有理由刷不同副本。"
+  }
 }

@@ -40,6 +40,11 @@ CombatSystem="*res://autoload/CombatSystem.gd"
 ActiveSkillSystem="*res://autoload/ActiveSkillSystem.gd"
 ClassMechanicSystem="*res://autoload/ClassMechanicSystem.gd"
 DungeonFlow="*res://autoload/DungeonFlow.gd"
+EndgameSystem="*res://autoload/EndgameSystem.gd"
+FeedbackSystem="*res://autoload/FeedbackSystem.gd"
+QuestSystem="*res://autoload/QuestSystem.gd"
+ItemCompare="*res://autoload/ItemCompare.gd"
+BuildPresets="*res://autoload/BuildPresets.gd"
 AutoloadTestRunner="*res://autoload/AutoloadTestRunner.gd"
 
 [display]

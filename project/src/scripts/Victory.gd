@@ -56,6 +56,10 @@ func show_victory(time: float, kill_count: int, gold: int):
 	# 出击制：一次通关 = 一次出击，领地建筑结算产出
 	_settle_territory_sortie()
 
+	# P9: 通知任务系统副本通关
+	if has_node("/root/QuestSystem") and has_node("/root/GameState"):
+		get_node("/root/QuestSystem").register_clear_dungeon(get_node("/root/GameState").selected_dungeon_id)
+
 	# P4: 检查是否触发防御战
 	if _check_defense_trigger():
 		return  # 跳转到防御战,不显示通关界面

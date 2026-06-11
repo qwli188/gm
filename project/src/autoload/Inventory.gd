@@ -109,6 +109,64 @@ func destroy_equipment(instance_id: String) -> bool:
 		warehouse_changed.emit()
 	return was_in_backpack or was_in_warehouse
 
+## P10: 自动整理背包/仓库
+## 排序规则：稀有度高→低，再按部位顺序，再按强化等级高→低
+func sort_backpack():
+	backpack.sort_custom(_compare_instances)
+	backpack_changed.emit()
+
+func sort_warehouse():
+	warehouse.sort_custom(_compare_instances)
+	warehouse_changed.emit()
+
+const _RARITY_RANK := {"common": 0, "rare": 1, "epic": 2, "legendary": 3, "mythic": 4}
+const _SLOT_ORDER := {
+	"weapon": 0, "helmet": 1, "chest": 2, "legs": 3,
+	"boots": 4, "gloves": 5, "ring": 6, "amulet": 7
+}
+
+func _compare_instances(a_id: String, b_id: String) -> bool:
+	if not has_node("/root/EquipmentSystem"):
+		return a_id < b_id
+	var a = EquipmentSystem.equipment_instances.get(a_id, {})
+	var b = EquipmentSystem.equipment_instances.get(b_id, {})
+	# 1) 稀有度高→低
+	var ra = int(_RARITY_RANK.get(a.get("rarity", "common"), 0))
+	var rb = int(_RARITY_RANK.get(b.get("rarity", "common"), 0))
+	if ra != rb:
+		return ra > rb
+	# 2) 部位顺序（取模板的 slot）
+	var a_tpl = ConfigLoader.get_equipment_by_id(a.get("template_id", ""))
+	var b_tpl = ConfigLoader.get_equipment_by_id(b.get("template_id", ""))
+	var sa = int(_SLOT_ORDER.get(a_tpl.get("slot", ""), 99))
+	var sb = int(_SLOT_ORDER.get(b_tpl.get("slot", ""), 99))
+	if sa != sb:
+		return sa < sb
+	# 3) 强化等级高→低
+	var ea = int(a.get("enhancement_level", 0))
+	var eb = int(b.get("enhancement_level", 0))
+	if ea != eb:
+		return ea > eb
+	# 4) 名字字典序
+	return a_id < b_id
+
+## P10: 自动卖出/分解垃圾装备（按稀有度阈值）
+## 返回 {sold_count, gold_gained, shards_gained}
+func auto_dismantle_below(rarity_threshold: String) -> Dictionary:
+	if not has_node("/root/AffixWorkshop"):
+		return {"sold_count": 0, "gold_gained": 0, "shards_gained": 0}
+	var threshold_rank = int(_RARITY_RANK.get(rarity_threshold, 0))
+	var to_dismantle: Array[String] = []
+	for inst_id in backpack:
+		var inst = EquipmentSystem.equipment_instances.get(inst_id, {})
+		var r = int(_RARITY_RANK.get(inst.get("rarity", "common"), 0))
+		if r < threshold_rank:
+			to_dismantle.append(inst_id)
+	var shards = 0
+	for id in to_dismantle:
+		shards += AffixWorkshop.dismantle_equipment(id)
+	return {"sold_count": to_dismantle.size(), "gold_gained": 0, "shards_gained": shards}
+
 ## ============ 材料 tab（只读视图，真源在 GameState）============
 ## 获取所有材料 {material_id: count}
 func get_all_materials() -> Dictionary:

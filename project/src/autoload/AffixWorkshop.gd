@@ -4,6 +4,12 @@ extends Node
 
 signal reforge_completed(item_data: Dictionary)
 signal dismantle_completed(shard_count: int)
+signal upgrade_completed(item_data: Dictionary)
+signal sanctify_completed(instance_id: String)
+
+# P6: 神圣化标记池（instance_id -> true 表示下次强化必成）
+# 不进存档（强化后立刻消耗），但持久化为 EquipmentSystem 实例字段后续可考虑
+var _sanctified: Dictionary = {}
 
 func _ready():
 	print("[AffixWorkshop] 词缀工坊初始化")
@@ -199,6 +205,12 @@ func enhance_equipment(instance_id: String) -> Dictionary:
 	else:
 		success_rate = success_rates.get("1-5", 1.0)
 
+	# P6: 神圣化保护——本次强化必成功，使用后立即清除标记
+	var was_sanctified = _sanctified.get(instance_id, false)
+	if was_sanctified:
+		success_rate = 1.0
+		_sanctified.erase(instance_id)
+
 	var succeeded = randf() < success_rate
 
 	if succeeded:
@@ -206,11 +218,14 @@ func enhance_equipment(instance_id: String) -> Dictionary:
 		EquipmentSystem.equipment_instances[instance_id] = instance
 		# 通知玩家重算属性（强化加成立即生效）
 		EquipmentSystem._notify_player()
+		var msg = "强化成功！装备现在是+%d" % (current_level + 1)
+		if was_sanctified:
+			msg = "[神圣化保佑] " + msg
 		return {
 			success = true,
 			new_level = current_level + 1,
 			cost = {gold = gold_cost, material = material_cost},
-			message = "强化成功！装备现在是+%d" % (current_level + 1)
+			message = msg
 		}
 	else:
 		return {
@@ -219,3 +234,159 @@ func enhance_equipment(instance_id: String) -> Dictionary:
 			cost = {gold = gold_cost, material = material_cost},
 			message = "强化失败，装备保持+%d（材料已损失）" % current_level
 		}
+
+# ============================================================
+# P6: 装备升品（common→rare→epic→legendary→mythic）
+# ============================================================
+
+## 是否有可用升品配方
+func can_upgrade(instance_id: String) -> Dictionary:
+	if not EquipmentSystem.equipment_instances.has(instance_id):
+		return {"ok": false, "reason": "装备不存在"}
+	var instance = EquipmentSystem.equipment_instances[instance_id]
+	var rarity = instance.get(Schema.K_RARITY, Schema.RARITY_COMMON)
+	var cfg = ConfigLoader.get_balance_config().get("equipment_upgrade", {})
+	if not cfg.get("enabled", false):
+		return {"ok": false, "reason": "升品系统未启用"}
+	var tiers = cfg.get("tiers", {})
+	var tier = tiers.get(rarity, {})
+	if tier.is_empty():
+		return {"ok": false, "reason": "已是最高品质"}
+	return {"ok": true, "reason": "", "tier": tier, "rarity": rarity}
+
+## 升品装备
+## fodder_ids: 同稀有度同部位的"饲料"装备 instance_id 列表（数量必须等于配置 fodder_count_per_upgrade）
+## 返回 {success, new_rarity, message}
+func upgrade_equipment(instance_id: String, fodder_ids: Array) -> Dictionary:
+	var check = can_upgrade(instance_id)
+	if not check["ok"]:
+		return {"success": false, "message": check["reason"]}
+
+	var cfg = ConfigLoader.get_balance_config().get("equipment_upgrade", {})
+	var tier = check["tier"]
+	var instance = EquipmentSystem.equipment_instances[instance_id]
+	var template_id = instance.get(Schema.K_TEMPLATE_ID, "")
+	var template = ConfigLoader.get_equipment_by_id(template_id)
+	var slot = template.get("slot", "")
+
+	# 校验饲料数量
+	var need_count = int(cfg.get("fodder_count_per_upgrade", 3))
+	if fodder_ids.size() != need_count:
+		return {"success": false, "message": "需要 %d 件饲料装备" % need_count}
+
+	# 校验饲料：必须同稀有度，同部位（不一定同模板，但同 slot），且不是被升品的本体
+	var fodder_rarity = tier.get("fodder_rarity", check["rarity"])
+	var seen = {}
+	for fid in fodder_ids:
+		if fid == instance_id or seen.has(fid):
+			return {"success": false, "message": "饲料不能是本体或重复"}
+		seen[fid] = true
+		if not EquipmentSystem.equipment_instances.has(fid):
+			return {"success": false, "message": "饲料 %s 不存在" % fid}
+		var f_inst = EquipmentSystem.equipment_instances[fid]
+		if f_inst.get(Schema.K_RARITY, "") != fodder_rarity:
+			return {"success": false, "message": "饲料稀有度不匹配（需 %s）" % fodder_rarity}
+		var f_tpl = ConfigLoader.get_equipment_by_id(f_inst.get(Schema.K_TEMPLATE_ID, ""))
+		if f_tpl.get("slot", "") != slot:
+			return {"success": false, "message": "饲料部位不匹配（需 %s）" % slot}
+
+	# 校验材料
+	var gold_cost = int(tier.get("gold", 0))
+	var rune_cost = int(tier.get("rune_shard", 0))
+	var void_cost = int(tier.get("void_fragment", 0))
+	if GameState.total_gold < gold_cost:
+		return {"success": false, "message": "金币不足（需 %d）" % gold_cost}
+	if GameState.get_material("rune_shard") < rune_cost:
+		return {"success": false, "message": "符文碎片不足（需 %d）" % rune_cost}
+	if void_cost > 0 and GameState.get_material("void_fragment") < void_cost:
+		return {"success": false, "message": "虚空碎片不足（需 %d）" % void_cost}
+
+	# 扣资源
+	GameState.total_gold -= gold_cost
+	GameState.add_material("rune_shard", -rune_cost)
+	if void_cost > 0:
+		GameState.add_material("void_fragment", -void_cost)
+
+	# 销毁饲料：实例池清除 + 背包/仓库移除
+	for fid in fodder_ids:
+		if has_node("/root/Inventory"):
+			Inventory.backpack.erase(fid)
+			Inventory.warehouse.erase(fid)
+		EquipmentSystem.equipment_instances.erase(fid)
+	if has_node("/root/Inventory"):
+		Inventory.backpack_changed.emit()
+		Inventory.warehouse_changed.emit()
+
+	# 升品本体：稀有度上调一档
+	var new_rarity = tier.get("to", "rare")
+	instance[Schema.K_RARITY] = new_rarity
+	# 重新 roll 词缀（稀有度对应词缀数量），保留强化等级
+	if cfg.get("reroll_affixes", true):
+		var new_count = _affix_count_for_rarity(new_rarity)
+		var new_affixes = []
+		for i in new_count:
+			var aid = _roll_random_affix(new_rarity)
+			if aid != "":
+				new_affixes.append({"affix_id": aid, "roll_value": randf_range(0.85, 1.0)})
+		instance[Schema.K_ROLLED_AFFIXES] = new_affixes
+	EquipmentSystem.equipment_instances[instance_id] = instance
+	EquipmentSystem._recompute_sets()
+	EquipmentSystem.equipment_changed.emit()
+	EquipmentSystem._notify_player()
+	var item_data = EquipmentSystem.get_equipment_instance_data(instance_id)
+	upgrade_completed.emit(item_data)
+	if has_node("/root/SaveSystem"):
+		SaveSystem.mark_dirty()
+	print("[AffixWorkshop] 升品: %s -> %s" % [template_id, new_rarity])
+	return {"success": true, "new_rarity": new_rarity, "message": "升品成功 -> %s" % Schema.rarity_display(new_rarity)}
+
+func _affix_count_for_rarity(rarity: String) -> int:
+	match rarity:
+		"common": return 0
+		"rare": return 1
+		"epic": return 2
+		"legendary": return 3
+		"mythic": return 4
+		_: return 0
+
+# ============================================================
+# P6: 神圣化（保证下一次强化必成功）
+# ============================================================
+
+func is_sanctified(instance_id: String) -> bool:
+	return _sanctified.get(instance_id, false)
+
+func sanctify_equipment(instance_id: String) -> Dictionary:
+	if not EquipmentSystem.equipment_instances.has(instance_id):
+		return {"success": false, "message": "装备不存在"}
+	if _sanctified.get(instance_id, false):
+		return {"success": false, "message": "已处于神圣化状态"}
+	var instance = EquipmentSystem.equipment_instances[instance_id]
+	var rarity = instance.get(Schema.K_RARITY, Schema.RARITY_COMMON)
+	var cfg = ConfigLoader.get_balance_config().get("equipment_sanctify", {})
+	if not cfg.get("enabled", false):
+		return {"success": false, "message": "神圣化未启用"}
+	var cost = cfg.get("cost_by_rarity", {}).get(rarity, {})
+	if cost.is_empty():
+		return {"success": false, "message": "未知稀有度"}
+	# 校验
+	var gold_cost = int(cost.get("gold", 0))
+	var rune_cost = int(cost.get("rune_shard", 0))
+	var void_cost = int(cost.get("void_fragment", 0))
+	if GameState.total_gold < gold_cost:
+		return {"success": false, "message": "金币不足（需 %d）" % gold_cost}
+	if GameState.get_material("rune_shard") < rune_cost:
+		return {"success": false, "message": "符文碎片不足（需 %d）" % rune_cost}
+	if void_cost > 0 and GameState.get_material("void_fragment") < void_cost:
+		return {"success": false, "message": "虚空碎片不足（需 %d）" % void_cost}
+	# 扣资源
+	GameState.total_gold -= gold_cost
+	GameState.add_material("rune_shard", -rune_cost)
+	if void_cost > 0:
+		GameState.add_material("void_fragment", -void_cost)
+	_sanctified[instance_id] = true
+	sanctify_completed.emit(instance_id)
+	if has_node("/root/SaveSystem"):
+		SaveSystem.mark_dirty()
+	print("[AffixWorkshop] 神圣化: %s" % instance_id)
+	return {"success": true, "message": "神圣化生效，下次强化必成"}

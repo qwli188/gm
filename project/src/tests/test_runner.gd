@@ -13,7 +13,13 @@ const TEST_SCRIPTS = [
 	"res://tests/test_territory_system.gd",
 	"res://tests/test_party_system.gd",
 	"res://tests/test_resident_system.gd",
-	"res://tests/test_defense_system.gd"
+	"res://tests/test_defense_system.gd",
+	"res://tests/test_paragon_system.gd",
+	"res://tests/test_workshop_upgrade.gd",
+	"res://tests/test_endgame_system.gd",
+	"res://tests/test_feedback_system.gd",
+	"res://tests/test_p9_territory_quests.gd",
+	"res://tests/test_p10_ux.gd"
 ]
 
 func _initialize() -> void:

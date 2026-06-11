@@ -1,0 +1,35 @@
+{
+  "_comment": "P6 天赋星图：8 职业根节点 + 共享中段（武力/守备/灵巧/秘法/狩猎）+ 跨流派终末。每个节点 1 天赋点解锁，效果直接累加到玩家属性。前置链 root -> tier1 -> tier2 -> capstone。",
+  "version": "1.0.0",
+  "talents": [
+    {"id": "talent_warrior_root", "display_name": "战士之心", "is_class_root": true, "prerequisites": [], "effects": {"max_hp": 30, "damage": 3}, "design_note": "战士起步：+30血+3伤"},
+    {"id": "talent_ranger_root", "display_name": "猎手之眼", "is_class_root": true, "prerequisites": [], "effects": {"crit_chance": 0.05, "attack_speed_pct": 0.05}},
+    {"id": "talent_mage_root", "display_name": "秘法觉醒", "is_class_root": true, "prerequisites": [], "effects": {"damage_pct": 0.08, "max_hp": 15}},
+    {"id": "talent_assassin_root", "display_name": "暗影潜行", "is_class_root": true, "prerequisites": [], "effects": {"crit_damage": 0.20, "move_speed_pct": 0.05}},
+    {"id": "talent_knight_root", "display_name": "圣盾之誓", "is_class_root": true, "prerequisites": [], "effects": {"armor": 10, "max_hp": 40}},
+    {"id": "talent_necromancer_root", "display_name": "死灵契约", "is_class_root": true, "prerequisites": [], "effects": {"damage_pct": 0.06, "summon_chance": 0.05}},
+    {"id": "talent_frost_witch_root", "display_name": "永冻之核", "is_class_root": true, "prerequisites": [], "effects": {"damage_pct": 0.06, "freeze_chance": 0.05}},
+    {"id": "talent_shadow_archer_root", "display_name": "影矢初现", "is_class_root": true, "prerequisites": [], "effects": {"crit_chance": 0.04, "chain_chance": 0.05}},
+
+    {"id": "talent_might_1", "display_name": "蛮力 I", "prerequisites": ["talent_warrior_root", "talent_knight_root"], "any_prerequisite": true, "effects": {"damage": 4, "max_hp": 20}},
+    {"id": "talent_might_2", "display_name": "蛮力 II", "prerequisites": ["talent_might_1"], "effects": {"damage_pct": 0.10}},
+    {"id": "talent_guard_1", "display_name": "守备 I", "prerequisites": ["talent_warrior_root", "talent_knight_root"], "any_prerequisite": true, "effects": {"armor": 8, "max_hp": 30}},
+    {"id": "talent_guard_2", "display_name": "守备 II", "prerequisites": ["talent_guard_1"], "effects": {"max_hp_pct": 0.10}},
+
+    {"id": "talent_finesse_1", "display_name": "灵巧 I", "prerequisites": ["talent_ranger_root", "talent_assassin_root", "talent_shadow_archer_root"], "any_prerequisite": true, "effects": {"crit_chance": 0.03, "attack_speed_pct": 0.05}},
+    {"id": "talent_finesse_2", "display_name": "灵巧 II", "prerequisites": ["talent_finesse_1"], "effects": {"crit_damage": 0.25}},
+
+    {"id": "talent_arcane_1", "display_name": "秘法 I", "prerequisites": ["talent_mage_root", "talent_necromancer_root", "talent_frost_witch_root"], "any_prerequisite": true, "effects": {"damage_pct": 0.08, "max_hp": 15}},
+    {"id": "talent_arcane_2", "display_name": "秘法 II", "prerequisites": ["talent_arcane_1"], "effects": {"damage_pct": 0.10, "ignite_chance": 0.05}},
+
+    {"id": "talent_capstone_berserker", "display_name": "终末·狂战", "prerequisites": ["talent_might_2", "talent_guard_2"], "effects": {"damage_pct": 0.20, "attack_speed_pct": 0.10}, "design_note": "需要同时拿到 蛮力II + 守备II"},
+    {"id": "talent_capstone_assassin", "display_name": "终末·影刃", "prerequisites": ["talent_finesse_2"], "effects": {"crit_chance": 0.10, "crit_damage": 0.50}},
+    {"id": "talent_capstone_archmage", "display_name": "终末·法尊", "prerequisites": ["talent_arcane_2"], "effects": {"damage_pct": 0.25, "skill_cd_reduce": 0.05}},
+
+    {"id": "talent_lifesteal_minor", "display_name": "饮血", "prerequisites": ["talent_might_1", "talent_finesse_1"], "any_prerequisite": true, "effects": {"lifesteal": 0.03}},
+    {"id": "talent_lifesteal_major", "display_name": "嗜血", "prerequisites": ["talent_lifesteal_minor"], "effects": {"lifesteal": 0.05}},
+
+    {"id": "talent_treasure_hunter", "display_name": "寻宝者", "prerequisites": ["talent_finesse_1", "talent_arcane_1"], "any_prerequisite": true, "effects": {"gold_find": 0.20, "magic_find": 0.10}},
+    {"id": "talent_endurance", "display_name": "持久", "prerequisites": ["talent_guard_1"], "effects": {"hp_regen": 1.5}}
+  ]
+}

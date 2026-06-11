@@ -18,6 +18,8 @@ var classes_data: Dictionary = {}
 var sets_data: Dictionary = {}
 var vfx_data: Dictionary = {}
 var territory_data: Dictionary = {}
+var talents_data: Dictionary = {}
+var endgame_data: Dictionary = {}
 
 # O(1) 查找索引（id -> 数据字典）
 var _equipment_index: Dictionary = {}
@@ -27,6 +29,7 @@ var _enemies_index: Dictionary = {}
 var _classes_index: Dictionary = {}
 var _sets_index: Dictionary = {}
 var _dungeons_index: Dictionary = {}
+var _talents_index: Dictionary = {}
 
 # 配置文件路径（相对于项目根目录）
 const CONFIG_DIR = "res://config/"
@@ -49,6 +52,8 @@ func load_all_configs():
 	sets_data = load_json_config("sets.json")
 	vfx_data = load_json_config("vfx.json")
 	territory_data = load_json_config("territory.json")
+	talents_data = load_json_config("talents.json")
+	endgame_data = load_json_config("endgame.json")
 	_build_indexes()
 
 ## 构建 ID 索引（加载后调用一次）
@@ -95,9 +100,15 @@ func _build_indexes():
 		if id != "":
 			_dungeons_index[id] = dungeon
 
-	print("[ConfigLoader] 索引构建完成: %d 装备, %d 词缀, %d 技能, %d 敌人, %d 职业, %d 套装, %d 副本" % [
+	_talents_index.clear()
+	for t in talents_data.get("talents", []):
+		var id = t.get("id", "")
+		if id != "":
+			_talents_index[id] = t
+
+	print("[ConfigLoader] 索引构建完成: %d 装备, %d 词缀, %d 技能, %d 敌人, %d 职业, %d 套装, %d 副本, %d 天赋" % [
 		_equipment_index.size(), _affixes_index.size(), _skills_index.size(),
-		_enemies_index.size(), _classes_index.size(), _sets_index.size(), _dungeons_index.size()
+		_enemies_index.size(), _classes_index.size(), _sets_index.size(), _dungeons_index.size(), _talents_index.size()
 	])
 
 ## 加载单个 JSON 配置文件
@@ -247,6 +258,54 @@ func get_territory_max_level() -> int:
 func get_basic_materials() -> Array:
 	return territory_data.get("basic_materials", [])
 
+## ============ P6 天赋星图 ============
+func get_talent_def(talent_id: String) -> Dictionary:
+	return _talents_index.get(talent_id, {})
+
+func get_all_talents() -> Array:
+	return talents_data.get("talents", [])
+
+## 把已解锁的天赋节点效果聚合成扁平字典 {effect_key: total_value}
+## unlocked: {talent_id: 1} 形式（来自 GameState.unlocked_talents）
+func get_unlocked_talent_effects(unlocked: Dictionary) -> Dictionary:
+	var totals: Dictionary = {}
+	for tid in unlocked:
+		var def = _talents_index.get(tid, {})
+		if def.is_empty():
+			continue
+		var effects = def.get("effects", {})
+		for k in effects:
+			var v = effects[k]
+			if typeof(v) in [TYPE_FLOAT, TYPE_INT]:
+				totals[k] = totals.get(k, 0.0) + float(v)
+	return totals
+
+## 检查某节点是否可解锁（前置满足、未已解锁）
+## any_prerequisite=true 表示前置任一满足即可（用于多职业共享节点）
+func can_unlock_talent(talent_id: String, unlocked: Dictionary) -> Dictionary:
+	var def = get_talent_def(talent_id)
+	if def.is_empty():
+		return {"ok": false, "reason": "未知节点"}
+	if unlocked.has(talent_id):
+		return {"ok": false, "reason": "已解锁"}
+	var prereqs = def.get("prerequisites", [])
+	if prereqs.is_empty():
+		return {"ok": true, "reason": ""}
+	var any_mode = bool(def.get("any_prerequisite", false))
+	if any_mode:
+		for pid in prereqs:
+			if unlocked.has(pid):
+				return {"ok": true, "reason": ""}
+		return {"ok": false, "reason": "前置任一未达"}
+	for pid in prereqs:
+		if not unlocked.has(pid):
+			return {"ok": false, "reason": "前置缺失: %s" % pid}
+	return {"ok": true, "reason": ""}
+
+## ============ P7 末期内容（地图词缀/试炼塔/裂隙）============
+func get_endgame_config() -> Dictionary:
+	return endgame_data
+
 ## 热重载单个配置文件
 func reload_config(file_name: String) -> bool:
 	var path = "res://config/" + file_name
@@ -268,6 +327,8 @@ func reload_config(file_name: String) -> bool:
 		"balance.json": balance_data = data
 		"vfx.json": vfx_data = data
 		"territory.json": territory_data = data
+		"talents.json": talents_data = data
+		"endgame.json": endgame_data = data
 		_:
 			push_warning("[ConfigLoader] 未知配置: " + file_name)
 			return false

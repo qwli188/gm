@@ -190,6 +190,42 @@ func recalculate_stats():
 		if fog_crit > 0:
 			crit_chance += fog_crit
 
+	# P6: 巅峰加成（账号级共享，跨角色，最终乘到结算前）
+	if has_node("/root/GameState"):
+		damage *= (1.0 + GameState.get_paragon_bonus("damage_pct"))
+		max_hp *= (1.0 + GameState.get_paragon_bonus("max_hp_pct"))
+		armor += GameState.get_paragon_bonus("armor_flat")
+		crit_chance += GameState.get_paragon_bonus("crit_chance")
+		crit_damage += GameState.get_paragon_bonus("crit_damage")
+		attack_speed *= (1.0 + GameState.get_paragon_bonus("attack_speed_pct"))
+		move_speed *= (1.0 + GameState.get_paragon_bonus("move_speed_pct"))
+		# 金币/掉率/技能冷却走 combat_stats，由对应系统读取
+		var gold_find = GameState.get_paragon_bonus("gold_find")
+		if gold_find > 0:
+			combat_stats["gold_find"] = combat_stats.get("gold_find", 0.0) + gold_find
+		var magic_find = GameState.get_paragon_bonus("magic_find")
+		if magic_find > 0:
+			combat_stats["magic_find"] = combat_stats.get("magic_find", 0.0) + magic_find
+		var cdr = GameState.get_paragon_bonus("skill_cd_reduce")
+		if cdr > 0:
+			combat_stats["skill_cd_reduce"] = combat_stats.get("skill_cd_reduce", 0.0) + cdr
+
+	# P6: 天赋星图加成（节点静态属性 → 平铺到属性）
+	if has_node("/root/GameState") and ConfigLoader.has_method("get_unlocked_talent_effects"):
+		var talent_effects = ConfigLoader.get_unlocked_talent_effects(GameState.unlocked_talents)
+		for k in talent_effects:
+			match k:
+				"damage": damage += talent_effects[k]
+				"damage_pct": damage *= (1.0 + talent_effects[k])
+				"max_hp": max_hp += talent_effects[k]
+				"max_hp_pct": max_hp *= (1.0 + talent_effects[k])
+				"armor": armor += talent_effects[k]
+				"crit_chance": crit_chance += talent_effects[k]
+				"crit_damage": crit_damage += talent_effects[k]
+				"attack_speed_pct": attack_speed *= (1.0 + talent_effects[k])
+				"move_speed_pct": move_speed *= (1.0 + talent_effects[k])
+				_: combat_stats[k] = combat_stats.get(k, 0.0) + talent_effects[k]
+
 	# 最终暴击率再clamp(游侠精准+雾加成后)
 	crit_chance = min(crit_chance, 0.95)
 
@@ -430,19 +466,34 @@ func get_stat(stat_name: String) -> float:
 
 ## 获得经验值
 func gain_exp(amount: float):
+	# P6: 巅峰金币加成顺带影响经验？保留经验为原值；巅峰只加金币/掉率
 	current_exp += amount
 
-	# 检查是否升级
-	while current_exp >= exp_to_next_level and current_level < 50:
+	# 满级后所有溢出经验进巅峰池（包括 amount 本身在 max 时）
+	var max_lv = _get_max_level()
+	while current_exp >= exp_to_next_level and current_level < max_lv:
 		current_exp -= exp_to_next_level
 		current_level += 1
 		_on_level_up()
 
+	# 满级后：剩余经验全部喂给巅峰池
+	if current_level >= max_lv and current_exp > 0.0:
+		var overflow = current_exp
+		current_exp = 0.0
+		if has_node("/root/GameState"):
+			GameState.gain_paragon_exp(overflow)
+
 ## 计算下一级所需经验
 func _calculate_exp_to_next_level():
-	var base_exp = 10.0
-	var growth = 1.15
+	var curve = ConfigLoader.get_balance_config().get("level_curve", {})
+	var base_exp = float(curve.get("base_exp", 10))
+	var growth = float(curve.get("growth", 1.15))
 	exp_to_next_level = base_exp * pow(growth, current_level - 1)
+
+## 配置驱动的最高等级（默认 60）
+func _get_max_level() -> int:
+	var curve = ConfigLoader.get_balance_config().get("level_curve", {})
+	return int(curve.get("max_level", 60))
 
 ## 升级时调用
 func _on_level_up():

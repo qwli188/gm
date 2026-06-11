@@ -356,25 +356,27 @@ func _on_config_reloaded(file_name: String) -> void:
 
 ## 打击感 - 顿帧效果
 func _apply_hitstop(duration: float):
+	# P8: 优先走 FeedbackSystem（它做了嵌套去重）
+	if has_node("/root/FeedbackSystem"):
+		get_node("/root/FeedbackSystem").hitstop(duration)
+		return
+	# 兜底：旧实现
 	Engine.time_scale = 0.0
-	# 创建不受 time_scale 影响的定时器(第4参数 ignore_time_scale=true)
 	get_tree().create_timer(duration, true, false, true).timeout.connect(func():
 		Engine.time_scale = 1.0
 	)
 
 ## 打击感 - 震屏效果（暴击时）
 func _apply_screen_shake(intensity: float):
+	# P8: 优先走 FeedbackSystem（它做了渐衰减）
+	if has_node("/root/FeedbackSystem"):
+		get_node("/root/FeedbackSystem").shake(intensity, 0.15)
+		return
+	# 兜底：旧实现
 	var camera = get_viewport().get_camera_2d()
 	if not camera:
 		return
-	# 第一段震动
 	camera.offset = Vector2(randf_range(-intensity, intensity), randf_range(-intensity, intensity))
-	# 0.05 秒后衰减
-	get_tree().create_timer(0.05).timeout.connect(func():
-		if camera:
-			camera.offset = Vector2(randf_range(-intensity * 0.5, intensity * 0.5), randf_range(-intensity * 0.5, intensity * 0.5))
-	)
-	# 0.1 秒后恢复
 	get_tree().create_timer(0.1).timeout.connect(func():
 		if camera:
 			camera.offset = Vector2.ZERO

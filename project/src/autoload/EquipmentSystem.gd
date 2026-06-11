@@ -500,6 +500,19 @@ func _roll_equipment(pool: Array, quality_bonus: float, set_bias: String = "", s
 
 ## 实例化掉落物到场景（附带稀有度特效）
 func _spawn_drop_item(item_data: Dictionary, position: Vector2):
+	# P9: 通知任务系统稀有度掉落（无视过滤，统计真实掉落事件）
+	if has_node("/root/QuestSystem"):
+		QuestSystem.register_drop(item_data.get(Schema.K_RARITY, "common"))
+	# P8: 拾取过滤——稀有度低于玩家阈值则不显示在地图（模板装备直接跳过实例化）
+	if has_node("/root/FeedbackSystem"):
+		var rarity = item_data.get(Schema.K_RARITY, "common")
+		if not FeedbackSystem.should_display_drop(rarity):
+			# 销毁实例避免实例池泄漏
+			var inst_id = item_data.get("instance_id", "")
+			if inst_id != "":
+				equipment_instances.erase(inst_id)
+			print("[EquipmentSystem] 掉落被过滤: %s (%s 低于阈值)" % [item_data.get("display_name", "?"), rarity])
+			return
 	var tree = Engine.get_main_loop()
 	if not tree:
 		return

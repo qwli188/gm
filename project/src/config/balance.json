@@ -1,18 +1,81 @@
 {
   "version": "1.0.0",
   "level_curve": {
-    "description": "局内升级所需经验",
+    "description": "局内升级所需经验（P6 把上限从50提到60，给巅峰系统留接管点）",
     "formula": "base * (growth ^ (level-1))",
     "base_exp": 10,
     "growth": 1.15,
-    "max_level": 50,
+    "max_level": 60,
     "stats_per_level": {
       "max_hp": 8,
       "damage": 2
     },
     "attribute_points_per_level": 5,
     "skill_points_per_level": 1,
-    "design_note": "前期快速升级（每10-20秒），后期渐慢。Growth 1.15 是温和曲线。每级 +8 HP/+2 damage 基础成长（持久 ARPG），外加 5 属性点 + 1 技能点供分配。"
+    "design_note": "前期快速升级（每10-20秒），后期渐慢。Growth 1.15 是温和曲线。每级 +8 HP/+2 damage 基础成长（持久 ARPG），外加 5 属性点 + 1 技能点供分配。60 级后进入巅峰等级（paragon），见 paragon_system。"
+  },
+  "paragon_system": {
+    "description": "P6 巅峰等级：60级封顶后，溢出经验进入巅峰池，每巅峰级给 1 巅峰点供分配到 paragon_stats",
+    "enabled": true,
+    "unlock_at_level": 60,
+    "max_paragon_level": 200,
+    "exp_per_paragon_level_base": 5000,
+    "exp_growth_per_paragon": 1.05,
+    "paragon_stats": [
+      {"id": "paragon_damage", "display_name": "屠戮", "per_level": 0.005, "max_alloc": 100, "kind": "damage_pct", "design_note": "每点+0.5%伤害，最多100点+50%伤害"},
+      {"id": "paragon_hp", "display_name": "韧体", "per_level": 0.005, "max_alloc": 100, "kind": "max_hp_pct"},
+      {"id": "paragon_armor", "display_name": "铁壁", "per_level": 1.5, "max_alloc": 100, "kind": "armor_flat"},
+      {"id": "paragon_crit_chance", "display_name": "鹰眼", "per_level": 0.002, "max_alloc": 50, "kind": "crit_chance"},
+      {"id": "paragon_crit_damage", "display_name": "破甲", "per_level": 0.01, "max_alloc": 100, "kind": "crit_damage"},
+      {"id": "paragon_attack_speed", "display_name": "疾风", "per_level": 0.003, "max_alloc": 50, "kind": "attack_speed_pct"},
+      {"id": "paragon_move_speed", "display_name": "踏燕", "per_level": 0.003, "max_alloc": 50, "kind": "move_speed_pct"},
+      {"id": "paragon_gold", "display_name": "贪婪", "per_level": 0.02, "max_alloc": 100, "kind": "gold_find"},
+      {"id": "paragon_drop", "display_name": "掠夺", "per_level": 0.005, "max_alloc": 100, "kind": "magic_find"},
+      {"id": "paragon_skill_cd", "display_name": "回响", "per_level": 0.003, "max_alloc": 50, "kind": "skill_cd_reduce"}
+    ],
+    "design_note": "10 条巅峰路径，每条最大 100 点，理论极限 800 点。指数级经验曲线 1.05^N，前 50 巅峰快、后 150 慢，给末期玩家提供渐近线式追求。"
+  },
+  "talent_grid": {
+    "description": "P6 天赋星图：跨职业的大被动网络。每节点消耗 1 天赋点（来自巅峰级 / 副本里程碑）",
+    "enabled": true,
+    "talent_points_per_paragon": 1,
+    "starter_node_per_class": {
+      "class_warrior": "talent_warrior_root",
+      "class_ranger": "talent_ranger_root",
+      "class_mage": "talent_mage_root",
+      "class_assassin": "talent_assassin_root",
+      "class_knight": "talent_knight_root",
+      "class_necromancer": "talent_necromancer_root",
+      "class_frost_witch": "talent_frost_witch_root",
+      "class_shadow_archer": "talent_shadow_archer_root"
+    },
+    "design_note": "每个职业从专属根节点入图；节点定义在 talents.json，玩家可越界购买相邻节点跨流派构筑。"
+  },
+  "equipment_upgrade": {
+    "description": "P6 装备升品：消耗大量同稀有度装备 + 通用碎片，把装备品质提升一档（common→rare→epic→legendary→mythic）",
+    "enabled": true,
+    "fodder_count_per_upgrade": 3,
+    "preserve_enhancement": true,
+    "tiers": {
+      "common": {"to": "rare", "gold": 800, "rune_shard": 8, "fodder_rarity": "common"},
+      "rare": {"to": "epic", "gold": 2500, "rune_shard": 25, "fodder_rarity": "rare"},
+      "epic": {"to": "legendary", "gold": 8000, "rune_shard": 60, "fodder_rarity": "epic"},
+      "legendary": {"to": "mythic", "gold": 25000, "rune_shard": 150, "fodder_rarity": "legendary", "void_fragment": 5}
+    },
+    "reroll_affixes": true,
+    "design_note": "升品=吃3件同稀有度同部位的‘饲料’+材料把目标装备升一阶。升品后词缀重新 roll（继承稀有度对应词缀数量），但保留强化等级。给玩家‘养成单件传家宝’的路径。"
+  },
+  "equipment_sanctify": {
+    "description": "P6 神圣化：让装备的下次强化必定成功，规避 +6~+15 的失败概率。一次性消耗，强化后失效。",
+    "enabled": true,
+    "cost_by_rarity": {
+      "common": {"gold": 200, "rune_shard": 5},
+      "rare": {"gold": 600, "rune_shard": 15},
+      "epic": {"gold": 1500, "rune_shard": 35, "void_fragment": 1},
+      "legendary": {"gold": 4000, "rune_shard": 80, "void_fragment": 3},
+      "mythic": {"gold": 10000, "rune_shard": 200, "void_fragment": 8}
+    },
+    "design_note": "为高风险强化（+11~+15 仅 40%）提供保底路径。神圣化后下一次强化必成，但消耗资源相当于一次失败的损失，鼓励玩家在关键档位用，而不是无脑刷。"
   },
   "damage_formula": {
     "description": "最终伤害 = (基础+附加) * 增益 * 暴击 * 抗性系数",
