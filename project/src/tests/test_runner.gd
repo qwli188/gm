@@ -19,7 +19,8 @@ const TEST_SCRIPTS = [
 	"res://tests/test_endgame_system.gd",
 	"res://tests/test_feedback_system.gd",
 	"res://tests/test_p9_territory_quests.gd",
-	"res://tests/test_p10_ux.gd"
+	"res://tests/test_p10_ux.gd",
+	"res://tests/test_art_layer.gd"
 ]
 
 func _initialize() -> void:

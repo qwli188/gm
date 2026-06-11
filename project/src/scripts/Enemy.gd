@@ -50,6 +50,19 @@ func _ready():
 	_setup_collision()
 	_setup_hp_bar()
 
+	# A3: Boss 入场演出（冲击波环 + 震屏），延迟一帧等节点入树
+	if _is_boss:
+		call_deferred("_play_boss_entrance")
+
+## A3: Boss 入场演出
+func _play_boss_entrance():
+	if not is_instance_valid(self) or get_parent() == null:
+		return
+	var tint = Color(1.0, 0.4, 0.3)
+	ParticleHelper.spawn_boss_entrance(get_parent(), global_position, tint)
+	if has_node("/root/FeedbackSystem"):
+		get_node("/root/FeedbackSystem").shake(10.0, 0.4)
+
 ## 应用难度倍率（生成器调用）
 func apply_difficulty(hp_mult: float, dmg_mult: float):
 	max_hp *= hp_mult
@@ -71,6 +84,8 @@ func _setup_visual():
 	anim_sprite.scale = Vector2(scl, scl)
 	anim_sprite.modulate = SpriteLibrary.RANK_TINT.get(rank, Color.WHITE)
 	add_child(anim_sprite)
+	# A4: 落地阴影（尺寸随 rank 缩放，Boss 阴影更大）
+	ShaderHelper.ensure_drop_shadow(self, 16.0 * scl, 6.0 * scl, 13.0 * scl)
 
 ## 创建碰撞体
 func _setup_collision():
@@ -760,7 +775,7 @@ func _skill_death_breath():
 		
 		if distance <= 350 and angle_diff < PI / 3:  # 120度内
 			# 造成最大生命15%伤害
-			var max_hp = player.get("max_hp", 100)
+			var max_hp = player.max_hp if "max_hp" in player else 100.0
 			var death_damage = max_hp * 0.15
 			player.take_damage(death_damage)
 			

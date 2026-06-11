@@ -67,6 +67,7 @@ var dodge_speed: float = 600.0  # 闪避速度
 var dodge_cooldown_time: float = 1.5  # 闪避冷却
 var dodge_direction: Vector2 = Vector2.ZERO  # 闪避方向
 var _dodge_requested: bool = false  # 输入缓冲(由 _unhandled_input 设置,_physics_process 消费)
+var _afterimage_accum: float = 0.0  # A3: 冲刺残影生成间隔累计
 
 func _ready():
 	add_to_group("player")
@@ -82,6 +83,8 @@ func _setup_visual():
 	anim_sprite.name = "Sprite"
 	anim_sprite.scale = Vector2(2.6, 2.6)
 	add_child(anim_sprite)
+	# A4: 落地阴影（增强占位精灵的立体感与贴地感）
+	ShaderHelper.ensure_drop_shadow(self, 44.0, 16.0, 30.0)
 
 ## 根据选中职业设置基础属性和起手武器
 func _apply_class():
@@ -293,6 +296,12 @@ func handle_dodge(delta):
 	# 闪避进行中
 	if is_dodging:
 		dodge_timer += delta
+		# A3: 冲刺残影（每 0.06s 留一个轮廓快照）
+		_afterimage_accum += delta
+		if _afterimage_accum >= 0.06:
+			_afterimage_accum = 0.0
+			var tex = anim_sprite.sprite_frames.get_frame_texture(anim_sprite.animation, anim_sprite.frame) if anim_sprite and anim_sprite.sprite_frames else null
+			ParticleHelper.spawn_dash_afterimage(get_parent(), global_position, tex, Color(0.6, 0.8, 1.0, 0.5), _facing_left)
 		if dodge_timer < dodge_duration:
 			velocity = dodge_direction * dodge_speed
 		else:
@@ -394,6 +403,10 @@ func perform_attack():
 	# 攻击挥砍特效（朝向前方）
 	var fx_offset = Vector2(-50 if _facing_left else 50, 0)
 	EffectSprite.spawn(get_parent(), "slash", global_position + fx_offset, 1.4)
+	# A3: 挥砍拖尾（沿朝向的弧形残影，武器元素色由 combat_stats 决定）
+	var slash_dir = Vector2(-1 if _facing_left else 1, 0)
+	var slash_color = _attack_element_color()
+	ParticleHelper.spawn_slash_trail(get_parent(), global_position, slash_dir, 70.0, slash_color)
 
 	var stats = {
 		"damage": damage,
@@ -412,6 +425,18 @@ func _on_attack_done():
 	_attacking = false
 	if anim_sprite:
 		anim_sprite.play("idle")
+
+## A3: 根据当前武器词缀效果决定挥砍拖尾颜色（火>毒>冰>雷>暗>物理，按优先级取第一个生效的）
+func _attack_element_color() -> Color:
+	if combat_stats.get("ignite_dps", 0) > 0:
+		return ParticleHelper.element_color("fire")
+	if combat_stats.get("poison_dps", 0) > 0:
+		return ParticleHelper.element_color("poison")
+	if combat_stats.get("freeze_chance", 0) > 0:
+		return ParticleHelper.element_color("ice")
+	if combat_stats.get("chain_chance", 0) > 0:
+		return ParticleHelper.element_color("lightning")
+	return ParticleHelper.element_color("physical")
 
 func take_damage(damage: float):
 	# 闪避无敌帧检测(也是 Boss AOE 防护的唯一来源,不可丢)

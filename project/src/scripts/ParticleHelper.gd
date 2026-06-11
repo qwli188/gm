@@ -207,12 +207,155 @@ static func spawn_pickup_sparkle(parent: Node, pos: Vector2, rarity: String) -> 
 			particles.queue_free()
 	)
 
-## 辅助:获取稀有度对应颜色
+## 辅助:获取稀有度对应颜色（A1 收口：委托 Schema 单一真源）
 static func _get_rarity_color(rarity: String) -> Color:
-	match rarity:
-		"legendary": return Color(1.0, 0.5, 0.0)  # 橙色
-		"epic": return Color(0.7, 0.3, 1.0)  # 紫色
-		"rare": return Color(0.3, 0.6, 1.0)  # 蓝色
-		"magic": return Color(0.3, 1.0, 0.5)  # 绿色
-		"common": return Color(0.8, 0.8, 0.8)  # 白色
-		_: return Color.WHITE
+	return Schema.rarity_color(rarity)
+
+# ============================================================
+# A3: 元素配色 + 攻击拖尾 + 技能特效 + Boss 入场演出
+# 元素配色与 art-spec.md §4 一致
+# ============================================================
+
+const ELEMENT_COLORS := {
+	"fire": Color("#FF6B2A"),
+	"ignite": Color("#FF6B2A"),
+	"poison": Color("#7FBF3F"),
+	"ice": Color("#7FD4FF"),
+	"freeze": Color("#7FD4FF"),
+	"lightning": Color("#9BE6FF"),
+	"chain": Color("#9BE6FF"),
+	"shadow": Color("#9B4DCA"),
+	"void": Color("#9B4DCA"),
+	"physical": Color("#FFE08A"),
+	"crit": Color("#FFE08A"),
+}
+
+static func element_color(element: String) -> Color:
+	return ELEMENT_COLORS.get(element, Color.WHITE)
+
+## 攻击挥砍拖尾 - 沿攻击方向的弧形残影（用 Line2D + 渐隐 tween）
+## from: 起点(角色), dir: 朝向(单位向量), length: 挥砍半径, color: 元素色
+static func spawn_slash_trail(parent: Node, from: Vector2, dir: Vector2, length: float = 70.0, color: Color = Color("#FFE08A")) -> void:
+	if parent == null:
+		return
+	var line = Line2D.new()
+	line.width = 8.0
+	line.default_color = color
+	line.z_index = 40
+	# 用一段弧线模拟挥砍轨迹（垂直于 dir 的扇形采样）
+	var base_angle = dir.angle()
+	var arc = deg_to_rad(80.0)
+	var steps = 8
+	for i in range(steps + 1):
+		var a = base_angle - arc * 0.5 + arc * (float(i) / steps)
+		line.add_point(from + Vector2(cos(a), sin(a)) * length)
+	# 宽度递减曲线
+	var curve = Curve.new()
+	curve.add_point(Vector2(0.0, 1.0))
+	curve.add_point(Vector2(1.0, 0.2))
+	line.width_curve = curve
+	parent.add_child(line)
+	var tw = line.create_tween()
+	tw.tween_property(line, "modulate:a", 0.0, 0.18)
+	tw.tween_callback(line.queue_free)
+
+## 冲刺/闪避残影 - 在指定位置留一个角色轮廓快照，渐隐
+static func spawn_dash_afterimage(parent: Node, pos: Vector2, sprite_tex: Texture2D = null, color: Color = Color(0.6, 0.8, 1.0, 0.5), flip_h: bool = false) -> void:
+	if parent == null:
+		return
+	var ghost: CanvasItem
+	if sprite_tex != null:
+		var s = Sprite2D.new()
+		s.texture = sprite_tex
+		s.flip_h = flip_h
+		s.scale = Vector2(2.6, 2.6)
+		s.global_position = pos
+		ghost = s
+	else:
+		# 无纹理回退：用 Polygon2D 画一个角色轮廓近似（Node2D 系，可设 global_position）
+		var poly = Polygon2D.new()
+		poly.polygon = PackedVector2Array([
+			Vector2(-20, -32), Vector2(20, -32), Vector2(20, 32), Vector2(-20, 32)
+		])
+		poly.global_position = pos
+		ghost = poly
+	ghost.modulate = color
+	ghost.z_index = 30
+	parent.add_child(ghost)
+	var tw = ghost.create_tween()
+	tw.tween_property(ghost, "modulate:a", 0.0, 0.25)
+	tw.tween_callback(ghost.queue_free)
+
+## 技能释放特效 - 按元素类型生成不同色调的爆发粒子
+## element: fire/poison/ice/lightning/shadow/physical
+static func spawn_skill_burst(parent: Node, pos: Vector2, element: String = "physical", scale_mult: float = 1.0) -> void:
+	var color = element_color(element)
+	var particles = GPUParticles2D.new()
+	particles.global_position = pos
+	particles.one_shot = true
+	particles.explosiveness = 1.0
+	particles.amount = int(24 * scale_mult)
+	particles.lifetime = 0.5
+	particles.emitting = false
+
+	var material = ParticleProcessMaterial.new()
+	material.particle_flag_disable_z = true
+	material.direction = Vector3(0, -1, 0)
+	material.spread = 180.0
+	material.initial_velocity_min = 90.0 * scale_mult
+	material.initial_velocity_max = 180.0 * scale_mult
+	# 元素决定重力方向：火/雷向上飘，毒/冰下沉
+	match element:
+		"fire", "ignite", "lightning", "chain":
+			material.gravity = Vector3(0, -60, 0)
+		"poison", "ice", "freeze":
+			material.gravity = Vector3(0, 200, 0)
+		_:
+			material.gravity = Vector3(0, 80, 0)
+	material.scale_min = 3.0 * scale_mult
+	material.scale_max = 6.0 * scale_mult
+
+	var gradient = Gradient.new()
+	gradient.add_point(0.0, color)
+	gradient.add_point(0.6, Color(color.r, color.g, color.b, 0.7))
+	gradient.add_point(1.0, Color(color.r, color.g, color.b, 0.0))
+	var gtex = GradientTexture1D.new()
+	gtex.gradient = gradient
+	material.color_ramp = gtex
+
+	particles.process_material = material
+	parent.add_child(particles)
+	particles.emitting = true
+	particles.get_tree().create_timer(0.7).timeout.connect(func():
+		if is_instance_valid(particles):
+			particles.queue_free()
+	)
+
+## Boss 入场演出 - 地面冲击波环 + 屏幕暗角脉冲（配合 FeedbackSystem 震屏）
+## 返回总演出时长（秒），调用方可据此延迟开战
+static func spawn_boss_entrance(parent: Node, pos: Vector2, tint: Color = Color(1.0, 0.4, 0.3)) -> float:
+	if parent == null:
+		return 0.0
+	# 扩散冲击波环（Line2D 圆环放大 + 渐隐）
+	for ring_i in range(3):
+		var ring = Line2D.new()
+		ring.width = 6.0
+		ring.default_color = tint
+		ring.z_index = 35
+		ring.closed = true
+		var seg = 32
+		var r0 = 20.0
+		for i in range(seg):
+			var a = TAU * float(i) / seg
+			ring.add_point(Vector2(cos(a), sin(a)) * r0)
+		ring.global_position = pos
+		parent.add_child(ring)
+		var delay = ring_i * 0.18
+		var tw = ring.create_tween()
+		tw.tween_interval(delay)
+		tw.tween_property(ring, "scale", Vector2(8, 8), 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tw.parallel().tween_property(ring, "modulate:a", 0.0, 0.5)
+		tw.tween_callback(ring.queue_free)
+	# 升腾的能量粒子柱
+	spawn_skill_burst(parent, pos, "shadow", 2.0)
+	return 0.9

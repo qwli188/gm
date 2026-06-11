@@ -82,3 +82,36 @@ static func rarity_display(r: String) -> String:
 
 static func rarity_color(r: String) -> Color:
 	return Color(RARITY_COLOR.get(r, "#FFFFFF"))
+
+# ============ 稀有度视觉派生（A1：所有视觉从此取，杜绝散落硬编码）============
+## 稀有度排序索引（0=common ... 4=mythic）。用于过滤/比较。
+static func rarity_rank(r: String) -> int:
+	return RARITIES.find(r)
+
+## 暗色调（UI 背景用）
+static func rarity_dark_color(r: String) -> Color:
+	return rarity_color(r).darkened(0.6)
+
+## 发光色（描边/光环用）
+static func rarity_glow_color(r: String) -> Color:
+	return rarity_color(r).lightened(0.3)
+
+## 稀有度边框宽度（高稀有度更粗）
+static func rarity_border_width(r: String) -> int:
+	match r:
+		RARITY_COMMON: return 1
+		RARITY_RARE: return 2
+		RARITY_EPIC: return 2
+		RARITY_LEGENDARY: return 3
+		RARITY_MYTHIC: return 4
+		_: return 1
+
+## 稀有度圆角半径（高稀有度更圆润）
+static func rarity_corner_radius(r: String) -> int:
+	match r:
+		RARITY_COMMON: return 0
+		RARITY_RARE: return 2
+		RARITY_EPIC: return 4
+		RARITY_LEGENDARY: return 6
+		RARITY_MYTHIC: return 8
+		_: return 0

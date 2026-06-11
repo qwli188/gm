@@ -250,3 +250,82 @@ func get_main_theme() -> Theme:
 	if main_theme == null:
 		main_theme = generate_theme()
 	return main_theme
+
+# ============================================================
+# A2: 区域感知色温 + 稀有度面板工厂（见 design/art-spec.md §2 §5）
+# ============================================================
+
+## 区域主色温（与 art-spec.md §2 一致）。用于面板强调色随当前副本微调。
+const REGION_ACCENT := {
+	"crypt": Color("#6B7A8F"),   # 冷青灰
+	"swamp": Color("#7A8F4A"),   # 黄绿
+	"forge": Color("#D9622A"),   # 橙红
+	"ice": Color("#8FC4D9"),     # 蓝白
+	"void": Color("#7A4ACA"),    # 紫黑
+	"field": Color("#8F8456"),   # 中性褐绿
+}
+
+## 区域暗角色（DungeonTerrain / vignette 用）
+const REGION_VIGNETTE := {
+	"crypt": Color("#1A2230"),
+	"swamp": Color("#1F2A12"),
+	"forge": Color("#2E1206"),
+	"ice": Color("#16242E"),
+	"void": Color("#1A0E2E"),
+	"field": Color("#23200E"),
+}
+
+## 取某区域的强调色（缺省回退到金色 COLOR_ACCENT）
+func get_region_accent(region: String) -> Color:
+	return REGION_ACCENT.get(region, COLOR_ACCENT)
+
+## 取当前选中副本所在区域的强调色（GameState 驱动）
+func get_current_region_accent() -> Color:
+	if has_node("/root/GameState") and has_node("/root/ConfigLoader"):
+		var dungeon = ConfigLoader.get_dungeon_by_id(GameState.selected_dungeon_id)
+		var region = dungeon.get("region", "")
+		if region != "":
+			return get_region_accent(region)
+	return COLOR_ACCENT
+
+func get_region_vignette(region: String) -> Color:
+	return REGION_VIGNETTE.get(region, COLOR_BG_DARK)
+
+## 创建稀有度感知面板样式（装备 tooltip / 战利品面板用）
+## 委托 RarityVisuals（它已全部走 Schema），保证与地图掉落特效同色
+func create_rarity_panel(rarity: String) -> Panel:
+	var panel = Panel.new()
+	if has_node("/root/RarityVisuals"):
+		panel.add_theme_stylebox_override("panel", RarityVisuals.get_rarity_border_style(rarity))
+	else:
+		panel.add_theme_stylebox_override("panel", _create_panel_style())
+	return panel
+
+## 创建区域感知面板样式（进副本时 UI 微调色温；城镇用金色默认）
+## region 为空 → 用默认金色描边面板
+func create_region_panel(region: String = "") -> Panel:
+	var panel = Panel.new()
+	var style = _create_panel_style()
+	if region != "" and REGION_ACCENT.has(region):
+		style.border_color = REGION_ACCENT[region]
+	panel.add_theme_stylebox_override("panel", style)
+	return panel
+
+## 统一的"系统面板"工厂：给 P6-P10 新系统（巅峰/天赋/任务/商人）用，
+## 标题栏 + 内容区一致样式，避免每个程序化 Panel 各写各的。
+## 返回 {root: PanelContainer, title: Label, body: VBoxContainer}
+func create_system_panel(title_text: String) -> Dictionary:
+	var root = PanelContainer.new()
+	root.add_theme_stylebox_override("panel", _create_panel_style())
+	root.theme = get_main_theme()
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", MARGIN_LARGE)
+	root.add_child(vbox)
+	var title = create_title_label(title_text)
+	vbox.add_child(title)
+	var sep = HSeparator.new()
+	vbox.add_child(sep)
+	var body = VBoxContainer.new()
+	body.add_theme_constant_override("separation", MARGIN_NORMAL)
+	vbox.add_child(body)
+	return {"root": root, "title": title, "body": body}

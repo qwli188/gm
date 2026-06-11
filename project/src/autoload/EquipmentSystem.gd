@@ -530,14 +530,9 @@ func _spawn_drop_item(item_data: Dictionary, position: Vector2):
 		current_scene.add_child(drop)
 
 ## 获取稀有度对应的颜色（供UI和特效使用）
+## A1 收口：委托 Schema 单一真源，不再本地硬编码
 func get_rarity_color(rarity: String) -> Color:
-	match rarity:
-		"common": return Color("#C8C8C8")
-		"rare": return Color("#4A90D9")
-		"epic": return Color("#9B4DCA")
-		"legendary": return Color("#E8A317")
-		"mythic": return Color("#E03131")
-		_: return Color.WHITE
+	return Schema.rarity_color(rarity)
 
 ## 获取稀有度特效等级（0=无 1=描边 2=粒子 3=光环 4=全屏）
 func get_rarity_vfx_level(rarity: String) -> int:

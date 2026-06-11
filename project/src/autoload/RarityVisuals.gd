@@ -1,40 +1,27 @@
 extends Node
 ## 稀有度视觉体系 - 统一管理稀有度颜色、边框、特效、标签
-## 集成 EquipmentSystem.get_rarity_color 并扩展完整视觉体系
+## A1 收口：颜色/排序/中文名一律取自 Schema（数据契约单一真源），本系统只负责
+## 把这些原子值组装成 StyleBox / Gradient / 富文本等"视觉成品"。
 
-## 稀有度排序和配置
-const RARITY_ORDER = ["common", "rare", "epic", "legendary", "mythic"]
-const RARITY_NAMES = {
-	"common": "普通",
-	"rare": "稀有",
-	"epic": "史诗",
-	"legendary": "传奇",
-	"mythic": "神话"
-}
+## 稀有度排序（委托 Schema.RARITIES，保留常量名兼容调用方）
+const RARITY_ORDER = Schema.RARITIES
 
-## 稀有度颜色（与 EquipmentSystem 保持一致）
-const RARITY_COLORS = {
-	"common": Color("#C8C8C8"),      # 灰白
-	"rare": Color("#4A90D9"),        # 蓝
-	"epic": Color("#9B4DCA"),        # 紫
-	"legendary": Color("#E8A317"),   # 金
-	"mythic": Color("#E03131")       # 红
-}
+## 获取稀有度中文名（委托 Schema）
+func _rarity_name(rarity: String) -> String:
+	return Schema.rarity_display(rarity)
 
-## ============ 颜色系统 ============
+## ============ 颜色系统（全部委托 Schema）============
 ## 获取稀有度颜色
 func get_rarity_color(rarity: String) -> Color:
-	return RARITY_COLORS.get(rarity, Color.WHITE)
+	return Schema.rarity_color(rarity)
 
 ## 获取稀有度暗色（背景用）
 func get_rarity_dark_color(rarity: String) -> Color:
-	var base = get_rarity_color(rarity)
-	return base.darkened(0.6)
+	return Schema.rarity_dark_color(rarity)
 
 ## 获取稀有度发光色（特效用）
 func get_rarity_glow_color(rarity: String) -> Color:
-	var base = get_rarity_color(rarity)
-	return base.lightened(0.3)
+	return Schema.rarity_glow_color(rarity)
 
 ## ============ 边框样式 ============
 ## 获取稀有度边框样式（返回 StyleBoxFlat）
@@ -70,25 +57,13 @@ func get_rarity_border_style(rarity: String, bg_alpha: float = 0.9) -> StyleBoxF
 
 	return style
 
-## 获取边框宽度
+## 获取边框宽度（委托 Schema）
 func _get_border_width(rarity: String) -> int:
-	match rarity:
-		"common": return 1
-		"rare": return 2
-		"epic": return 2
-		"legendary": return 3
-		"mythic": return 4
-		_: return 1
+	return Schema.rarity_border_width(rarity)
 
-## 获取圆角半径
+## 获取圆角半径（委托 Schema）
 func _get_corner_radius(rarity: String) -> int:
-	match rarity:
-		"common": return 0
-		"rare": return 2
-		"epic": return 4
-		"legendary": return 6
-		"mythic": return 8
-		_: return 0
+	return Schema.rarity_corner_radius(rarity)
 
 ## ============ 背景渐变 ============
 ## 获取稀有度背景渐变（用于 tooltip/面板）
@@ -103,9 +78,9 @@ func get_rarity_bg_gradient(rarity: String) -> Gradient:
 	return gradient
 
 ## ============ 文本标签 ============
-## 获取稀有度中文名
+## 获取稀有度中文名（委托 Schema）
 func get_rarity_label(rarity: String) -> String:
-	return RARITY_NAMES.get(rarity, "未知")
+	return Schema.rarity_display(rarity)
 
 ## 获取稀有度带颜色的富文本标签（用于 RichTextLabel）
 func get_rarity_rich_text(rarity: String) -> String:

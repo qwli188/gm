@@ -7,6 +7,7 @@ class_name ShaderHelper
 
 ## 应用稀有度描边（给装备图标/掉落物）
 ## rarity: "common"|"rare"|"epic"|"legendary"|"mythic"（见 Schema.RARITIES）
+## A1 收口：描边色一律取 Schema.rarity_color，强度/宽度按 rank 派生
 static func apply_rarity_glow(node: CanvasItem, rarity: String) -> void:
 	var shader := load("res://shaders/rarity_outline.gdshader") as Shader
 	if not shader:
@@ -16,36 +17,52 @@ static func apply_rarity_glow(node: CanvasItem, rarity: String) -> void:
 	var mat := ShaderMaterial.new()
 	mat.shader = shader
 
-	# 根据稀有度设置颜色和强度
-	match rarity.to_lower():
-		"common":
-			mat.set_shader_parameter("outline_color", Color(0.5, 0.5, 0.5))
-			mat.set_shader_parameter("outline_width", 1.0)
-			mat.set_shader_parameter("glow_intensity", 0.0)
-		"rare":
-			mat.set_shader_parameter("outline_color", Color(0.3, 0.5, 1.0))
-			mat.set_shader_parameter("outline_width", 2.0)
-			mat.set_shader_parameter("glow_intensity", 0.5)
-		"epic":
-			mat.set_shader_parameter("outline_color", Color(0.6, 0.3, 0.9))
-			mat.set_shader_parameter("outline_width", 2.0)
-			mat.set_shader_parameter("glow_intensity", 0.8)
-		"legendary":
-			mat.set_shader_parameter("outline_color", Color(1.0, 0.6, 0.0))
-			mat.set_shader_parameter("outline_width", 2.5)
-			mat.set_shader_parameter("glow_intensity", 1.5)
-			mat.set_shader_parameter("pulse_speed", 2.5)
-		"mythic":
-			mat.set_shader_parameter("outline_color", Color(1.0, 0.2, 0.3))
-			mat.set_shader_parameter("outline_width", 3.0)
-			mat.set_shader_parameter("glow_intensity", 2.0)
-			mat.set_shader_parameter("pulse_speed", 3.5)
-		_:
-			push_warning("ShaderHelper: unknown rarity '%s', using common" % rarity)
-			mat.set_shader_parameter("outline_color", Color(0.5, 0.5, 0.5))
-			mat.set_shader_parameter("outline_width", 1.0)
+	var r := rarity.to_lower()
+	var rank := Schema.rarity_rank(r)
+	if rank < 0:
+		push_warning("ShaderHelper: unknown rarity '%s', using common" % rarity)
+		rank = 0
+		r = "common"
+	# 描边色 = Schema 真源；宽度/辉光随稀有度等级递增
+	mat.set_shader_parameter("outline_color", Schema.rarity_color(r))
+	mat.set_shader_parameter("outline_width", float(Schema.rarity_border_width(r)))
+	# 辉光：common 无辉光，往上递增；传奇/神话有脉动
+	var glow_levels := [0.0, 0.5, 0.8, 1.5, 2.0]
+	var glow: float = glow_levels[rank]
+	mat.set_shader_parameter("glow_intensity", glow)
+	if rank >= 3:
+		mat.set_shader_parameter("pulse_speed", 2.5 + (rank - 3) * 1.0)
 
 	node.material = mat
+
+# ============ A4: 通用精灵润色（描边 + 落地阴影，不占 material 槽）============
+
+## 给角色/敌人精灵加一个椭圆落地阴影（独立子节点，不碰 material，
+## 因此与受击闪白/状态叠色 shader 共存）。重复调用幂等（同名节点只建一次）。
+## owner_node: 挂阴影的父节点（一般是 Player/Enemy 这个 CharacterBody2D）
+## width/height: 阴影椭圆尺寸；y_offset: 相对原点的垂直偏移（脚下）
+static func ensure_drop_shadow(owner_node: Node2D, width: float = 40.0, height: float = 14.0, y_offset: float = 28.0) -> void:
+	if owner_node == null or not is_instance_valid(owner_node):
+		return
+	if owner_node.has_node("DropShadow"):
+		return
+	var shadow := _make_ellipse_shadow(width, height)
+	shadow.name = "DropShadow"
+	shadow.position = Vector2(0, y_offset)
+	shadow.z_index = -1  # 永远在角色脚下
+	owner_node.add_child(shadow)
+
+static func _make_ellipse_shadow(width: float, height: float) -> Node2D:
+	# 用 Polygon2D 画椭圆，半透明黑，营造贴地阴影
+	var poly := Polygon2D.new()
+	var pts := PackedVector2Array()
+	var steps := 16
+	for i in range(steps):
+		var a := TAU * float(i) / steps
+		pts.append(Vector2(cos(a) * width * 0.5, sin(a) * height * 0.5))
+	poly.polygon = pts
+	poly.color = Color(0, 0, 0, 0.35)
+	return poly
 
 # ============ 受击闪白 ============
 
