@@ -1,5 +1,6 @@
 {
   "version": "1.0.0",
+  "comment": "D1: Boss 战 - 每区域最高难度副本的最后一波生成 Boss",
   "wave_sets": [
     {
       "id": "waveset_crypt_1",

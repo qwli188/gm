@@ -71,6 +71,8 @@ func _create_town_locations():
 		{pos = Vector2(1150, 420), name = "城外野区", color = Color(0.8, 0.2, 0.2), icon = "obstacle_crypt", cb = _on_wilderness_clicked},
 		{pos = Vector2(1460, 420), name = "我的领地", color = Color(0.9, 0.75, 0.2), icon = "obstacle_forge", cb = _on_territory_clicked},
 		{pos = Vector2(1700, 420), name = "角色管理", color = Color(0.2, 0.6, 0.9), icon = "obstacle_ice", cb = _on_roster_clicked},
+		{pos = Vector2(220, 640), name = "训练场", color = Color(0.6, 0.3, 0.8), icon = "obstacle_void", cb = _on_training_ground_clicked},
+		{pos = Vector2(530, 640), name = "成就", color = Color(1, 0.7, 0.2), icon = "obstacle_field", cb = _on_achievement_clicked},
 	]
 	for b in buildings:
 		var marker = _create_location_marker(b.pos, b.name, b.color, b.icon)
@@ -169,7 +171,11 @@ func _on_dungeon_portal_clicked():
 
 ## 商店点击
 func _on_shop_clicked():
-	info_label.text = "[center][color=green]商店功能开发中[/color]\n敬请期待[/center]"
+	_hide_all_panels()
+	_ensure_merchant_panel()
+	_merchant_panel.visible = true
+	_build_merchant_view()
+	info_label.text = "[center][color=green]流浪商人[/color]\n购买装备与材料[/center]"
 
 ## 城外野区点击
 func _on_wilderness_clicked():
@@ -449,6 +455,9 @@ func _build_roster_list():
 	else:
 		create_btn.text = "+ 创建新角色 (%d/%d)" % [rs.character_count(), rs.MAX_CHARACTERS]
 		create_btn.disabled = false
+
+	# A6: BD 预设区（如果有 BuildPresets 节点）
+	_build_bd_presets_section()
 
 func _make_roster_row(character: Dictionary, is_active: bool) -> PanelContainer:
 	var row = PanelContainer.new()
@@ -1063,13 +1072,743 @@ func _equip_class_skills():
 		"class_knight": ["skill_judgment_hammer", "skill_blessing_aura", "skill_holy_heal"],
 		"class_necromancer": ["skill_shadow_bolt", "skill_weakness_curse", "skill_army_summon"]
 	}
-	
+
 	var skills = skill_map.get(class_id, [])
 	if skills.is_empty():
 		return
-	
+
 	if has_node("/root/ActiveSkillSystem"):
 		var ask = get_node("/root/ActiveSkillSystem")
 		for i in range(min(3, skills.size())):
 			ask.equip_manual_skill(i, skills[i])
 		print("[Town] 已为%s装备3个技能" % class_id)
+
+# ============ A 路线：UI 接线 ============
+var _training_panel: Panel = null
+
+func _on_training_ground_clicked():
+	_hide_all_panels()
+	_ensure_training_panel()
+	_training_panel.visible = true
+	_build_training_view()
+	info_label.text = "[center][color=violet]训练场[/color]\n巅峰等级 / 天赋星图[/center]"
+
+func _hide_all_panels():
+	upgrade_panel.visible = false
+	dungeon_panel.visible = false
+	if _roster_panel and is_instance_valid(_roster_panel):
+		_roster_panel.visible = false
+	if _territory_panel and is_instance_valid(_territory_panel):
+		_territory_panel.visible = false
+	if _party_panel and is_instance_valid(_party_panel):
+		_party_panel.visible = false
+	if _training_panel and is_instance_valid(_training_panel):
+		_training_panel.visible = false
+
+func _ensure_training_panel():
+	if _training_panel != null and is_instance_valid(_training_panel):
+		return
+	var panel_dict = ThemeGenerator.create_system_panel("训练场")
+	_training_panel = panel_dict["root"]
+	_training_panel.name = "TrainingPanel"
+	_training_panel.position = Vector2(50, 100)
+	_training_panel.custom_minimum_size = Vector2(1800, 650)
+	_training_panel.size = Vector2(1800, 650)
+	add_child(_training_panel)
+	var close_btn = Button.new()
+	close_btn.text = "关闭"
+	close_btn.position = Vector2(1650, 10)
+	close_btn.custom_minimum_size = Vector2(120, 50)
+	close_btn.pressed.connect(func(): _training_panel.visible = false)
+	_training_panel.add_child(close_btn)
+
+func _build_training_view():
+	if not _training_panel or not is_instance_valid(_training_panel):
+		return
+	var body = _training_panel.get_node("VBoxContainer/VBoxContainer")
+	for c in body.get_children():
+		c.queue_free()
+
+	var tab_bar = HBoxContainer.new()
+	tab_bar.add_theme_constant_override("separation", 20)
+	body.add_child(tab_bar)
+
+	var btn_paragon = Button.new()
+	btn_paragon.text = "巅峰等级"
+	btn_paragon.custom_minimum_size = Vector2(180, 50)
+	btn_paragon.pressed.connect(_show_paragon_tab)
+	tab_bar.add_child(btn_paragon)
+
+	var btn_talent = Button.new()
+	btn_talent.text = "天赋星图"
+	btn_talent.custom_minimum_size = Vector2(180, 50)
+	btn_talent.pressed.connect(_show_talent_tab)
+	tab_bar.add_child(btn_talent)
+
+	var btn_quest = Button.new()
+	btn_quest.text = "居民任务"
+	btn_quest.custom_minimum_size = Vector2(180, 50)
+	btn_quest.pressed.connect(_show_quest_tab)
+	tab_bar.add_child(btn_quest)
+
+	var sep = HSeparator.new()
+	body.add_child(sep)
+
+	var content = ScrollContainer.new()
+	content.custom_minimum_size = Vector2(1750, 480)
+	content.name = "TrainingContent"
+	body.add_child(content)
+
+	_show_paragon_tab()
+
+func _show_paragon_tab():
+	var content = _training_panel.get_node_or_null("VBoxContainer/VBoxContainer/TrainingContent")
+	if not content:
+		return
+	for c in content.get_children():
+		c.queue_free()
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 4)
+	content.add_child(vbox)
+
+	var header = Label.new()
+	var pg = GameState.meta_progression.get("paragon", {})
+	var lvl = pg.get("level", 0)
+	var pts = pg.get("points", 0)
+	header.text = "巅峰等级: %d   可用点数: %d" % [lvl, pts]
+	header.add_theme_font_size_override("font_size", 24)
+	header.add_theme_color_override("font_color", Color(1, 0.9, 0.3))
+	vbox.add_child(header)
+
+	var paths = ["power", "finesse", "vitality", "spirit", "defense", "swiftness", "fortune", "mastery", "cunning", "might"]
+	var names = {"power": "力量", "finesse": "灵巧", "vitality": "活力", "spirit": "精神", "defense": "防御", "swiftness": "迅捷", "fortune": "幸运", "mastery": "精通", "cunning": "狡诈", "might": "威能"}
+
+	for path in paths:
+		var row = HBoxContainer.new()
+		row.add_theme_constant_override("separation", 12)
+		row.custom_minimum_size = Vector2(1700, 50)
+		vbox.add_child(row)
+
+		var name_lbl = Label.new()
+		name_lbl.text = names.get(path, path)
+		name_lbl.custom_minimum_size = Vector2(120, 0)
+		name_lbl.add_theme_font_size_override("font_size", 20)
+		row.add_child(name_lbl)
+
+		var cur = pg.get("stats", {}).get(path, 0)
+		var val_lbl = Label.new()
+		val_lbl.text = "%d / 50" % cur
+		val_lbl.custom_minimum_size = Vector2(100, 0)
+		val_lbl.add_theme_font_size_override("font_size", 18)
+		row.add_child(val_lbl)
+
+		var bar = ProgressBar.new()
+		bar.min_value = 0
+		bar.max_value = 50
+		bar.value = cur
+		bar.custom_minimum_size = Vector2(800, 30)
+		bar.show_percentage = false
+		row.add_child(bar)
+
+		var btn_minus = Button.new()
+		btn_minus.text = "-"
+		btn_minus.custom_minimum_size = Vector2(50, 40)
+		btn_minus.disabled = cur <= 0
+		btn_minus.pressed.connect(_paragon_adjust.bind(path, -1))
+		row.add_child(btn_minus)
+
+		var btn_plus = Button.new()
+		btn_plus.text = "+"
+		btn_plus.custom_minimum_size = Vector2(50, 40)
+		btn_plus.disabled = pts <= 0 or cur >= 50
+		btn_plus.pressed.connect(_paragon_adjust.bind(path, 1))
+		row.add_child(btn_plus)
+
+		var bonus_lbl = Label.new()
+		var bonus_pct = cur * 0.5
+		bonus_lbl.text = "+%.1f%%" % bonus_pct
+		bonus_lbl.custom_minimum_size = Vector2(100, 0)
+		bonus_lbl.add_theme_color_override("font_color", Color(0.3, 1, 0.3))
+		row.add_child(bonus_lbl)
+
+func _paragon_adjust(path: String, delta: int):
+	var pg = GameState.meta_progression.get("paragon", {})
+	var pts = pg.get("points", 0)
+	var stats = pg.get("stats", {})
+	var cur = stats.get(path, 0)
+
+	if delta > 0 and pts > 0 and cur < 50:
+		stats[path] = cur + 1
+		pg["points"] = pts - 1
+	elif delta < 0 and cur > 0:
+		stats[path] = cur - 1
+		pg["points"] = pts + 1
+
+	pg["stats"] = stats
+	GameState.meta_progression["paragon"] = pg
+	_show_paragon_tab()
+
+func _show_talent_tab():
+	var content = _training_panel.get_node_or_null("VBoxContainer/VBoxContainer/TrainingContent")
+	if not content:
+		return
+	for c in content.get_children():
+		c.queue_free()
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	content.add_child(vbox)
+
+	var tal = GameState.meta_progression.get("talents", {})
+	var pts = tal.get("points", 0)
+	var unlocked = tal.get("unlocked", [])
+
+	var header = Label.new()
+	header.text = "可用天赋点: %d   已解锁: %d / 23" % [pts, unlocked.size()]
+	header.add_theme_font_size_override("font_size", 24)
+	header.add_theme_color_override("font_color", Color(1, 0.9, 0.3))
+	vbox.add_child(header)
+
+	var talents_cfg = ConfigLoader.get_all_talents()
+	for t in talents_cfg:
+		var tid = t.get("id", "")
+		var is_unlocked = tid in unlocked
+		var can_unlock = _can_unlock_talent(tid, unlocked, tal.get("class", ""))
+
+		var row = HBoxContainer.new()
+		row.add_theme_constant_override("separation", 12)
+		row.custom_minimum_size = Vector2(1700, 50)
+		vbox.add_child(row)
+
+		var name_lbl = Label.new()
+		name_lbl.text = t.get("display_name", tid)
+		name_lbl.custom_minimum_size = Vector2(200, 0)
+		name_lbl.add_theme_font_size_override("font_size", 18)
+		name_lbl.add_theme_color_override("font_color", Color(0.3, 1, 0.3) if is_unlocked else Color(0.7, 0.7, 0.7))
+		row.add_child(name_lbl)
+
+		var desc_lbl = Label.new()
+		var effects = t.get("effects", [])
+		var desc_parts = []
+		for eff in effects:
+			if eff.get("kind") == "add_stat":
+				desc_parts.append("%s +%s" % [eff.get("stat", "?"), eff.get("value", 0)])
+		desc_lbl.text = " / ".join(desc_parts) if desc_parts.size() > 0 else t.get("description", "")
+		desc_lbl.custom_minimum_size = Vector2(600, 0)
+		desc_lbl.add_theme_font_size_override("font_size", 16)
+		row.add_child(desc_lbl)
+
+		var prereq_lbl = Label.new()
+		var prereq = t.get("prerequisite", [])
+		var any_prereq = t.get("any_prerequisite", [])
+		if prereq.size() > 0:
+			prereq_lbl.text = "前置: " + ", ".join(prereq)
+		elif any_prereq.size() > 0:
+			prereq_lbl.text = "前置(任一): " + ", ".join(any_prereq)
+		else:
+			prereq_lbl.text = "无前置"
+		prereq_lbl.custom_minimum_size = Vector2(400, 0)
+		prereq_lbl.add_theme_font_size_override("font_size", 14)
+		prereq_lbl.add_theme_color_override("font_color", Color(0.8, 0.8, 0.5))
+		row.add_child(prereq_lbl)
+
+		var btn = Button.new()
+		if is_unlocked:
+			btn.text = "已解锁"
+			btn.disabled = true
+		elif can_unlock and pts > 0:
+			btn.text = "解锁"
+			btn.pressed.connect(_talent_unlock.bind(tid))
+		else:
+			btn.text = "不可用"
+			btn.disabled = true
+		btn.custom_minimum_size = Vector2(100, 40)
+		row.add_child(btn)
+
+func _can_unlock_talent(tid: String, unlocked: Array, player_class: String) -> bool:
+	var talents_cfg = ConfigLoader.get_all_talents()
+	var t = null
+	for talent in talents_cfg:
+		if talent.get("id") == tid:
+			t = talent
+			break
+	if not t:
+		return false
+
+	var class_req = t.get("class_requirement", [])
+	if class_req.size() > 0 and player_class not in class_req:
+		return false
+
+	var prereq = t.get("prerequisite", [])
+	if prereq.size() > 0:
+		for p in prereq:
+			if p not in unlocked:
+				return false
+
+	var any_prereq = t.get("any_prerequisite", [])
+	if any_prereq.size() > 0:
+		var has_any = false
+		for p in any_prereq:
+			if p in unlocked:
+				has_any = true
+				break
+		if not has_any:
+			return false
+
+	return true
+
+func _talent_unlock(tid: String):
+	var tal = GameState.meta_progression.get("talents", {})
+	var pts = tal.get("points", 0)
+	var unlocked = tal.get("unlocked", [])
+
+	if pts > 0 and tid not in unlocked:
+		unlocked.append(tid)
+		tal["points"] = pts - 1
+		tal["unlocked"] = unlocked
+		GameState.meta_progression["talents"] = tal
+		_show_talent_tab()
+
+func _show_quest_tab():
+	var content = _training_panel.get_node_or_null("VBoxContainer/VBoxContainer/TrainingContent")
+	if not content:
+		return
+	for c in content.get_children():
+		c.queue_free()
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+	content.add_child(vbox)
+
+	var header = Label.new()
+	header.text = "居民任务（完成后领取奖励）"
+	header.add_theme_font_size_override("font_size", 24)
+	header.add_theme_color_override("font_color", Color(1, 0.9, 0.3))
+	vbox.add_child(header)
+
+	if not has_node("/root/QuestSystem"):
+		var err = Label.new()
+		err.text = "QuestSystem 未加载"
+		vbox.add_child(err)
+		return
+
+	var qs = get_node("/root/QuestSystem")
+	var active = qs.active_quests
+
+	if active.is_empty():
+		var empty = Label.new()
+		empty.text = "当前无活跃任务，完成出击后自动刷新"
+		empty.add_theme_font_size_override("font_size", 18)
+		vbox.add_child(empty)
+		return
+
+	for q in active:
+		var qid = q.get("id", "")
+		var title = q.get("title", qid)
+		var cur = q.get("current", 0)
+		var goal = q.get("goal", 1)
+		var completed = cur >= goal
+		var claimed = q.get("claimed", false)
+
+		var panel = PanelContainer.new()
+		panel.custom_minimum_size = Vector2(1700, 80)
+		var panel_style = StyleBoxFlat.new()
+		panel_style.bg_color = Color(0.2, 0.2, 0.25, 0.9)
+		panel_style.border_color = Color(0.3, 1, 0.3) if completed else Color(0.6, 0.6, 0.6)
+		panel_style.set_border_width_all(2)
+		panel_style.set_corner_radius_all(6)
+		panel.add_theme_stylebox_override("panel", panel_style)
+		vbox.add_child(panel)
+
+		var row = HBoxContainer.new()
+		row.add_theme_constant_override("separation", 16)
+		panel.add_child(row)
+
+		var name_lbl = Label.new()
+		name_lbl.text = title
+		name_lbl.custom_minimum_size = Vector2(300, 0)
+		name_lbl.add_theme_font_size_override("font_size", 20)
+		name_lbl.add_theme_color_override("font_color", Color(1, 1, 0.8))
+		row.add_child(name_lbl)
+
+		var prog_lbl = Label.new()
+		prog_lbl.text = "%d / %d" % [cur, goal]
+		prog_lbl.custom_minimum_size = Vector2(100, 0)
+		prog_lbl.add_theme_font_size_override("font_size", 18)
+		row.add_child(prog_lbl)
+
+		var bar = ProgressBar.new()
+		bar.min_value = 0
+		bar.max_value = goal
+		bar.value = cur
+		bar.custom_minimum_size = Vector2(500, 30)
+		bar.show_percentage = false
+		row.add_child(bar)
+
+		var reward_lbl = Label.new()
+		var rew = q.get("reward", {})
+		var rew_text = []
+		if rew.get("gold", 0) > 0:
+			rew_text.append("金币 %d" % rew.get("gold"))
+		if rew.get("exp", 0) > 0:
+			rew_text.append("经验 %d" % rew.get("exp"))
+		var mats = rew.get("materials", {})
+		for mat in mats:
+			rew_text.append("%s x%d" % [mat, mats[mat]])
+		reward_lbl.text = "奖励: " + ", ".join(rew_text)
+		reward_lbl.custom_minimum_size = Vector2(400, 0)
+		reward_lbl.add_theme_font_size_override("font_size", 16)
+		reward_lbl.add_theme_color_override("font_color", Color(0.3, 1, 0.8))
+		row.add_child(reward_lbl)
+
+		var btn = Button.new()
+		if claimed:
+			btn.text = "已领取"
+			btn.disabled = true
+		elif completed:
+			btn.text = "领取"
+			btn.pressed.connect(_quest_claim.bind(qid))
+		else:
+			btn.text = "进行中"
+			btn.disabled = true
+		btn.custom_minimum_size = Vector2(100, 50)
+		row.add_child(btn)
+
+func _quest_claim(qid: String):
+	if not has_node("/root/QuestSystem"):
+		return
+	var qs = get_node("/root/QuestSystem")
+	var reward = qs.claim_reward(qid)
+	if reward.get("gold", 0) > 0:
+		GameState.total_gold += reward.get("gold", 0)
+	if reward.get("exp", 0) > 0:
+		GameState.gain_experience(reward.get("exp", 0))
+	_show_quest_tab()
+	_refresh_ui()
+
+var _merchant_panel: Panel = null
+
+func _ensure_merchant_panel():
+	if _merchant_panel != null and is_instance_valid(_merchant_panel):
+		return
+	var panel_dict = ThemeGenerator.create_system_panel("流浪商人")
+	_merchant_panel = panel_dict["root"]
+	_merchant_panel.name = "MerchantPanel"
+	_merchant_panel.position = Vector2(50, 100)
+	_merchant_panel.custom_minimum_size = Vector2(1800, 650)
+	_merchant_panel.size = Vector2(1800, 650)
+	add_child(_merchant_panel)
+	var close_btn = Button.new()
+	close_btn.text = "关闭"
+	close_btn.position = Vector2(1650, 10)
+	close_btn.custom_minimum_size = Vector2(120, 50)
+	close_btn.pressed.connect(func(): _merchant_panel.visible = false)
+	_merchant_panel.add_child(close_btn)
+
+func _build_merchant_view():
+	if not _merchant_panel or not is_instance_valid(_merchant_panel):
+		return
+	var body = _merchant_panel.get_node("VBoxContainer/VBoxContainer")
+	for c in body.get_children():
+		c.queue_free()
+
+	var header = HBoxContainer.new()
+	header.add_theme_constant_override("separation", 20)
+	body.add_child(header)
+
+	var gold_lbl = Label.new()
+	gold_lbl.text = "当前金币: %d" % GameState.total_gold
+	gold_lbl.add_theme_font_size_override("font_size", 22)
+	gold_lbl.add_theme_color_override("font_color", Color(1, 0.9, 0.3))
+	header.add_child(gold_lbl)
+
+	var refresh_btn = Button.new()
+	refresh_btn.text = "刷新商店 (花费 50 金币)"
+	refresh_btn.custom_minimum_size = Vector2(250, 50)
+	refresh_btn.disabled = GameState.total_gold < 50
+	refresh_btn.pressed.connect(_merchant_refresh)
+	header.add_child(refresh_btn)
+
+	var scroll = ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(1750, 500)
+	body.add_child(scroll)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+	scroll.add_child(vbox)
+
+	if not has_node("/root/TerritorySystem"):
+		var err = Label.new()
+		err.text = "TerritorySystem 未加载"
+		vbox.add_child(err)
+		return
+
+	var ts = get_node("/root/TerritorySystem")
+	var stock = ts.merchant_stock
+
+	if stock.is_empty():
+		var empty = Label.new()
+		empty.text = "商人暂无货物，点击刷新"
+		empty.add_theme_font_size_override("font_size", 18)
+		vbox.add_child(empty)
+		return
+
+	for item in stock:
+		var itype = item.get("type", "")
+		var row = HBoxContainer.new()
+		row.add_theme_constant_override("separation", 16)
+		row.custom_minimum_size = Vector2(1700, 60)
+		vbox.add_child(row)
+
+		var name_lbl = Label.new()
+		if itype == "equipment":
+			var eq = item.get("data", {})
+			name_lbl.text = eq.get("display_name", "装备")
+			var rarity = eq.get("rarity", "common")
+			name_lbl.add_theme_color_override("font_color", Schema.rarity_color(rarity))
+		elif itype == "material":
+			name_lbl.text = "%s x%d" % [item.get("id", "材料"), item.get("amount", 1)]
+			name_lbl.add_theme_color_override("font_color", Color(0.8, 0.8, 1))
+		name_lbl.custom_minimum_size = Vector2(400, 0)
+		name_lbl.add_theme_font_size_override("font_size", 20)
+		row.add_child(name_lbl)
+
+		var price_lbl = Label.new()
+		var price = item.get("price", 0)
+		price_lbl.text = "价格: %d 金币" % price
+		price_lbl.custom_minimum_size = Vector2(200, 0)
+		price_lbl.add_theme_font_size_override("font_size", 18)
+		price_lbl.add_theme_color_override("font_color", Color(1, 0.9, 0.3))
+		row.add_child(price_lbl)
+
+		var btn = Button.new()
+		btn.text = "购买"
+		btn.custom_minimum_size = Vector2(100, 50)
+		btn.disabled = GameState.total_gold < price
+		btn.pressed.connect(_merchant_buy.bind(item))
+		row.add_child(btn)
+
+func _merchant_refresh():
+	if GameState.total_gold < 50:
+		return
+	GameState.total_gold -= 50
+	if has_node("/root/TerritorySystem"):
+		get_node("/root/TerritorySystem").refresh_merchant()
+	_build_merchant_view()
+	_refresh_ui()
+
+func _merchant_buy(item: Dictionary):
+	var price = item.get("price", 0)
+	if GameState.total_gold < price:
+		return
+	GameState.total_gold -= price
+
+	var itype = item.get("type", "")
+	if itype == "equipment":
+		var eq = item.get("data", {})
+		if has_node("/root/EquipmentSystem"):
+			get_node("/root/EquipmentSystem").add_to_inventory(eq)
+	elif itype == "material":
+		var mid = item.get("id", "")
+		var amt = item.get("amount", 1)
+		GameState.add_material(mid, amt)
+
+	if has_node("/root/TerritorySystem"):
+		var ts = get_node("/root/TerritorySystem")
+		ts.merchant_stock.erase(item)
+
+	_build_merchant_view()
+	_refresh_ui()
+
+func _build_bd_presets_section():
+	if not has_node("/root/BuildPresets"):
+		return
+
+	var bd_section = _roster_panel.get_node_or_null("BDPresetsSection")
+	if bd_section:
+		bd_section.queue_free()
+
+	var sep = HSeparator.new()
+	sep.name = "BDPresetsSection"
+	_roster_panel.add_child(sep)
+
+	var header = Label.new()
+	header.text = "BD 预设（每个角色 3 个预设槽）"
+	header.position = Vector2(20, 560)
+	header.add_theme_font_size_override("font_size", 20)
+	header.add_theme_color_override("font_color", Color(1, 0.9, 0.3))
+	_roster_panel.add_child(header)
+
+	var bp = get_node("/root/BuildPresets")
+	var presets = bp.presets
+
+	var row = HBoxContainer.new()
+	row.name = "BDRow"
+	row.position = Vector2(20, 590)
+	row.add_theme_constant_override("separation", 20)
+	_roster_panel.add_child(row)
+
+	for i in range(3):
+		var slot = VBoxContainer.new()
+		slot.add_theme_constant_override("separation", 6)
+		row.add_child(slot)
+
+		var lbl = Label.new()
+		lbl.text = "预设 %d" % (i + 1)
+		lbl.add_theme_font_size_override("font_size", 18)
+		slot.add_child(lbl)
+
+		var has_preset = presets.has(str(i))
+		var info = Label.new()
+		if has_preset:
+			var snapshot = presets[str(i)]
+			var eq_count = snapshot.get("equipment", {}).size()
+			var skill_count = snapshot.get("skills", []).size()
+			info.text = "装备: %d  技能: %d" % [eq_count, skill_count]
+			info.add_theme_font_size_override("font_size", 14)
+			info.add_theme_color_override("font_color", Color(0.7, 0.9, 0.7))
+		else:
+			info.text = "空槽"
+			info.add_theme_font_size_override("font_size", 14)
+			info.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+		slot.add_child(info)
+
+		var btn_save = Button.new()
+		btn_save.text = "保存"
+		btn_save.custom_minimum_size = Vector2(100, 40)
+		btn_save.pressed.connect(_bd_save.bind(i))
+		slot.add_child(btn_save)
+
+		var btn_load = Button.new()
+		btn_load.text = "加载"
+		btn_load.custom_minimum_size = Vector2(100, 40)
+		btn_load.disabled = not has_preset
+		btn_load.pressed.connect(_bd_load.bind(i))
+		slot.add_child(btn_load)
+
+func _bd_save(slot_idx: int):
+	if not has_node("/root/BuildPresets"):
+		return
+	get_node("/root/BuildPresets").save_build(slot_idx)
+	_build_bd_presets_section()
+
+func _bd_load(slot_idx: int):
+	if not has_node("/root/BuildPresets"):
+		return
+	get_node("/root/BuildPresets").load_build(slot_idx)
+	_build_bd_presets_section()
+	_refresh_ui()
+
+var _achievement_panel: Panel = null
+
+func _on_achievement_clicked():
+	_hide_all_panels()
+	_ensure_achievement_panel()
+	_achievement_panel.visible = true
+	_build_achievement_view()
+	info_label.text = "[center][color=gold]成就系统[/color]\n追踪长期目标[/center]"
+
+func _ensure_achievement_panel():
+	if _achievement_panel != null and is_instance_valid(_achievement_panel):
+		return
+	var panel_dict = ThemeGenerator.create_system_panel("成就")
+	_achievement_panel = panel_dict["root"]
+	_achievement_panel.name = "AchievementPanel"
+	_achievement_panel.position = Vector2(50, 100)
+	_achievement_panel.custom_minimum_size = Vector2(1800, 650)
+	_achievement_panel.size = Vector2(1800, 650)
+	add_child(_achievement_panel)
+	var close_btn = Button.new()
+	close_btn.text = "关闭"
+	close_btn.position = Vector2(1650, 10)
+	close_btn.custom_minimum_size = Vector2(120, 50)
+	close_btn.pressed.connect(func(): _achievement_panel.visible = false)
+	_achievement_panel.add_child(close_btn)
+
+func _build_achievement_view():
+	if not _achievement_panel or not is_instance_valid(_achievement_panel):
+		return
+	var body = _achievement_panel.get_node("VBoxContainer/VBoxContainer")
+	for c in body.get_children():
+		c.queue_free()
+
+	if not has_node("/root/AchievementSystem"):
+		var err = Label.new()
+		err.text = "AchievementSystem 未加载"
+		body.add_child(err)
+		return
+
+	var ach_sys = get_node("/root/AchievementSystem")
+	var all_ach = ach_sys.get_all_achievements()
+
+	var scroll = ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(1750, 550)
+	body.add_child(scroll)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	scroll.add_child(vbox)
+
+	var unlocked_count = ach_sys.unlocked.size()
+	var header = Label.new()
+	header.text = "已解锁: %d / %d" % [unlocked_count, all_ach.size()]
+	header.add_theme_font_size_override("font_size", 24)
+	header.add_theme_color_override("font_color", Color(1, 0.9, 0.3))
+	vbox.add_child(header)
+
+	for ach in all_ach:
+		var aid = ach.get("id", "")
+		var unlocked = ach_sys.is_unlocked(aid)
+		var prog = ach_sys.get_progress(aid)
+
+		var panel = PanelContainer.new()
+		panel.custom_minimum_size = Vector2(1700, 80)
+		var style = StyleBoxFlat.new()
+		style.bg_color = Color(0.3, 0.25, 0.2, 0.9) if unlocked else Color(0.15, 0.15, 0.2, 0.9)
+		style.border_color = Color(1, 0.9, 0.3) if unlocked else Color(0.4, 0.4, 0.4)
+		style.set_border_width_all(2)
+		style.set_corner_radius_all(6)
+		panel.add_theme_stylebox_override("panel", style)
+		vbox.add_child(panel)
+
+		var row = HBoxContainer.new()
+		row.add_theme_constant_override("separation", 16)
+		panel.add_child(row)
+
+		var name_lbl = Label.new()
+		name_lbl.text = ach.get("display_name", aid)
+		name_lbl.custom_minimum_size = Vector2(300, 0)
+		name_lbl.add_theme_font_size_override("font_size", 20)
+		name_lbl.add_theme_color_override("font_color", Color(1, 0.9, 0.5) if unlocked else Color(0.7, 0.7, 0.7))
+		row.add_child(name_lbl)
+
+		var desc_lbl = Label.new()
+		desc_lbl.text = ach.get("description", "")
+		desc_lbl.custom_minimum_size = Vector2(500, 0)
+		desc_lbl.add_theme_font_size_override("font_size", 16)
+		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
+		row.add_child(desc_lbl)
+
+		var prog_lbl = Label.new()
+		var goal = ach.get("goal", 1)
+		var cur = ach_sys.progress.get(aid, 0)
+		prog_lbl.text = "%d / %d" % [cur, goal]
+		prog_lbl.custom_minimum_size = Vector2(100, 0)
+		prog_lbl.add_theme_font_size_override("font_size", 18)
+		row.add_child(prog_lbl)
+
+		var bar = ProgressBar.new()
+		bar.min_value = 0
+		bar.max_value = 100
+		bar.value = prog * 100
+		bar.custom_minimum_size = Vector2(300, 30)
+		bar.show_percentage = false
+		row.add_child(bar)
+
+		var status_lbl = Label.new()
+		status_lbl.text = "✓ 已解锁" if unlocked else "未完成"
+		status_lbl.custom_minimum_size = Vector2(100, 0)
+		status_lbl.add_theme_font_size_override("font_size", 18)
+		status_lbl.add_theme_color_override("font_color", Color(0.3, 1, 0.3) if unlocked else Color(0.6, 0.6, 0.6))
+		row.add_child(status_lbl)

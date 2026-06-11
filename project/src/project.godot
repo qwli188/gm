@@ -45,6 +45,7 @@ FeedbackSystem="*res://autoload/FeedbackSystem.gd"
 QuestSystem="*res://autoload/QuestSystem.gd"
 ItemCompare="*res://autoload/ItemCompare.gd"
 BuildPresets="*res://autoload/BuildPresets.gd"
+AchievementSystem="*res://autoload/AchievementSystem.gd"
 AutoloadTestRunner="*res://autoload/AutoloadTestRunner.gd"
 
 [display]

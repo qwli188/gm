@@ -387,6 +387,11 @@ func die():
 	else:
 		Engine.time_scale = 0.0
 		get_tree().create_timer(0.05, true, false, true).timeout.connect(func():
+
+	# D2: 成就系统 - Boss 首杀
+	if rank == "boss" and has_node("/root/AchievementSystem"):
+		var boss_id = enemy_data.get("id", "")
+		get_node("/root/AchievementSystem").register_boss_kill(boss_id)
 			Engine.time_scale = 1.0
 		)
 
