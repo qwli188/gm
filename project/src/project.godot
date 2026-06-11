@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+EventBus="*res://autoload/EventBus.gd"
 ConfigLoader="*res://autoload/ConfigLoader.gd"
 FileWatcher="*res://autoload/FileWatcher.gd"
 GameState="*res://autoload/GameState.gd"

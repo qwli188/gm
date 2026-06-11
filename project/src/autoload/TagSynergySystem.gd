@@ -12,10 +12,10 @@ var _prev_tag_counts: Dictionary = {}
 signal tag_synergy_changed(tag: String, count: int)
 
 
-func _ready():
+func _ready() -> void:
 	print("[TagSynergySystem] 标签联动系统初始化")
-	if has_node("/root/EquipmentSystem"):
-		get_node("/root/EquipmentSystem").equipment_changed.connect(_on_equipment_changed)
+	# 迁移到 EventBus（旧代码：EquipmentSystem.equipment_changed）
+	EventBus.equipment_changed.connect(_on_equipment_changed)
 
 
 ## 重新统计当前所有标签（装备+技能）
