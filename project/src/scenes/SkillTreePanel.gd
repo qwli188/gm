@@ -9,9 +9,6 @@ signal skill_tree_closed
 @onready var close_button: Button = $Panel/TopBar/CloseButton
 @onready var skill_tooltip: PanelContainer = $SkillTooltip
 
-# 技能按钮模板
-const SKILL_BUTTON_SCENE = preload("res://src/scenes/SkillButton.tscn")
-
 # 当前职业技能列表
 var current_skills: Array = []
 

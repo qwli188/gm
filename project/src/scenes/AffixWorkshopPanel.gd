@@ -163,12 +163,18 @@ func _update_button_states():
 
 ## 洗练按钮
 func _on_reforge_pressed():
-	if current_item_index < 0:
+	if current_item.is_empty():
+		return
+	var instance_id: String = current_item.get("instance_id", "")
+	if instance_id.is_empty():
 		return
 
-	var result = AffixWorkshop.reforge(current_item_index, locked_affixes)
-	if not result.is_empty():
-		current_item = result
+	var success = AffixWorkshop.reforge(instance_id, locked_affixes)
+	if success:
+		# 重新从 EquipmentSystem 拉取最新装备数据
+		var refreshed = EquipmentSystem.get_instance(instance_id) if EquipmentSystem.has_method("get_instance") else current_item
+		if refreshed and not refreshed.is_empty():
+			current_item = refreshed
 		locked_affixes.clear()
 		_refresh_ui()
 		_play_reforge_animation()
@@ -176,10 +182,13 @@ func _on_reforge_pressed():
 
 ## 分解按钮
 func _on_dismantle_pressed():
-	if current_item_index < 0:
+	if current_item.is_empty():
+		return
+	var instance_id: String = current_item.get("instance_id", "")
+	if instance_id.is_empty():
 		return
 
-	var shard_count = AffixWorkshop.dismantle_equipment(current_item_index)
+	var shard_count = AffixWorkshop.dismantle_equipment(instance_id)
 	if shard_count > 0:
 		_show_dismantle_result(shard_count)
 		_clear_ui()
