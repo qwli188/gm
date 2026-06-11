@@ -17,11 +17,13 @@ const MAX_WAREHOUSE_SIZE := 100
 var backpack: Array = []
 var warehouse: Array = []
 
-signal backpack_changed()
-signal warehouse_changed()
+signal backpack_changed
+signal warehouse_changed
+
 
 func _ready():
 	print("[Inventory] 背包/仓库系统初始化 (背包%d/仓库%d)" % [MAX_BACKPACK_SIZE, MAX_WAREHOUSE_SIZE])
+
 
 ## ============ 查询 ============
 ## 获取装备完整数据（委托 EquipmentSystem）
@@ -30,19 +32,24 @@ func get_equipment_data(instance_id: String) -> Dictionary:
 		return {}
 	return EquipmentSystem.get_equipment_instance_data(instance_id)
 
+
 ## 背包是否已满
 func is_backpack_full() -> bool:
 	return backpack.size() >= MAX_BACKPACK_SIZE
+
 
 ## 仓库是否已满
 func is_warehouse_full() -> bool:
 	return warehouse.size() >= MAX_WAREHOUSE_SIZE
 
+
 ## 背包剩余格数
 func backpack_free_slots() -> int:
 	return MAX_BACKPACK_SIZE - backpack.size()
 
+
 ## PLACEHOLDER_INVENTORY_METHODS
+
 
 ## ============ 操作 ============
 ## 加到背包末尾。返回 true=成功；false=背包满
@@ -59,6 +66,7 @@ func add_to_backpack(instance_id: String) -> bool:
 	backpack_changed.emit()
 	return true
 
+
 ## 从背包移到仓库（前提：仓库有空位）
 func transfer_to_warehouse(instance_id: String) -> bool:
 	if not instance_id in backpack:
@@ -72,6 +80,7 @@ func transfer_to_warehouse(instance_id: String) -> bool:
 	warehouse_changed.emit()
 	return true
 
+
 ## 从仓库取回背包（前提：背包有空位）
 func transfer_to_backpack(instance_id: String) -> bool:
 	if not instance_id in warehouse:
@@ -84,6 +93,7 @@ func transfer_to_backpack(instance_id: String) -> bool:
 	backpack_changed.emit()
 	warehouse_changed.emit()
 	return true
+
 
 ## 销毁装备：从背包/仓库移除 + 从 EquipmentSystem 实例池删除
 ## 注意：穿戴中的装备不能销毁（先卸下）
@@ -109,21 +119,24 @@ func destroy_equipment(instance_id: String) -> bool:
 		warehouse_changed.emit()
 	return was_in_backpack or was_in_warehouse
 
+
 ## P10: 自动整理背包/仓库
 ## 排序规则：稀有度高→低，再按部位顺序，再按强化等级高→低
 func sort_backpack():
 	backpack.sort_custom(_compare_instances)
 	backpack_changed.emit()
 
+
 func sort_warehouse():
 	warehouse.sort_custom(_compare_instances)
 	warehouse_changed.emit()
 
+
 const _RARITY_RANK := {"common": 0, "rare": 1, "epic": 2, "legendary": 3, "mythic": 4}
 const _SLOT_ORDER := {
-	"weapon": 0, "helmet": 1, "chest": 2, "legs": 3,
-	"boots": 4, "gloves": 5, "ring": 6, "amulet": 7
+	"weapon": 0, "helmet": 1, "chest": 2, "legs": 3, "boots": 4, "gloves": 5, "ring": 6, "amulet": 7
 }
+
 
 func _compare_instances(a_id: String, b_id: String) -> bool:
 	if not has_node("/root/EquipmentSystem"):
@@ -150,6 +163,7 @@ func _compare_instances(a_id: String, b_id: String) -> bool:
 	# 4) 名字字典序
 	return a_id < b_id
 
+
 ## P10: 自动卖出/分解垃圾装备（按稀有度阈值）
 ## 返回 {sold_count, gold_gained, shards_gained}
 func auto_dismantle_below(rarity_threshold: String) -> Dictionary:
@@ -167,6 +181,7 @@ func auto_dismantle_below(rarity_threshold: String) -> Dictionary:
 		shards += AffixWorkshop.dismantle_equipment(id)
 	return {"sold_count": to_dismantle.size(), "gold_gained": 0, "shards_gained": shards}
 
+
 ## ============ 材料 tab（只读视图，真源在 GameState）============
 ## 获取所有材料 {material_id: count}
 func get_all_materials() -> Dictionary:
@@ -174,11 +189,13 @@ func get_all_materials() -> Dictionary:
 		return {}
 	return GameState.materials.duplicate()
 
+
 ## 获取单种材料数量
 func get_material_count(material_id: String) -> int:
 	if not has_node("/root/GameState"):
 		return 0
 	return GameState.get_material(material_id)
+
 
 ## ============ 序列化（SaveSystem 调用）============
 func serialize() -> Dictionary:
@@ -186,6 +203,7 @@ func serialize() -> Dictionary:
 		"backpack": backpack.duplicate(),
 		"warehouse": warehouse.duplicate(),
 	}
+
 
 func deserialize(data: Dictionary):
 	backpack = data.get("backpack", []).duplicate()
@@ -197,4 +215,3 @@ func deserialize(data: Dictionary):
 	backpack_changed.emit()
 	warehouse_changed.emit()
 	print("[Inventory] 恢复: 背包%d / 仓库%d" % [backpack.size(), warehouse.size()])
-

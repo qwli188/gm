@@ -14,12 +14,14 @@ var current_item: Dictionary = {}
 var current_item_index: int = -1
 var locked_affixes: Array[int] = []
 
+
 func _ready():
 	close_button.pressed.connect(_on_close_pressed)
 	reforge_button.pressed.connect(_on_reforge_pressed)
 	dismantle_button.pressed.connect(_on_dismantle_pressed)
 	enhance_button.pressed.connect(_on_enhance_pressed)
 	_clear_ui()
+
 
 ## 打开面板并加载指定装备
 func open_with_item(item_data: Dictionary, item_index: int):
@@ -28,6 +30,7 @@ func open_with_item(item_data: Dictionary, item_index: int):
 	locked_affixes.clear()
 	_refresh_ui()
 	show()
+
 
 ## 刷新UI显示
 func _refresh_ui():
@@ -50,6 +53,7 @@ func _refresh_ui():
 	# 按钮状态
 	_update_button_states()
 
+
 ## 构建词缀列表（带锁定按钮）
 func _build_affix_list():
 	# 清空
@@ -69,6 +73,7 @@ func _build_affix_list():
 		var affix = ConfigLoader.get_affix_by_id(affix_id)
 		var row = _create_affix_row(affix, i)
 		affix_list.add_child(row)
+
 
 ## 创建单个词缀行（词缀名 + 锁定按钮）
 func _create_affix_row(affix: Dictionary, index: int) -> HBoxContainer:
@@ -91,6 +96,7 @@ func _create_affix_row(affix: Dictionary, index: int) -> HBoxContainer:
 
 	return row
 
+
 ## 锁定开关回调
 func _on_lock_toggled(pressed: bool, index: int):
 	if pressed:
@@ -100,6 +106,7 @@ func _on_lock_toggled(pressed: bool, index: int):
 		locked_affixes.erase(index)
 	_update_cost_display()
 	_update_button_states()
+
 
 ## 更新消耗显示
 func _update_cost_display():
@@ -114,14 +121,20 @@ func _update_cost_display():
 
 	# 锁定词缀增加消耗
 	if locked_affixes.size() > 0:
-		var mult = ConfigLoader.balance_data.get("affix_workshop", {}).get("lock_cost_multiplier", 1.5)
+		var mult = ConfigLoader.balance_data.get("affix_workshop", {}).get(
+			"lock_cost_multiplier", 1.5
+		)
 		gold = int(gold * mult)
 		shards = int(shards * mult)
 
 	var gold_color = "green" if GameState.total_gold >= gold else "red"
 	var shard_color = "green" if GameState.get_material("rune_shard") >= shards else "red"
 
-	cost_label.text = "洗练消耗: [color=%s]%d金币[/color] + [color=%s]%d符文碎片[/color]" % [gold_color, gold, shard_color, shards]
+	cost_label.text = (
+		"洗练消耗: [color=%s]%d金币[/color] + [color=%s]%d符文碎片[/color]"
+		% [gold_color, gold, shard_color, shards]
+	)
+
 
 ## 更新按钮状态
 func _update_button_states():
@@ -136,12 +149,17 @@ func _update_button_states():
 	var shards = cost_data.get("rune_shard", 0)
 
 	if locked_affixes.size() > 0:
-		var mult = ConfigLoader.balance_data.get("affix_workshop", {}).get("lock_cost_multiplier", 1.5)
+		var mult = ConfigLoader.balance_data.get("affix_workshop", {}).get(
+			"lock_cost_multiplier", 1.5
+		)
 		gold = int(gold * mult)
 		shards = int(shards * mult)
 
-	reforge_button.disabled = GameState.total_gold < gold or GameState.get_material("rune_shard") < shards
+	reforge_button.disabled = (
+		GameState.total_gold < gold or GameState.get_material("rune_shard") < shards
+	)
 	dismantle_button.disabled = false
+
 
 ## 洗练按钮
 func _on_reforge_pressed():
@@ -155,6 +173,7 @@ func _on_reforge_pressed():
 		_refresh_ui()
 		_play_reforge_animation()
 
+
 ## 分解按钮
 func _on_dismantle_pressed():
 	if current_item_index < 0:
@@ -167,9 +186,11 @@ func _on_dismantle_pressed():
 		current_item = {}
 		current_item_index = -1
 
+
 ## 关闭按钮
 func _on_close_pressed():
 	hide()
+
 
 ## 清空UI
 func _clear_ui():
@@ -180,11 +201,13 @@ func _clear_ui():
 	for child in affix_list.get_children():
 		child.queue_free()
 
+
 ## 播放洗练动画（简单闪烁效果）
 func _play_reforge_animation():
 	var tween = create_tween()
 	tween.tween_property(affix_list, "modulate:a", 0.3, 0.2)
 	tween.tween_property(affix_list, "modulate:a", 1.0, 0.2)
+
 
 ## 显示分解结果
 func _show_dismantle_result(shard_count: int):
@@ -200,10 +223,10 @@ func _show_dismantle_result(shard_count: int):
 	tween.tween_callback(label.queue_free)
 
 
-
 # ============================================================
 # 阶段1: 装备强化功能集成
 # ============================================================
+
 
 ## 强化按钮处理(需在场景中添加EnhanceButton节点,或动态创建)
 func _on_enhance_pressed():
@@ -232,6 +255,7 @@ func _on_enhance_pressed():
 	_play_enhance_animation(succeeded)
 	_show_float_text(msg, Color.CYAN if succeeded else Color.ORANGE_RED)
 
+
 ## 强化动画
 func _play_enhance_animation(succeeded: bool):
 	var color = Color(0.4, 1.0, 0.4) if succeeded else Color(1.0, 0.3, 0.3)
@@ -239,6 +263,7 @@ func _play_enhance_animation(succeeded: bool):
 		var tween = create_tween()
 		tween.tween_property(item_slot, "modulate", color, 0.15)
 		tween.tween_property(item_slot, "modulate", Color.WHITE, 0.3)
+
 
 ## 浮动文本提示
 func _show_float_text(text: String, color: Color):
@@ -252,6 +277,7 @@ func _show_float_text(text: String, color: Color):
 	tween.tween_property(label, "position:y", 180, 1.2)
 	tween.parallel().tween_property(label, "modulate:a", 0.0, 1.2)
 	tween.tween_callback(label.queue_free)
+
 
 ## 获取强化信息(供UI显示)
 func _get_enhance_info() -> String:
@@ -284,8 +310,11 @@ func _get_enhance_info() -> String:
 	var rarity = instance.get("rarity", "common")
 	var costs = config.get("costs", {}).get(rarity, {})
 	var gold = costs.get("gold_base", 50) + int(costs.get("gold_per_level", 25) * current_level)
-	var mat = int(costs.get("material_base", 1) + costs.get("material_per_level", 0.5) * current_level)
+	var mat = int(
+		costs.get("material_base", 1) + costs.get("material_per_level", 0.5) * current_level
+	)
 
-	return "强化 +%d → +%d\n成功率: %d%%\n消耗: %d金币 + %d材料" % [
-		current_level, current_level + 1, int(rate * 100), gold, mat
-	]
+	return (
+		"强化 +%d → +%d\n成功率: %d%%\n消耗: %d金币 + %d材料"
+		% [current_level, current_level + 1, int(rate * 100), gold, mat]
+	)

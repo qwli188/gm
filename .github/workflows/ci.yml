@@ -1,0 +1,67 @@
+name: CI
+
+# DarkLoot 持续集成：每次 push / PR 自动跑 GDScript 格式检查、静态 lint、356 单元测试。
+# 全部工具开源免费：gdtoolkit (MIT)、Godot 引擎 (MIT)。
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main]
+
+# 同一分支新 push 取消旧的在跑任务，省额度
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: 格式化 + 静态检查 (gdtoolkit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 安装 gdtoolkit
+        run: pip install "gdtoolkit==4.5.0"
+
+      - name: gdformat --check + gdlint
+        run: python tools/format_code.py --check
+
+  test:
+    name: 单元测试 (Godot 4.3 headless)
+    runs-on: ubuntu-latest
+    env:
+      GODOT_VERSION: "4.3"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 下载 Godot ${{ env.GODOT_VERSION }} (headless, Linux)
+        run: |
+          set -e
+          URL="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          curl -L -o godot.zip "$URL"
+          unzip -o godot.zip
+          mv Godot_v${GODOT_VERSION}-stable_linux.x86_64 godot
+          chmod +x godot
+          ./godot --version
+
+      - name: 导入资源 (首次 headless 需生成 .godot 缓存)
+        run: |
+          # 首次打开工程会导入资源；超时也无妨，目的是生成导入缓存
+          timeout 120 ./godot --headless --path project/src --import || true
+
+      - name: 运行 356 单元测试
+        run: |
+          set -o pipefail
+          ./godot --headless --path project/src -s res://tests/test_runner.gd 2>&1 | tee test_output.txt
+          # test_runner 不返回非零退出码，靠解析输出判定：有“失败: N”且 N>0 则失败
+          if grep -qE "失败:\s*[1-9]" test_output.txt; then
+            echo "::error::存在测试失败"
+            exit 1
+          fi
+          echo "全部测试通过"

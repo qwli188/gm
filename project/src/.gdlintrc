@@ -1,0 +1,31 @@
+# gdlint 配置 —— DarkLoot 工程
+# 务实策略：保留能抓真实问题的检查，放宽存量代码难以批量整改的纯风格规则。
+# 完整规则见 https://github.com/Scony/godot-gdscript-toolkit
+#
+# 放宽理由：
+# - class-definitions-order: 存量 80 文件普遍不符 signals>enums>consts>vars>funcs 顺序，
+#   强排序风险高收益低，关闭。新代码靠 review 把控。
+# - max-line-length: 中文注释 + 长链式调用导致超限，放宽到 120（默认 100）。
+# - max-file-lines: Town.gd 1814 行待架构层拆分，暂时放宽，拆完再收紧。
+# - max-returns / max-public-methods: 同上，待重构，先放宽避免噪音淹没真实问题。
+# - function-arguments-number: ARPG 战斗/装备函数参数天然多。
+
+disable:
+  - class-definitions-order
+
+max-line-length: 120
+max-file-lines: 2100
+max-returns: 12
+max-public-methods: 40
+function-arguments-number: 12
+
+# 以下保留默认启用（抓真实问题）：
+# - unused-argument（用 _ 前缀消除）
+# - duplicated-load
+# - mixed-tabs-and-spaces
+# - no-else-return
+# - trailing-whitespace（gdformat 已自动修）
+# - class-variable-name / function-name 等命名规范
+#
+# 注：.godot 缓存目录由调用方（tools/format_code.py / CI）传入文件列表时排除，
+# 不在此处配置（gdlint 的 excluded_directories 需特殊 YAML set 语法，易出错）。

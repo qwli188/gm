@@ -1,6 +1,7 @@
 extends SceneTree
 ## P2 冒烟测试：组队面板 + Companion 实例化
 
+
 func _initialize() -> void:
 	await process_frame
 	await process_frame

@@ -13,6 +13,7 @@ const SPRITE_SHEET = preload("res://assets/sprites/roguelike/roguelikeSheet_tran
 
 var current_view: String = "town"  # town, upgrade, dungeon
 
+
 func _ready():
 	_setup_visuals()
 	_refresh_ui()
@@ -25,6 +26,7 @@ func _ready():
 	if has_node("/root/AudioManager"):
 		get_node("/root/AudioManager").play_bgm("town")
 
+
 ## 设置视觉效果
 func _setup_visuals():
 	# 设置玩家标记精灵
@@ -35,6 +37,7 @@ func _setup_visuals():
 		var region = cls.get("sprite_region", [425, 408, 16, 16])
 		player_sprite.region_rect = Rect2(region[0], region[1], region[2], region[3])
 		player_sprite.scale = Vector2(4, 4)
+
 
 ## 刷新UI显示
 func _refresh_ui():
@@ -56,6 +59,7 @@ func _refresh_ui():
 
 	info_label.text = "[center][color=yellow]欢迎来到黎明堡[/color]\n点击地图上的建筑进行交互[/center]"
 
+
 ## 创建城镇交互点
 func _create_town_locations():
 	var world_map = $WorldMap
@@ -65,19 +69,68 @@ func _create_town_locations():
 
 	# 建筑布局：图标 + 名称 + 主题色
 	var buildings = [
-		{pos = Vector2(220, 420), name = "铁匠铺", color = Color(1, 0.6, 0.2), icon = "obstacle_forge", cb = _on_blacksmith_clicked},
-		{pos = Vector2(530, 420), name = "副本入口", color = Color(0.6, 0.3, 1), icon = "obstacle_void", cb = _on_dungeon_portal_clicked},
-		{pos = Vector2(840, 420), name = "商店", color = Color(0.3, 0.8, 0.3), icon = "obstacle_field", cb = _on_shop_clicked},
-		{pos = Vector2(1150, 420), name = "城外野区", color = Color(0.8, 0.2, 0.2), icon = "obstacle_crypt", cb = _on_wilderness_clicked},
-		{pos = Vector2(1460, 420), name = "我的领地", color = Color(0.9, 0.75, 0.2), icon = "obstacle_forge", cb = _on_territory_clicked},
-		{pos = Vector2(1700, 420), name = "角色管理", color = Color(0.2, 0.6, 0.9), icon = "obstacle_ice", cb = _on_roster_clicked},
-		{pos = Vector2(220, 640), name = "训练场", color = Color(0.6, 0.3, 0.8), icon = "obstacle_void", cb = _on_training_ground_clicked},
-		{pos = Vector2(530, 640), name = "成就", color = Color(1, 0.7, 0.2), icon = "obstacle_field", cb = _on_achievement_clicked},
+		{
+			pos = Vector2(220, 420),
+			name = "铁匠铺",
+			color = Color(1, 0.6, 0.2),
+			icon = "obstacle_forge",
+			cb = _on_blacksmith_clicked
+		},
+		{
+			pos = Vector2(530, 420),
+			name = "副本入口",
+			color = Color(0.6, 0.3, 1),
+			icon = "obstacle_void",
+			cb = _on_dungeon_portal_clicked
+		},
+		{
+			pos = Vector2(840, 420),
+			name = "商店",
+			color = Color(0.3, 0.8, 0.3),
+			icon = "obstacle_field",
+			cb = _on_shop_clicked
+		},
+		{
+			pos = Vector2(1150, 420),
+			name = "城外野区",
+			color = Color(0.8, 0.2, 0.2),
+			icon = "obstacle_crypt",
+			cb = _on_wilderness_clicked
+		},
+		{
+			pos = Vector2(1460, 420),
+			name = "我的领地",
+			color = Color(0.9, 0.75, 0.2),
+			icon = "obstacle_forge",
+			cb = _on_territory_clicked
+		},
+		{
+			pos = Vector2(1700, 420),
+			name = "角色管理",
+			color = Color(0.2, 0.6, 0.9),
+			icon = "obstacle_ice",
+			cb = _on_roster_clicked
+		},
+		{
+			pos = Vector2(220, 640),
+			name = "训练场",
+			color = Color(0.6, 0.3, 0.8),
+			icon = "obstacle_void",
+			cb = _on_training_ground_clicked
+		},
+		{
+			pos = Vector2(530, 640),
+			name = "成就",
+			color = Color(1, 0.7, 0.2),
+			icon = "obstacle_field",
+			cb = _on_achievement_clicked
+		},
 	]
 	for b in buildings:
 		var marker = _create_location_marker(b.pos, b.name, b.color, b.icon)
 		marker.pressed.connect(b.cb)
 		world_map.add_child(marker)
+
 
 ## 用 town 地块铺满地图背景
 func _tile_ground(parent: Node):
@@ -100,8 +153,11 @@ func _tile_ground(parent: Node):
 			s.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 			holder.add_child(s)
 
+
 ## 创建位置标记（建筑图标 + 圆形按钮）
-func _create_location_marker(pos: Vector2, label_text: String, marker_color: Color, icon_name: String = "") -> Button:
+func _create_location_marker(
+	pos: Vector2, label_text: String, marker_color: Color, icon_name: String = ""
+) -> Button:
 	var button = Button.new()
 	button.position = pos
 	button.custom_minimum_size = Vector2(140, 140)
@@ -114,7 +170,11 @@ func _create_location_marker(pos: Vector2, label_text: String, marker_color: Col
 	if icon_name != "":
 		var icon_tex = SpriteLibrary.get_ui(icon_name)  # 占位
 		if icon_tex == null:
-			icon_tex = load("res://assets/generated/tiles/%s.png" % icon_name) if ResourceLoader.exists("res://assets/generated/tiles/%s.png" % icon_name) else null
+			icon_tex = (
+				load("res://assets/generated/tiles/%s.png" % icon_name)
+				if ResourceLoader.exists("res://assets/generated/tiles/%s.png" % icon_name)
+				else null
+			)
 		if icon_tex:
 			var icon = TextureRect.new()
 			icon.texture = icon_tex
@@ -148,12 +208,14 @@ func _create_location_marker(pos: Vector2, label_text: String, marker_color: Col
 
 	return button
 
+
 ## 铁匠铺点击
 func _on_blacksmith_clicked():
 	upgrade_panel.visible = true
 	dungeon_panel.visible = false
 	_build_upgrade_list()
-	info_label.text = "[center][color=orange]铁匠铺 - 永久强化[/color]\n使用金币提升基础属性\n\n[color=yellow]装备强化系统[/color]\n词缀工坊可强化装备(+0到+15)\n每+1增加基础属性10%\n消耗金币+区域材料，有成功率[/center]"
+	info_label.text = "[center][color=orange]铁匠铺 - 永久强化[/color]\n使用金币提升基础属性\n\n[color=yellow]装备强化系统[/color]\n词缀工坊可强化装备(+0到+15)\n每+1增加基础属性10%\n消耗金币+区域材料，有成功率[/center]"  # gdlint:ignore=max-line-length
+
 
 ## 副本入口点击
 func _on_dungeon_portal_clicked():
@@ -167,7 +229,8 @@ func _on_dungeon_portal_clicked():
 	_ensure_party_panel()
 	_party_panel.visible = true
 	_build_party_view()
-	info_label.text = "[center][color=violet]选择随行队友[/color]\n最多3人，选好后点击\"进入副本\"[/center]"
+	info_label.text = '[center][color=violet]选择随行队友[/color]\n最多3人，选好后点击"进入副本"[/center]'
+
 
 ## 商店点击
 func _on_shop_clicked():
@@ -176,6 +239,7 @@ func _on_shop_clicked():
 	_merchant_panel.visible = true
 	_build_merchant_view()
 	info_label.text = "[center][color=green]流浪商人[/color]\n购买装备与材料[/center]"
+
 
 ## 城外野区点击
 func _on_wilderness_clicked():
@@ -190,6 +254,7 @@ func _on_wilderness_clicked():
 	# P5: 触发随机野外事件
 	_trigger_wilderness_event()
 
+
 ## 构建升级列表
 func _build_upgrade_list():
 	var container = upgrade_panel.get_node("ScrollContainer/VBoxContainer")
@@ -202,6 +267,7 @@ func _build_upgrade_list():
 	for stat in meta.get("stats", []):
 		var row = _make_upgrade_row(stat)
 		container.add_child(row)
+
 
 func _make_upgrade_row(stat: Dictionary) -> HBoxContainer:
 	var row = HBoxContainer.new()
@@ -232,11 +298,13 @@ func _make_upgrade_row(stat: Dictionary) -> HBoxContainer:
 
 	return row
 
+
 func _calc_cost(stat: Dictionary, level: int) -> int:
 	var curve = stat.get("cost_curve", {})
 	var base = curve.get("base", 50)
 	var growth = curve.get("growth", 1.3)
 	return int(base * pow(growth, level))
+
 
 func _on_upgrade_pressed(stat_id: String):
 	var meta = ConfigLoader.balance_data.get("meta_progression", {})
@@ -258,6 +326,7 @@ func _on_upgrade_pressed(stat_id: String):
 
 	_refresh_ui()
 	_build_upgrade_list()
+
 
 ## 构建副本列表
 func _build_dungeon_list():
@@ -293,6 +362,7 @@ func _build_dungeon_list():
 		var separator = HSeparator.new()
 		container.add_child(separator)
 
+
 func _make_dungeon_button(dungeon: Dictionary) -> Button:
 	var btn = Button.new()
 	btn.custom_minimum_size = Vector2(0, 60)
@@ -315,6 +385,7 @@ func _make_dungeon_button(dungeon: Dictionary) -> Button:
 
 	return btn
 
+
 func _get_region_name(region_id: String) -> String:
 	var names = {
 		"crypt": "枯骨王陵",
@@ -326,13 +397,16 @@ func _get_region_name(region_id: String) -> String:
 	}
 	return names.get(region_id, region_id)
 
+
 func _on_dungeon_selected(dungeon_id: String):
 	GameState.enter_dungeon(dungeon_id, 1)
 	# 进入战斗场景
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
+
 func _on_close_upgrade_panel():
 	upgrade_panel.visible = false
+
 
 func _on_close_dungeon_panel():
 	dungeon_panel.visible = false
@@ -342,11 +416,12 @@ func _on_close_dungeon_panel():
 # 模块6: 教学引导 (简化版)
 # ============================================================
 
+
 func _show_tutorial_if_needed():
 	# 检查是否首次进入
 	if GameState.tutorial_completed:
 		return
-	
+
 	# 显示教学文本
 	info_label.text = """[center][color=yellow]🎮 新手引导 🎮[/color]
 
@@ -366,15 +441,17 @@ func _show_tutorial_if_needed():
 • [color=yellow]词缀工坊[/color] - 洗练/分解/强化装备
 
 [color=lime]点击任意建筑开始探索！[/color][/center]"""
-	
+
 	# 标记已查看
 	GameState.tutorial_completed = true
+
 
 # ============================================================
 # 多角色：角色管理面板（程序化构建，避免改 .tscn）
 # ============================================================
 
 var _roster_panel: Panel = null
+
 
 func _on_roster_clicked():
 	upgrade_panel.visible = false
@@ -383,6 +460,7 @@ func _on_roster_clicked():
 	_roster_panel.visible = true
 	_build_roster_list()
 	info_label.text = "[center][color=aqua]角色管理[/color]\n切换操控角色 / 创建新角色\n其余角色可停驻领地或随队出击[/center]"
+
 
 ## 懒创建角色管理面板（首次点击时构建节点树）
 func _ensure_roster_panel():
@@ -434,6 +512,7 @@ func _ensure_roster_panel():
 	$Panels.add_child(panel)
 	_roster_panel = panel
 
+
 ## 构建角色列表
 func _build_roster_list():
 	if not has_node("/root/RosterSystem"):
@@ -459,6 +538,7 @@ func _build_roster_list():
 	# A6: BD 预设区（如果有 BuildPresets 节点）
 	_build_bd_presets_section()
 
+
 func _make_roster_row(character: Dictionary, is_active: bool) -> PanelContainer:
 	var row = PanelContainer.new()
 	var style = StyleBoxFlat.new()
@@ -481,13 +561,18 @@ func _make_roster_row(character: Dictionary, is_active: bool) -> PanelContainer:
 	var cls = ConfigLoader.get_class_by_id(character.get("class_id", ""))
 	var info = Label.new()
 	info.custom_minimum_size = Vector2(420, 0)
-	var loc_tag = {"idle": "闲置", "territory": "领地", "deployed": "出击中"}.get(character.get("location", "idle"), "")
-	info.text = "%s  Lv.%d  [%s]  %s" % [
-		character.get("name", "?"),
-		character.get("level", 1),
-		cls.get("display_name", "?"),
-		loc_tag,
-	]
+	var loc_tag = {"idle": "闲置", "territory": "领地", "deployed": "出击中"}.get(
+		character.get("location", "idle"), ""
+	)
+	info.text = (
+		"%s  Lv.%d  [%s]  %s"
+		% [
+			character.get("name", "?"),
+			character.get("level", 1),
+			cls.get("display_name", "?"),
+			loc_tag,
+		]
+	)
 	info.add_theme_font_size_override("font_size", 20)
 	if is_active:
 		info.add_theme_color_override("font_color", Color(1, 0.9, 0.5))
@@ -508,6 +593,7 @@ func _make_roster_row(character: Dictionary, is_active: bool) -> PanelContainer:
 
 	return row
 
+
 func _on_switch_character(char_id: String):
 	if has_node("/root/RosterSystem"):
 		get_node("/root/RosterSystem").switch_character(char_id)
@@ -516,15 +602,18 @@ func _on_switch_character(char_id: String):
 		_equip_class_skills()
 		_build_roster_list()
 
+
 func _on_create_character_pressed():
 	# 跳到职业选择界面创建新角色（ClassSelect 会写入名册）
 	get_tree().change_scene_to_file("res://scenes/ClassSelect.tscn")
+
 
 # ============================================================
 # 领地系统：建造 / 升级面板（程序化构建）
 # ============================================================
 
 var _territory_panel: Panel = null
+
 
 func _on_territory_clicked():
 	upgrade_panel.visible = false
@@ -534,6 +623,7 @@ func _on_territory_clicked():
 	_ensure_territory_panel()
 	_territory_panel.visible = true
 	_build_territory_view()
+
 
 func _ensure_territory_panel():
 	if _territory_panel != null and is_instance_valid(_territory_panel):
@@ -602,6 +692,7 @@ func _ensure_territory_panel():
 	$Panels.add_child(panel)
 	_territory_panel = panel
 
+
 func _build_territory_view():
 	if not has_node("/root/TerritorySystem"):
 		return
@@ -614,12 +705,18 @@ func _build_territory_view():
 	# 领地等级
 	var lvl_label: RichTextLabel = _territory_panel.get_node("LevelLabel")
 	var lv_def = ts.get_level_def()
-	lvl_label.text = "[color=gold]领地 Lv.%d %s[/color]  槽位 %d/%d  居民 %d/%d  防御 +%d%%" % [
-		ts.level, lv_def.get("display_name", "?"),
-		ts.get_used_slots(), ts.get_building_slots(),
-		ts.resident_count(), ts.get_resident_cap(),
-		int(ts.get_defense_bonus() * 100),
-	]
+	lvl_label.text = (
+		"[color=gold]领地 Lv.%d %s[/color]  槽位 %d/%d  居民 %d/%d  防御 +%d%%"
+		% [
+			ts.level,
+			lv_def.get("display_name", "?"),
+			ts.get_used_slots(),
+			ts.get_building_slots(),
+			ts.resident_count(),
+			ts.get_resident_cap(),
+			int(ts.get_defense_bonus() * 100),
+		]
+	)
 
 	# 领地升级按钮
 	var up_btn: Button = _territory_panel.get_node("TerritoryUpgradeButton")
@@ -644,6 +741,7 @@ func _build_territory_view():
 			continue  # 领主大厅随领地升级，不在列表单列
 		container.add_child(_make_building_row(def, ts))
 
+
 ## P3: 居民招募与分配区
 func _make_resident_section(ts) -> VBoxContainer:
 	var section = VBoxContainer.new()
@@ -665,18 +763,24 @@ func _make_resident_section(ts) -> VBoxContainer:
 	h_margin.add_child(h_box)
 
 	var h_label = Label.new()
-	h_label.text = "居民管理  当前 %d/%d  (每个居民提升所在建筑 +10%% 产出)" % [ts.resident_count(), ts.get_resident_cap()]
+	h_label.text = (
+		"居民管理  当前 %d/%d  (每个居民提升所在建筑 +10%% 产出)" % [ts.resident_count(), ts.get_resident_cap()]
+	)
 	h_label.add_theme_font_size_override("font_size", 18)
 	h_label.add_theme_color_override("font_color", Color(0.7, 1, 0.8))
 	h_label.custom_minimum_size = Vector2(450, 0)
 	h_box.add_child(h_label)
 
 	var recruit_btn = Button.new()
-	recruit_btn.text = "招募居民 (金%d 粮%d)" % [ts.RESIDENT_RECRUIT_COST_GOLD, ts.RESIDENT_RECRUIT_COST_FOOD]
+	recruit_btn.text = (
+		"招募居民 (金%d 粮%d)" % [ts.RESIDENT_RECRUIT_COST_GOLD, ts.RESIDENT_RECRUIT_COST_FOOD]
+	)
 	recruit_btn.custom_minimum_size = Vector2(220, 40)
-	recruit_btn.disabled = not ts.can_recruit_resident() or \
-		GameState.total_gold < ts.RESIDENT_RECRUIT_COST_GOLD or \
-		GameState.get_material("food") < ts.RESIDENT_RECRUIT_COST_FOOD
+	recruit_btn.disabled = (
+		not ts.can_recruit_resident()
+		or GameState.total_gold < ts.RESIDENT_RECRUIT_COST_GOLD
+		or GameState.get_material("food") < ts.RESIDENT_RECRUIT_COST_FOOD
+	)
 	recruit_btn.pressed.connect(_on_recruit_resident)
 	h_box.add_child(recruit_btn)
 	section.add_child(header)
@@ -690,7 +794,17 @@ func _make_resident_section(ts) -> VBoxContainer:
 			job_counts[j] = job_counts.get(j, 0) + 1
 		var parts = []
 		for j in job_counts:
-			var j_disp = {"idle": "闲置", "farmer": "农夫", "lumberjack": "伐木", "miner": "矿工", "soldier": "士兵", "worker": "工人"}.get(j, j)
+			var j_disp = (
+				{
+					"idle": "闲置",
+					"farmer": "农夫",
+					"lumberjack": "伐木",
+					"miner": "矿工",
+					"soldier": "士兵",
+					"worker": "工人"
+				}
+				. get(j, j)
+			)
 			parts.append("%s×%d" % [j_disp, job_counts[j]])
 		res_list.text = "  分配情况: " + " / ".join(parts)
 		res_list.add_theme_font_size_override("font_size", 14)
@@ -699,15 +813,19 @@ func _make_resident_section(ts) -> VBoxContainer:
 
 	return section
 
+
 func _on_recruit_resident():
 	var ts = get_node("/root/TerritorySystem")
 	var r = ts.recruit_resident()
 	if not r.get("ok", false):
 		info_label.text = "[center][color=red]招募失败: %s[/color][/center]" % r.get("reason", "")
 	else:
-		info_label.text = "[center][color=lime]招募成功: %s[/color][/center]" % r.get("resident", {}).get("name", "?")
+		info_label.text = (
+			"[center][color=lime]招募成功: %s[/color][/center]" % r.get("resident", {}).get("name", "?")
+		)
 	_refresh_ui()
 	_build_territory_view()
+
 
 func _make_building_row(def: Dictionary, ts) -> PanelContainer:
 	var bid = def.get("id", "")
@@ -738,9 +856,13 @@ func _make_building_row(def: Dictionary, ts) -> PanelContainer:
 	var info = VBoxContainer.new()
 	info.custom_minimum_size = Vector2(480, 0)
 	var name_lbl = Label.new()
-	var cat_tag = {"production": "产出", "military": "军事", "housing": "住房", "core": "核心"}.get(def.get("category", ""), "")
+	var cat_tag = {"production": "产出", "military": "军事", "housing": "住房", "core": "核心"}.get(
+		def.get("category", ""), ""
+	)
 	if built:
-		name_lbl.text = "%s  Lv.%d/%d  [%s]" % [def.get("display_name", "?"), cur_lv, max_lv, cat_tag]
+		name_lbl.text = (
+			"%s  Lv.%d/%d  [%s]" % [def.get("display_name", "?"), cur_lv, max_lv, cat_tag]
+		)
 	else:
 		name_lbl.text = "%s  [%s]  (未建造)" % [def.get("display_name", "?"), cat_tag]
 	name_lbl.add_theme_font_size_override("font_size", 19)
@@ -778,6 +900,7 @@ func _make_building_row(def: Dictionary, ts) -> PanelContainer:
 
 	return row
 
+
 func _on_build_building(building_id: String):
 	var ts = get_node("/root/TerritorySystem")
 	var r = ts.build_building(building_id)
@@ -786,6 +909,7 @@ func _on_build_building(building_id: String):
 	_refresh_ui()
 	_build_territory_view()
 
+
 func _on_upgrade_building(building_id: String):
 	var ts = get_node("/root/TerritorySystem")
 	var r = ts.upgrade_building(building_id)
@@ -793,6 +917,7 @@ func _on_upgrade_building(building_id: String):
 		info_label.text = "[center][color=red]升级失败: %s[/color][/center]" % r.get("reason", "")
 	_refresh_ui()
 	_build_territory_view()
+
 
 func _on_upgrade_territory():
 	var ts = get_node("/root/TerritorySystem")
@@ -804,6 +929,7 @@ func _on_upgrade_territory():
 	_refresh_ui()
 	_build_territory_view()
 
+
 ## 格式化资源条（金币 + 基础建材）
 func _format_resources() -> String:
 	var parts = ["[color=gold]金币 %d[/color]" % GameState.total_gold]
@@ -811,6 +937,7 @@ func _format_resources() -> String:
 		var mid = m.get("id", "")
 		parts.append("%s %d" % [m.get("display_name", mid), GameState.get_material(mid)])
 	return "  ".join(parts)
+
 
 ## 格式化成本字典为简短文本（材料不足标红）
 func _format_cost(cost: Dictionary) -> String:
@@ -827,23 +954,28 @@ func _format_cost(cost: Dictionary) -> String:
 			parts.append("%s%d" % [disp, need])
 	return " ".join(parts)
 
+
 func _material_name(material_id: String) -> String:
 	# 基础建材
 	for m in ConfigLoader.get_basic_materials():
 		if m.get("id", "") == material_id:
 			return m.get("display_name", material_id)
 	# 区域材料
-	var region_mats = ConfigLoader.get_balance_config().get("region_materials", {}).get("materials", [])
+	var region_mats = ConfigLoader.get_balance_config().get("region_materials", {}).get(
+		"materials", []
+	)
 	for m in region_mats:
 		if m.get("id", "") == material_id:
 			return m.get("display_name", material_id)
 	return material_id
+
 
 # ============================================================
 # P2: 组队系统 - 选择随行队友
 # ============================================================
 
 var _party_panel: Panel = null
+
 
 func _ensure_party_panel():
 	if _party_panel != null and is_instance_valid(_party_panel):
@@ -903,6 +1035,7 @@ func _ensure_party_panel():
 	$Panels.add_child(panel)
 	_party_panel = panel
 
+
 func _build_party_view():
 	if not has_node("/root/RosterSystem") or not has_node("/root/PartySystem"):
 		return
@@ -928,6 +1061,7 @@ func _build_party_view():
 	# 更新进入按钮文本显示已选数量
 	var enter_btn: Button = _party_panel.get_node("EnterButton")
 	enter_btn.text = "进入副本 (已选 %d/%d 队友)" % [ps.companion_count(), ps.MAX_COMPANIONS]
+
 
 func _make_party_candidate_row(character: Dictionary, ps) -> PanelContainer:
 	var cid = character.get("char_id", "")
@@ -956,11 +1090,14 @@ func _make_party_candidate_row(character: Dictionary, ps) -> PanelContainer:
 	var info = VBoxContainer.new()
 	info.custom_minimum_size = Vector2(450, 0)
 	var name_lbl = Label.new()
-	name_lbl.text = "%s  Lv.%d  [%s]" % [
-		character.get("name", "?"),
-		character.get("level", 1),
-		cls.get("display_name", "?"),
-	]
+	name_lbl.text = (
+		"%s  Lv.%d  [%s]"
+		% [
+			character.get("name", "?"),
+			character.get("level", 1),
+			cls.get("display_name", "?"),
+		]
+	)
 	name_lbl.add_theme_font_size_override("font_size", 20)
 	if selected:
 		name_lbl.add_theme_color_override("font_color", Color(1, 0.9, 1))
@@ -990,10 +1127,12 @@ func _make_party_candidate_row(character: Dictionary, ps) -> PanelContainer:
 
 	return row
 
+
 func _on_toggle_party_member(char_id: String):
 	if has_node("/root/PartySystem"):
 		get_node("/root/PartySystem").toggle_companion(char_id)
 		_build_party_view()
+
 
 func _on_enter_dungeon():
 	# 关闭组队面板，打开原副本选择面板
@@ -1002,9 +1141,11 @@ func _on_enter_dungeon():
 	_build_dungeon_list()
 	info_label.text = "[center][color=purple]副本传送门[/color]\n选择副本进入战斗[/center]"
 
+
 # ============================================================
 # P5: 野外随机事件
 # ============================================================
+
 
 func _trigger_wilderness_event():
 	var events = [
@@ -1032,6 +1173,7 @@ func _trigger_wilderness_event():
 		"nothing":
 			_event_nothing()
 
+
 func _event_resource_cache():
 	var gains = {
 		"timber": 20 + randi() % 30,
@@ -1046,11 +1188,15 @@ func _event_resource_cache():
 	info_label.text = "[center][color=lime]发现资源点！[/color]\n获得: " + "  ".join(parts) + "[/center]"
 	SaveSystem.mark_dirty()
 
+
 func _event_wandering_merchant():
 	var gold_gain = 50 + randi() % 100
 	GameState.total_gold += gold_gain
-	info_label.text = "[center][color=yellow]遇到流浪商人！[/color]\n商人收购了你的战利品\n金币 +%d[/center]" % gold_gain
+	info_label.text = (
+		"[center][color=yellow]遇到流浪商人！[/color]\n商人收购了你的战利品\n金币 +%d[/center]" % gold_gain
+	)
 	SaveSystem.mark_dirty()
+
 
 func _event_nothing():
 	var msgs = [
@@ -1060,6 +1206,7 @@ func _event_nothing():
 		"遇到巡逻队，他们劝你不要深入",
 	]
 	info_label.text = "[center][color=gray]野外探索[/color]\n%s[/center]" % msgs[randi() % msgs.size()]
+
 
 ## 阶段1: 自动装备职业技能
 func _equip_class_skills():
@@ -1083,8 +1230,10 @@ func _equip_class_skills():
 			ask.equip_manual_skill(i, skills[i])
 		print("[Town] 已为%s装备3个技能" % class_id)
 
+
 # ============ A 路线：UI 接线 ============
 var _training_panel: Panel = null
+
 
 func _on_training_ground_clicked():
 	_hide_all_panels()
@@ -1092,6 +1241,7 @@ func _on_training_ground_clicked():
 	_training_panel.visible = true
 	_build_training_view()
 	info_label.text = "[center][color=violet]训练场[/color]\n巅峰等级 / 天赋星图[/center]"
+
 
 func _hide_all_panels():
 	upgrade_panel.visible = false
@@ -1104,6 +1254,7 @@ func _hide_all_panels():
 		_party_panel.visible = false
 	if _training_panel and is_instance_valid(_training_panel):
 		_training_panel.visible = false
+
 
 func _ensure_training_panel():
 	if _training_panel != null and is_instance_valid(_training_panel):
@@ -1121,6 +1272,7 @@ func _ensure_training_panel():
 	close_btn.custom_minimum_size = Vector2(120, 50)
 	close_btn.pressed.connect(func(): _training_panel.visible = false)
 	_training_panel.add_child(close_btn)
+
 
 func _build_training_view():
 	if not _training_panel or not is_instance_valid(_training_panel):
@@ -1161,6 +1313,7 @@ func _build_training_view():
 
 	_show_paragon_tab()
 
+
 func _show_paragon_tab():
 	var content = _training_panel.get_node_or_null("VBoxContainer/VBoxContainer/TrainingContent")
 	if not content:
@@ -1181,8 +1334,30 @@ func _show_paragon_tab():
 	header.add_theme_color_override("font_color", Color(1, 0.9, 0.3))
 	vbox.add_child(header)
 
-	var paths = ["power", "finesse", "vitality", "spirit", "defense", "swiftness", "fortune", "mastery", "cunning", "might"]
-	var names = {"power": "力量", "finesse": "灵巧", "vitality": "活力", "spirit": "精神", "defense": "防御", "swiftness": "迅捷", "fortune": "幸运", "mastery": "精通", "cunning": "狡诈", "might": "威能"}
+	var paths = [
+		"power",
+		"finesse",
+		"vitality",
+		"spirit",
+		"defense",
+		"swiftness",
+		"fortune",
+		"mastery",
+		"cunning",
+		"might"
+	]
+	var names = {
+		"power": "力量",
+		"finesse": "灵巧",
+		"vitality": "活力",
+		"spirit": "精神",
+		"defense": "防御",
+		"swiftness": "迅捷",
+		"fortune": "幸运",
+		"mastery": "精通",
+		"cunning": "狡诈",
+		"might": "威能"
+	}
 
 	for path in paths:
 		var row = HBoxContainer.new()
@@ -1232,6 +1407,7 @@ func _show_paragon_tab():
 		bonus_lbl.add_theme_color_override("font_color", Color(0.3, 1, 0.3))
 		row.add_child(bonus_lbl)
 
+
 func _paragon_adjust(path: String, delta: int):
 	var pg = GameState.meta_progression.get("paragon", {})
 	var pts = pg.get("points", 0)
@@ -1248,6 +1424,7 @@ func _paragon_adjust(path: String, delta: int):
 	pg["stats"] = stats
 	GameState.meta_progression["paragon"] = pg
 	_show_paragon_tab()
+
 
 func _show_talent_tab():
 	var content = _training_panel.get_node_or_null("VBoxContainer/VBoxContainer/TrainingContent")
@@ -1285,7 +1462,9 @@ func _show_talent_tab():
 		name_lbl.text = t.get("display_name", tid)
 		name_lbl.custom_minimum_size = Vector2(200, 0)
 		name_lbl.add_theme_font_size_override("font_size", 18)
-		name_lbl.add_theme_color_override("font_color", Color(0.3, 1, 0.3) if is_unlocked else Color(0.7, 0.7, 0.7))
+		name_lbl.add_theme_color_override(
+			"font_color", Color(0.3, 1, 0.3) if is_unlocked else Color(0.7, 0.7, 0.7)
+		)
 		row.add_child(name_lbl)
 
 		var desc_lbl = Label.new()
@@ -1294,7 +1473,9 @@ func _show_talent_tab():
 		for eff in effects:
 			if eff.get("kind") == "add_stat":
 				desc_parts.append("%s +%s" % [eff.get("stat", "?"), eff.get("value", 0)])
-		desc_lbl.text = " / ".join(desc_parts) if desc_parts.size() > 0 else t.get("description", "")
+		desc_lbl.text = (
+			" / ".join(desc_parts) if desc_parts.size() > 0 else t.get("description", "")
+		)
 		desc_lbl.custom_minimum_size = Vector2(600, 0)
 		desc_lbl.add_theme_font_size_override("font_size", 16)
 		row.add_child(desc_lbl)
@@ -1325,6 +1506,7 @@ func _show_talent_tab():
 			btn.disabled = true
 		btn.custom_minimum_size = Vector2(100, 40)
 		row.add_child(btn)
+
 
 func _can_unlock_talent(tid: String, unlocked: Array, player_class: String) -> bool:
 	var talents_cfg = ConfigLoader.get_all_talents()
@@ -1358,6 +1540,7 @@ func _can_unlock_talent(tid: String, unlocked: Array, player_class: String) -> b
 
 	return true
 
+
 func _talent_unlock(tid: String):
 	var tal = GameState.meta_progression.get("talents", {})
 	var pts = tal.get("points", 0)
@@ -1369,6 +1552,7 @@ func _talent_unlock(tid: String):
 		tal["unlocked"] = unlocked
 		GameState.meta_progression["talents"] = tal
 		_show_talent_tab()
+
 
 func _show_quest_tab():
 	var content = _training_panel.get_node_or_null("VBoxContainer/VBoxContainer/TrainingContent")
@@ -1475,6 +1659,7 @@ func _show_quest_tab():
 		btn.custom_minimum_size = Vector2(100, 50)
 		row.add_child(btn)
 
+
 func _quest_claim(qid: String):
 	if not has_node("/root/QuestSystem"):
 		return
@@ -1487,7 +1672,9 @@ func _quest_claim(qid: String):
 	_show_quest_tab()
 	_refresh_ui()
 
+
 var _merchant_panel: Panel = null
+
 
 func _ensure_merchant_panel():
 	if _merchant_panel != null and is_instance_valid(_merchant_panel):
@@ -1505,6 +1692,7 @@ func _ensure_merchant_panel():
 	close_btn.custom_minimum_size = Vector2(120, 50)
 	close_btn.pressed.connect(func(): _merchant_panel.visible = false)
 	_merchant_panel.add_child(close_btn)
+
 
 func _build_merchant_view():
 	if not _merchant_panel or not is_instance_valid(_merchant_panel):
@@ -1589,6 +1777,7 @@ func _build_merchant_view():
 		btn.pressed.connect(_merchant_buy.bind(item))
 		row.add_child(btn)
 
+
 func _merchant_refresh():
 	if GameState.total_gold < 50:
 		return
@@ -1597,6 +1786,7 @@ func _merchant_refresh():
 		get_node("/root/TerritorySystem").refresh_merchant()
 	_build_merchant_view()
 	_refresh_ui()
+
 
 func _merchant_buy(item: Dictionary):
 	var price = item.get("price", 0)
@@ -1620,6 +1810,7 @@ func _merchant_buy(item: Dictionary):
 
 	_build_merchant_view()
 	_refresh_ui()
+
 
 func _build_bd_presets_section():
 	if not has_node("/root/BuildPresets"):
@@ -1687,11 +1878,13 @@ func _build_bd_presets_section():
 		btn_load.pressed.connect(_bd_load.bind(i))
 		slot.add_child(btn_load)
 
+
 func _bd_save(slot_idx: int):
 	if not has_node("/root/BuildPresets"):
 		return
 	get_node("/root/BuildPresets").save_build(slot_idx)
 	_build_bd_presets_section()
+
 
 func _bd_load(slot_idx: int):
 	if not has_node("/root/BuildPresets"):
@@ -1700,7 +1893,9 @@ func _bd_load(slot_idx: int):
 	_build_bd_presets_section()
 	_refresh_ui()
 
+
 var _achievement_panel: Panel = null
+
 
 func _on_achievement_clicked():
 	_hide_all_panels()
@@ -1708,6 +1903,7 @@ func _on_achievement_clicked():
 	_achievement_panel.visible = true
 	_build_achievement_view()
 	info_label.text = "[center][color=gold]成就系统[/color]\n追踪长期目标[/center]"
+
 
 func _ensure_achievement_panel():
 	if _achievement_panel != null and is_instance_valid(_achievement_panel):
@@ -1725,6 +1921,7 @@ func _ensure_achievement_panel():
 	close_btn.custom_minimum_size = Vector2(120, 50)
 	close_btn.pressed.connect(func(): _achievement_panel.visible = false)
 	_achievement_panel.add_child(close_btn)
+
 
 func _build_achievement_view():
 	if not _achievement_panel or not is_instance_valid(_achievement_panel):
@@ -1780,7 +1977,9 @@ func _build_achievement_view():
 		name_lbl.text = ach.get("display_name", aid)
 		name_lbl.custom_minimum_size = Vector2(300, 0)
 		name_lbl.add_theme_font_size_override("font_size", 20)
-		name_lbl.add_theme_color_override("font_color", Color(1, 0.9, 0.5) if unlocked else Color(0.7, 0.7, 0.7))
+		name_lbl.add_theme_color_override(
+			"font_color", Color(1, 0.9, 0.5) if unlocked else Color(0.7, 0.7, 0.7)
+		)
 		row.add_child(name_lbl)
 
 		var desc_lbl = Label.new()
@@ -1810,5 +2009,7 @@ func _build_achievement_view():
 		status_lbl.text = "✓ 已解锁" if unlocked else "未完成"
 		status_lbl.custom_minimum_size = Vector2(100, 0)
 		status_lbl.add_theme_font_size_override("font_size", 18)
-		status_lbl.add_theme_color_override("font_color", Color(0.3, 1, 0.3) if unlocked else Color(0.6, 0.6, 0.6))
+		status_lbl.add_theme_color_override(
+			"font_color", Color(0.3, 1, 0.3) if unlocked else Color(0.6, 0.6, 0.6)
+		)
 		row.add_child(status_lbl)

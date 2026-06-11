@@ -3,6 +3,8 @@ extends Node
 ## 投射物/召唤/光环/冲刺等技能按冷却自动触发
 ## 配置驱动：技能效果从 skills.json 读取
 
+const ICON_PLACEHOLDER = preload("res://icon.svg")
+
 # 已激活的主动技能 [{skill_data, level, cooldown_timer}]
 var active_skills: Array = []
 # 召唤物列表（死灵师等）
@@ -10,14 +12,17 @@ var summons: Array = []
 
 var player: Node2D = null
 
+
 func _ready():
 	print("[ActiveSkillSystem] 主动技能系统初始化")
+
 
 ## 重置（进入新副本时）
 func reset():
 	active_skills.clear()
 	summons.clear()
 	player = null
+
 
 ## 注册一个主动技能（GameManager 学习技能时调用）
 func register_skill(skill_data: Dictionary, level: int):
@@ -26,12 +31,9 @@ func register_skill(skill_data: Dictionary, level: int):
 		if entry.skill_data.get("id") == skill_data.get("id"):
 			entry.level = level
 			return
-	active_skills.append({
-		"skill_data": skill_data,
-		"level": level,
-		"cooldown_timer": 0.0
-	})
+	active_skills.append({"skill_data": skill_data, "level": level, "cooldown_timer": 0.0})
 	print("[ActiveSkillSystem] 注册主动技能: %s Lv.%d" % [skill_data.get("display_name", "?"), level])
+
 
 func _physics_process(delta):
 	if player == null or not is_instance_valid(player):
@@ -47,6 +49,7 @@ func _physics_process(delta):
 
 	# 手动技能CD更新（阶段1新增）
 	_update_manual_cooldowns(delta)
+
 
 ## 释放技能
 func _cast_skill(entry: Dictionary):
@@ -73,6 +76,7 @@ func _cast_skill(entry: Dictionary):
 
 	entry.cooldown_timer = cooldown
 
+
 ## 投射物技能（火球等）
 func _cast_projectile(effect: Dictionary, level: int):
 	var count = effect.get("projectile_count", 1)
@@ -89,7 +93,13 @@ func _cast_projectile(effect: Dictionary, level: int):
 	# 直接对目标及附近造成伤害（简化投射物为即时命中）
 	var dir = (target.global_position - player.global_position).normalized()
 	for i in range(count):
-		_spawn_projectile(player.global_position, dir.rotated((i - count/2.0) * 0.15), dmg, effect.get("damage_type", "physical"))
+		_spawn_projectile(
+			player.global_position,
+			dir.rotated((i - count / 2.0) * 0.15),
+			dmg,
+			effect.get("damage_type", "physical")
+		)
+
 
 ## 生成投射物视觉+命中判定
 func _spawn_projectile(pos: Vector2, dir: Vector2, dmg: float, dtype: String):
@@ -112,6 +122,7 @@ func _spawn_projectile(pos: Vector2, dir: Vector2, dmg: float, dtype: String):
 	var scene = get_tree().current_scene
 	if scene:
 		scene.add_child(proj)
+
 
 ## 内联投射物脚本
 func _projectile_script() -> GDScript:
@@ -139,6 +150,7 @@ func _on_hit(body):
 	gd.reload()
 	return gd
 
+
 ## 近战 AOE（旋风斩）
 func _cast_melee_swing(effect: Dictionary, level: int):
 	var scaling = _get_scaling_for_level(effect, level)
@@ -150,6 +162,7 @@ func _cast_melee_swing(effect: Dictionary, level: int):
 		if player.global_position.distance_to(enemy.global_position) <= radius:
 			if enemy.has_method("take_damage"):
 				enemy.take_damage(dmg)
+
 
 ## 召唤技能（死灵师骷髅）
 func _cast_summon(effect: Dictionary, level: int):
@@ -163,8 +176,11 @@ func _cast_summon(effect: Dictionary, level: int):
 		var scene = get_tree().current_scene
 		if scene:
 			scene.add_child(minion)
-			minion.global_position = player.global_position + Vector2(randf_range(-40,40), randf_range(-40,40))
+			minion.global_position = (
+				player.global_position + Vector2(randf_range(-40, 40), randf_range(-40, 40))
+			)
 			summons.append(minion)
+
 
 ## 创建召唤物（简化的友方单位）
 func _create_minion(effect: Dictionary) -> Node2D:
@@ -179,6 +195,7 @@ func _create_minion(effect: Dictionary) -> Node2D:
 	minion.set_meta("life", effect.get("duration", 15.0))
 	minion.set_script(_minion_script())
 	return minion
+
 
 func _minion_script() -> GDScript:
 	var src = """
@@ -220,8 +237,9 @@ func _nearest_enemy():
 	gd.reload()
 	return gd
 
+
 ## 光环技能（持续范围效果）
-func _cast_aura(effect: Dictionary, level: int):
+func _cast_aura(effect: Dictionary, _level: int):
 	# 光环作为玩家子节点常驻
 	if player.has_node("SkillAura"):
 		return
@@ -229,15 +247,16 @@ func _cast_aura(effect: Dictionary, level: int):
 	aura.name = "SkillAura"
 	var visual = ColorRect.new()
 	var r = effect.get("radius", 100)
-	visual.size = Vector2(r*2, r*2)
+	visual.size = Vector2(r * 2, r * 2)
 	visual.position = Vector2(-r, -r)
-	visual.color = Color(_damage_type_color(effect.get("damage_type","physical")), 0.15)
+	visual.color = Color(_damage_type_color(effect.get("damage_type", "physical")), 0.15)
 	aura.add_child(visual)
 	aura.set_meta("tick_damage", effect.get("tick_damage", 5))
 	aura.set_meta("radius", r)
 	aura.set_meta("tick_timer", 0.0)
 	aura.set_script(_aura_script())
 	player.add_child(aura)
+
 
 func _aura_script() -> GDScript:
 	var src = """
@@ -258,6 +277,7 @@ func _physics_process(delta):
 	gd.reload()
 	return gd
 
+
 ## ============ 工具方法 ============
 func _nearest_enemy() -> Node2D:
 	var nearest = null
@@ -271,17 +291,25 @@ func _nearest_enemy() -> Node2D:
 			nearest = e
 	return nearest
 
+
 func _get_scaling_for_level(effect: Dictionary, level: int) -> float:
 	return (level - 1) * effect.get("damage_per_level", 5)
 
+
 func _damage_type_color(dtype: String) -> Color:
 	match dtype:
-		"fire": return Color(1.0, 0.4, 0.1)
-		"frost", "ice": return Color(0.4, 0.7, 1.0)
-		"poison": return Color(0.4, 0.9, 0.2)
-		"void": return Color(0.6, 0.2, 0.8)
-		"holy": return Color(1.0, 0.95, 0.6)
-		_: return Color(0.9, 0.9, 0.9)
+		"fire":
+			return Color(1.0, 0.4, 0.1)
+		"frost", "ice":
+			return Color(0.4, 0.7, 1.0)
+		"poison":
+			return Color(0.4, 0.9, 0.2)
+		"void":
+			return Color(0.6, 0.2, 0.8)
+		"holy":
+			return Color(1.0, 0.95, 0.6)
+		_:
+			return Color(0.9, 0.9, 0.9)
 
 
 # ============================================================
@@ -293,52 +321,55 @@ var manual_skills: Array = ["", "", ""]
 # 手动技能CD状态 {skill_id: cooldown_remaining}
 var manual_cooldowns: Dictionary = {}
 
+
 ## 装备技能到槽位
 func equip_manual_skill(slot_index: int, skill_id: String):
 	"""装备技能到槽位0/1/2 (对应快捷键1/2/3)"""
 	if slot_index < 0 or slot_index >= 3:
 		push_error("[ActiveSkillSystem] 无效的槽位:", slot_index)
 		return
-	
+
 	manual_skills[slot_index] = skill_id
 	print("[ActiveSkillSystem] 槽位%d装备技能: %s" % [slot_index + 1, skill_id])
+
 
 ## 激活手动技能
 func activate_manual_skill(slot_index: int) -> bool:
 	"""玩家按1/2/3键时调用"""
 	if slot_index < 0 or slot_index >= 3:
 		return false
-	
+
 	var skill_id = manual_skills[slot_index]
 	if skill_id == "":
 		print("[ActiveSkillSystem] 槽位%d未装备技能" % (slot_index + 1))
 		return false
-	
+
 	# 检查CD
 	var cd = manual_cooldowns.get(skill_id, 0.0)
 	if cd > 0:
 		print("[ActiveSkillSystem] 技能CD中: %.1fs" % cd)
 		return false
-	
+
 	# 读取技能数据
 	var skill_data = _get_skill_data(skill_id)
 	if skill_data.is_empty():
 		push_error("[ActiveSkillSystem] 未找到技能:", skill_id)
 		return false
-	
+
 	# 检查资源消耗
 	if not _check_resource_cost(skill_data):
 		print("[ActiveSkillSystem] 资源不足")
 		return false
-	
+
 	# 释放技能
 	_execute_manual_skill(skill_data)
-	
+
 	# 启动CD
 	var cooldown = skill_data.get("cooldown", 5.0)
 	manual_cooldowns[skill_id] = cooldown
-	
+
 	return true
+
 
 ## 更新手动技能CD
 func _update_manual_cooldowns(delta: float):
@@ -347,6 +378,7 @@ func _update_manual_cooldowns(delta: float):
 			manual_cooldowns[skill_id] -= delta
 			if manual_cooldowns[skill_id] < 0:
 				manual_cooldowns[skill_id] = 0
+
 
 ## 执行手动技能
 func _execute_manual_skill(skill_data: Dictionary):
@@ -371,15 +403,16 @@ func _execute_manual_skill(skill_data: Dictionary):
 		_:
 			push_error("[ActiveSkillSystem] 未知的技能类型:", kind)
 
+
 ## 检查资源消耗
 func _check_resource_cost(skill_data: Dictionary) -> bool:
 	var cost = skill_data.get("resource_cost", {})
 	if cost.is_empty():
 		return true
-	
+
 	var type = cost.get("type", "")
 	var amount = cost.get("amount", 0)
-	
+
 	# 检查职业资源（怒气/法力/能量等）
 	if has_node("/root/ClassMechanicSystem"):
 		var cms = get_node("/root/ClassMechanicSystem")
@@ -392,18 +425,19 @@ func _check_resource_cost(skill_data: Dictionary) -> bool:
 				return true  # 刺客能量暂无实现
 			_:
 				return true
-	
+
 	return true
+
 
 ## 消耗资源
 func _consume_resource(skill_data: Dictionary):
 	var cost = skill_data.get("resource_cost", {})
 	if cost.is_empty():
 		return
-	
+
 	var type = cost.get("type", "")
 	var amount = cost.get("amount", 0)
-	
+
 	if has_node("/root/ClassMechanicSystem"):
 		var cms = get_node("/root/ClassMechanicSystem")
 		match type:
@@ -414,6 +448,7 @@ func _consume_resource(skill_data: Dictionary):
 				cms.mana -= amount
 				cms.mana_changed.emit(cms.mana, cms.mana_max)
 
+
 ## 获取技能数据
 func _get_skill_data(skill_id: String) -> Dictionary:
 	var all_skills = ConfigLoader.get_all_skills()
@@ -422,18 +457,20 @@ func _get_skill_data(skill_id: String) -> Dictionary:
 			return s
 	return {}
 
+
 # ────────────────────────────────────────────────────────────
 # 5种effect类型实现
 # ────────────────────────────────────────────────────────────
+
 
 ## dash: 冲刺位移
 func _cast_dash(effect: Dictionary):
 	if not player:
 		return
-	
+
 	var distance = effect.get("distance", 300)
 	var damage = effect.get("damage", 25)
-	
+
 	# 获取朝向（鼠标方向或移动方向）
 	var direction = Vector2.RIGHT  # 默认右
 	if player.has_method("get_facing_direction"):
@@ -443,14 +480,14 @@ func _cast_dash(effect: Dictionary):
 		var input_dir = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 		if input_dir.length() > 0:
 			direction = input_dir.normalized()
-	
+
 	# 冲刺目标位置
 	var target_pos = player.global_position + direction * distance
-	
+
 	# Tween冲刺（0.2秒）
 	var tween = player.create_tween()
 	tween.tween_property(player, "global_position", target_pos, 0.2)
-	
+
 	# 冲刺路径上的敌人受到伤害
 	var enemies = get_tree().get_nodes_in_group("enemy")
 	for e in enemies:
@@ -460,22 +497,25 @@ func _cast_dash(effect: Dictionary):
 		if to_enemy.dot(direction) > 0 and to_enemy.length() < distance + 50:
 			if e.has_method("take_damage"):
 				e.take_damage(damage, false)
-	
+
 	# 特效
-	EffectSprite.spawn(player.get_parent(), "slash", player.global_position + direction * distance / 2, 1.5)
+	EffectSprite.spawn(
+		player.get_parent(), "slash", player.global_position + direction * distance / 2, 1.5
+	)
 	AudioManager.play("attack")
-	
+
 	print("[Skill] 冲刺释放: 距离%d, 伤害%d" % [distance, damage])
+
 
 ## aoe: 范围伤害
 func _cast_aoe(effect: Dictionary):
 	if not player:
 		return
-	
+
 	var radius = effect.get("radius", 150)
 	var damage = effect.get("damage", 40)
 	var damage_type = effect.get("damage_type", "physical")
-	
+
 	# AOE判定（玩家周围）
 	var enemies = get_tree().get_nodes_in_group("enemy")
 	var hit_count = 0
@@ -486,39 +526,45 @@ func _cast_aoe(effect: Dictionary):
 			if e.has_method("take_damage"):
 				e.take_damage(damage, false)
 				hit_count += 1
-	
+
 	# 特效
-	var effect_name = "fire" if damage_type == "fire" else "frost" if damage_type == "frost" else "hit"
+	var effect_name = (
+		"fire" if damage_type == "fire" else "frost" if damage_type == "frost" else "hit"
+	)
 	EffectSprite.spawn(player.get_parent(), effect_name, player.global_position, radius / 75.0)
 	AudioManager.play("attack")
-	
+
 	print("[Skill] AOE释放: 半径%d, 命中%d个敌人" % [radius, hit_count])
+
 
 ## buff: 增益状态
 func _cast_buff(effect: Dictionary):
 	if not player:
 		return
-	
+
 	var buff_type = effect.get("buff_type", "damage")
 	var buff_value = effect.get("buff_value", 0.2)
 	var duration = effect.get("duration", 5.0)
-	
+
 	# TODO: 需要扩展Player.gd的buff系统
 	# 当前简化实现：直接修改属性，不支持自动恢复
 	print("[Skill] Buff释放: %s +%.1f%%持续%.1fs (待实现buff系统)" % [buff_type, buff_value * 100, duration])
-	
+
 	# 特效
 	EffectSprite.spawn(player.get_parent(), "holy", player.global_position, 1.8)
+
 
 ## summon: 召唤物（手动版本）
 func _cast_summon_manual(effect: Dictionary):
 	# 复用现有_cast_summon逻辑
 	_cast_summon({"effect": effect}, 1)
 
+
 ## channel: 持续施法
-func _cast_channel(effect: Dictionary):
+func _cast_channel(_effect: Dictionary):
 	print("[Skill] 持续施法技能 - 待实现")
 	# 需要特殊的输入锁定+持续伤害系统
+
 
 ## projectile: 发射投射物（手动版 - 由 1/2/3 键触发）
 func _cast_projectile_manual(effect: Dictionary):
@@ -556,15 +602,18 @@ func _cast_projectile_manual(effect: Dictionary):
 	AudioManager.play("attack")
 	print("[Skill] 投射物释放: %d发, 伤害%d" % [projectile_count, damage])
 
+
 ## 生成投射物实体（手动版）
-func _spawn_projectile_manual(direction: Vector2, damage: float, speed: float, pierce: bool, dtype: String):
+func _spawn_projectile_manual(
+	direction: Vector2, damage: float, speed: float, pierce: bool, dtype: String
+):
 	var projectile = Area2D.new()
 	projectile.global_position = player.global_position
 	projectile.name = "Projectile"
 
 	# 视觉（简单圆形）
 	var sprite = Sprite2D.new()
-	sprite.texture = preload("res://icon.svg")  # 占位图标
+	sprite.texture = ICON_PLACEHOLDER  # 占位图标
 	sprite.scale = Vector2(0.1, 0.1)
 	sprite.modulate = _damage_type_color(dtype)
 	projectile.add_child(sprite)
@@ -613,6 +662,7 @@ func _spawn_projectile_manual(direction: Vector2, damage: float, speed: float, p
 	if is_instance_valid(projectile):
 		projectile.queue_free()
 
+
 ## aura: 光环效果（手动版 - 持续存在的范围buff/debuff）
 func _cast_aura_manual(effect: Dictionary):
 	if not player:
@@ -629,7 +679,7 @@ func _cast_aura_manual(effect: Dictionary):
 	aura.name = "Aura"
 
 	var circle = Sprite2D.new()
-	circle.texture = preload("res://icon.svg")
+	circle.texture = ICON_PLACEHOLDER
 	circle.scale = Vector2(radius / 64.0, radius / 64.0)
 	circle.modulate = Color(0.5, 0.8, 1.0, 0.3)
 	aura.add_child(circle)

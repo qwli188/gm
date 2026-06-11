@@ -12,6 +12,7 @@ extends CanvasLayer
 
 var player: CharacterBody2D
 
+
 func _ready():
 	# 应用主题
 	ThemeGenerator.apply_theme_to_node(self)
@@ -29,10 +30,12 @@ func _ready():
 	_ready_dungeon_ui()
 	_setup_skill_bar()
 
+
 ## 应用自定义进度条样式
 func _apply_custom_bar_styles():
 	if health_bar:
 		health_bar.add_theme_stylebox_override("fill", ThemeGenerator.create_health_bar_style())
+
 
 ## 设置职业资源条（根据职业配置）
 func _setup_class_resource_bar():
@@ -82,20 +85,27 @@ func _setup_class_resource_bar():
 			cms.rage_changed.connect(_on_rage_changed)
 		if cms.has_signal("mana_changed") and not cms.mana_changed.is_connected(_on_mana_changed):
 			cms.mana_changed.connect(_on_mana_changed)
-		if cms.has_signal("precision_changed") and not cms.precision_changed.is_connected(_on_precision_changed):
+		if (
+			cms.has_signal("precision_changed")
+			and not cms.precision_changed.is_connected(_on_precision_changed)
+		):
 			cms.precision_changed.connect(_on_precision_changed)
+
 
 func _on_rage_changed(current: float, maximum: float):
 	if class_resource_bar:
 		class_resource_bar.set_resource_value(current, maximum)
 
+
 func _on_mana_changed(current: float, maximum: float):
 	if class_resource_bar:
 		class_resource_bar.set_resource_value(current, maximum)
 
+
 func _on_precision_changed(stacks: int, _target):
 	if class_resource_bar:
 		class_resource_bar.set_resource_value(stacks, 10)
+
 
 ## 美化HUD：用生成的UI素材替换默认样式
 func _beautify_ui():
@@ -118,11 +128,13 @@ func _beautify_ui():
 			if slot:
 				slot.texture = slot_tex
 
-func _process(delta):
+
+func _process(_delta):
 	if player:
 		_update_stats()
 	_update_boss_health()
 	_update_skill_bar_cd()
+
 
 func _update_stats():
 	# 更新生命
@@ -143,6 +155,7 @@ func _update_stats():
 	var seconds = int(player.survival_time) % 60
 	time_label.text = "时间: %02d:%02d" % [minutes, seconds]
 
+
 func _on_player_hp_changed(current: float, maximum: float):
 	if health_bar:
 		health_bar.max_value = maximum
@@ -150,11 +163,13 @@ func _on_player_hp_changed(current: float, maximum: float):
 	if health_label:
 		health_label.text = "生命: %d / %d" % [int(current), int(maximum)]
 
+
 func _on_auto_attack_toggled(enabled: bool):
 	if attack_mode_label:
 		attack_mode_label.text = "攻击模式: " + ("自动" if enabled else "手动")
 
-func _on_player_level_up(new_level: int):
+
+func _on_player_level_up(_new_level: int):
 	# 升级音效
 	AudioManager.play("level_up")
 
@@ -168,6 +183,7 @@ var boss_health_container: VBoxContainer = null
 var boss_health_bar: ProgressBar = null
 var boss_name_label: Label = null
 var tracked_boss: Node = null
+
 
 func _ready_dungeon_ui():
 	"""初始化副本UI（在_ready末尾调用）"""
@@ -184,12 +200,14 @@ func _ready_dungeon_ui():
 		if not spawner.boss_spawned.is_connected(_on_spawner_boss):
 			spawner.boss_spawned.connect(_on_spawner_boss)
 
+
 ## EnemySpawner Boss生成回调
 func _on_spawner_boss(boss_node):
 	show_wave_text("⚔ BOSS ⚔")
 	if is_instance_valid(boss_node):
 		await get_tree().create_timer(0.5).timeout
 		_show_boss_health(boss_node)
+
 
 ## 显示波次提示（大字居中淡出）
 func show_wave_text(text: String):
@@ -216,10 +234,12 @@ func show_wave_text(text: String):
 	tween.tween_property(wave_label, "modulate:a", 1.0, 0.4)
 	tween.tween_interval(1.5)
 	tween.tween_property(wave_label, "modulate:a", 0.0, 0.6)
-	tween.tween_callback(func():
-		if is_instance_valid(wave_label):
-			wave_label.queue_free()
+	tween.tween_callback(
+		func():
+			if is_instance_valid(wave_label):
+				wave_label.queue_free()
 	)
+
 
 ## 显示Boss血条
 func _show_boss_health(boss: Node):
@@ -239,7 +259,11 @@ func _show_boss_health(boss: Node):
 
 	# Boss名称
 	boss_name_label = Label.new()
-	var boss_name = boss.enemy_data.get("display_name", boss.enemy_data.get("name", "BOSS")) if boss.get("enemy_data") else "BOSS"
+	var boss_name = (
+		boss.enemy_data.get("display_name", boss.enemy_data.get("name", "BOSS"))
+		if boss.get("enemy_data")
+		else "BOSS"
+	)
 	boss_name_label.text = boss_name
 	boss_name_label.add_theme_font_size_override("font_size", 22)
 	boss_name_label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
@@ -264,6 +288,7 @@ func _show_boss_health(boss: Node):
 	boss_health_bar.add_theme_stylebox_override("fill", fill)
 	boss_health_container.add_child(boss_health_bar)
 
+
 func _update_boss_health():
 	# 更新Boss血条
 	if tracked_boss and is_instance_valid(tracked_boss) and boss_health_bar:
@@ -278,13 +303,13 @@ func _update_boss_health():
 			tracked_boss = null
 
 
-
 # ============================================================
 # 阶段C2: 技能栏UI (1/2/3技能槽 + CD显示)
 # ============================================================
 
 var skill_bar: HBoxContainer = null
 var skill_slots: Array = []  # [{panel, icon, cd_label, key_label}]
+
 
 func _setup_skill_bar():
 	"""创建底部中央技能栏"""
@@ -304,6 +329,7 @@ func _setup_skill_bar():
 		skill_slots.append(slot)
 
 	_refresh_skill_bar()
+
 
 func _create_skill_slot(index: int) -> Dictionary:
 	var panel = Panel.new()
@@ -367,6 +393,7 @@ func _create_skill_slot(index: int) -> Dictionary:
 		"cd_label": cd_label
 	}
 
+
 ## 刷新技能栏（更新技能名称/图标）
 func _refresh_skill_bar():
 	if not has_node("/root/ActiveSkillSystem"):
@@ -394,23 +421,35 @@ func _refresh_skill_bar():
 		var effect_kind = skill_data.get("effect", {}).get("kind", "")
 		slot.icon.color = _skill_kind_color(effect_kind)
 
+
 func _get_skill_info(skill_id: String) -> Dictionary:
 	for s in ConfigLoader.get_all_skills():
 		if s.get("id") == skill_id:
 			return s
 	return {}
 
+
 func _skill_kind_color(kind: String) -> Color:
 	match kind:
-		"dash": return Color(0.4, 0.8, 0.4)
-		"aoe", "melee_swing": return Color(0.9, 0.5, 0.2)
-		"projectile": return Color(0.4, 0.6, 0.9)
-		"buff", "add_stat", "mult_stat": return Color(0.9, 0.85, 0.3)
-		"summon": return Color(0.6, 0.3, 0.7)
-		"aura": return Color(0.3, 0.7, 0.8)
-		"channel": return Color(0.8, 0.3, 0.5)
-		"execute": return Color(0.9, 0.2, 0.2)
-		_: return Color(0.4, 0.4, 0.5)
+		"dash":
+			return Color(0.4, 0.8, 0.4)
+		"aoe", "melee_swing":
+			return Color(0.9, 0.5, 0.2)
+		"projectile":
+			return Color(0.4, 0.6, 0.9)
+		"buff", "add_stat", "mult_stat":
+			return Color(0.9, 0.85, 0.3)
+		"summon":
+			return Color(0.6, 0.3, 0.7)
+		"aura":
+			return Color(0.3, 0.7, 0.8)
+		"channel":
+			return Color(0.8, 0.3, 0.5)
+		"execute":
+			return Color(0.9, 0.2, 0.2)
+		_:
+			return Color(0.4, 0.4, 0.5)
+
 
 ## 更新技能栏CD（每帧调用）
 func _update_skill_bar_cd():

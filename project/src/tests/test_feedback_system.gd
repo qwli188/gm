@@ -5,6 +5,7 @@ var _passed: int = 0
 var _failed: int = 0
 var _failed_names: Array = []
 
+
 func _check(name: String, cond: bool, msg: String = "") -> void:
 	if cond:
 		_passed += 1
@@ -12,6 +13,7 @@ func _check(name: String, cond: bool, msg: String = "") -> void:
 		_failed += 1
 		_failed_names.append("feedback: " + name)
 		print("[FAIL] " + name + (": " + msg if msg != "" else ""))
+
 
 func test_loot_filter_threshold():
 	FeedbackSystem.set_loot_filter(FeedbackSystem.FILTER_RARE)
@@ -28,15 +30,30 @@ func test_loot_filter_threshold():
 	FeedbackSystem.set_loot_filter(FeedbackSystem.FILTER_ALL)
 	_check("filter: ALL shows common", FeedbackSystem.should_display_drop("common"), "")
 
+
 func test_filter_clamp():
 	FeedbackSystem.set_loot_filter(99)
-	_check("filter: clamps to MYTHIC", FeedbackSystem.loot_filter_threshold == FeedbackSystem.FILTER_MYTHIC, "")
+	_check(
+		"filter: clamps to MYTHIC",
+		FeedbackSystem.loot_filter_threshold == FeedbackSystem.FILTER_MYTHIC,
+		""
+	)
 	FeedbackSystem.set_loot_filter(-5)
-	_check("filter: clamps to ALL", FeedbackSystem.loot_filter_threshold == FeedbackSystem.FILTER_ALL, "")
+	_check(
+		"filter: clamps to ALL",
+		FeedbackSystem.loot_filter_threshold == FeedbackSystem.FILTER_ALL,
+		""
+	)
+
 
 func test_filter_label():
 	FeedbackSystem.set_loot_filter(FeedbackSystem.FILTER_EPIC)
-	_check("filter: label has '史诗'", FeedbackSystem.filter_label().find("史诗") >= 0, "got " + FeedbackSystem.filter_label())
+	_check(
+		"filter: label has '史诗'",
+		FeedbackSystem.filter_label().find("史诗") >= 0,
+		"got " + FeedbackSystem.filter_label()
+	)
+
 
 func test_hitstop_idempotent():
 	# 简单调用两次，不应崩溃；第二次会被忽略
@@ -47,15 +64,18 @@ func test_hitstop_idempotent():
 	Engine.time_scale = 1.0
 	FeedbackSystem._hitstop_active = false
 
+
 func test_shake_no_camera_silent():
 	# 没相机时，不应崩溃
 	FeedbackSystem.shake(10.0, 0.1)
 	_check("shake: no-cam silent", true, "")
 
+
 func test_should_display_drop_unknown():
 	FeedbackSystem.set_loot_filter(FeedbackSystem.FILTER_RARE)
 	# 未知 rarity 当作 0 处理（low）
 	_check("filter: unknown treated as low", not FeedbackSystem.should_display_drop("garbage"), "")
+
 
 func run_tests() -> Dictionary:
 	test_loot_filter_threshold()

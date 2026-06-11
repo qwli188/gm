@@ -9,6 +9,7 @@ var _failed_names: Array = []
 
 const TEST_SLOT = 3
 
+
 func _check(name: String, cond: bool, msg: String = "") -> void:
 	if cond:
 		_passed += 1
@@ -16,6 +17,7 @@ func _check(name: String, cond: bool, msg: String = "") -> void:
 		_failed += 1
 		_failed_names.append("save: " + name)
 		print("[FAIL] " + name + (": " + msg if msg != "" else ""))
+
 
 func _setup_test_state():
 	# 清空 Inventory 并放入已知装备
@@ -36,11 +38,13 @@ func _setup_test_state():
 
 	return [id1, id2, id3]
 
+
 func _cleanup():
 	SaveSystem.delete_save(TEST_SLOT)
 	# 清空测试状态
 	Inventory.backpack.clear()
 	Inventory.warehouse.clear()
+
 
 func test_save_then_load_inventory():
 	var ids = _setup_test_state()
@@ -57,12 +61,16 @@ func test_save_then_load_inventory():
 	_check("load: returns true", loaded, "load_game 失败")
 
 	# 验证 backpack 恢复
-	_check("load: backpack count = 2",
+	_check(
+		"load: backpack count = 2",
 		Inventory.backpack.size() == 2,
-		"got " + str(Inventory.backpack.size()))
-	_check("load: warehouse count = 1",
+		"got " + str(Inventory.backpack.size())
+	)
+	_check(
+		"load: warehouse count = 1",
 		Inventory.warehouse.size() == 1,
-		"got " + str(Inventory.warehouse.size()))
+		"got " + str(Inventory.warehouse.size())
+	)
 
 	# 验证 instance_id 一致(serialize/deserialize 不应丢失或改变 id)
 	_check("load: id1 in backpack", ids[0] in Inventory.backpack, "")
@@ -71,15 +79,19 @@ func test_save_then_load_inventory():
 
 	_cleanup()
 
+
 func test_save_preserves_total_gold():
 	GameState.total_gold = 9999
 	SaveSystem.save_game(TEST_SLOT)
 	GameState.total_gold = 0  # 故意改变
 	SaveSystem.load_game(TEST_SLOT)
-	_check("save: total_gold preserved",
+	_check(
+		"save: total_gold preserved",
 		GameState.total_gold == 9999,
-		"got " + str(GameState.total_gold))
+		"got " + str(GameState.total_gold)
+	)
 	_cleanup()
+
 
 func test_save_summary_readable():
 	_setup_test_state()
@@ -96,9 +108,9 @@ func test_save_summary_readable():
 	if test_summary != null:
 		_check("summary: has class_id", test_summary.has("class_id"), "")
 		_check("summary: has level", test_summary.has("level"), "")
-		_check("summary: not corrupted",
-			not test_summary.get("corrupted", false), "")
+		_check("summary: not corrupted", not test_summary.get("corrupted", false), "")
 	_cleanup()
+
 
 func test_delete_save():
 	SaveSystem.save_game(TEST_SLOT)
@@ -109,10 +121,13 @@ func test_delete_save():
 	var slots = SaveSystem.get_save_slots()
 	for s in slots:
 		if s.get("slot_id") == TEST_SLOT:
-			_check("delete: slot reports not exists",
+			_check(
+				"delete: slot reports not exists",
 				not s.get("exists", true),
-				"slot still reports exists")
+				"slot still reports exists"
+			)
 			break
+
 
 func run_tests() -> Dictionary:
 	print("\n=== SaveSystem Tests ===")

@@ -6,8 +6,8 @@ extends Node
 ## - 试炼塔进度 trial_max_floor / trial_milestones_claimed 是持久状态。
 ## - 裂隙是临时会话；rift_essence 走 GameState.materials。
 
-signal modifiers_changed()
-signal trial_progress_changed()
+signal modifiers_changed
+signal trial_progress_changed
 signal rift_started(seed_id: String, modifiers: Array)
 signal rift_completed(success: bool, rewards: Dictionary)
 
@@ -28,8 +28,10 @@ var rift_modifiers: Array = []
 var rift_start_time: float = 0.0
 var rift_seed: String = ""
 
+
 func _ready():
 	print("[EndgameSystem] 末期内容系统初始化")
+
 
 # ============ 地图词缀 ============
 func get_modifier_def(mod_id: String) -> Dictionary:
@@ -39,11 +41,14 @@ func get_modifier_def(mod_id: String) -> Dictionary:
 			return m
 	return {}
 
+
 func get_all_modifiers() -> Array:
 	return ConfigLoader.get_endgame_config().get("dungeon_modifiers", {}).get("modifiers", [])
 
+
 func max_modifiers() -> int:
 	return int(ConfigLoader.get_endgame_config().get("dungeon_modifiers", {}).get("max_active", 3))
+
 
 func toggle_modifier(mod_id: String) -> bool:
 	if mod_id in active_modifiers:
@@ -58,9 +63,11 @@ func toggle_modifier(mod_id: String) -> bool:
 	modifiers_changed.emit()
 	return true
 
+
 func clear_modifiers():
 	active_modifiers.clear()
 	modifiers_changed.emit()
+
 
 ## 把激活词缀的所有数值字段聚合成 {key: value} 字典，给系统消费
 ## 同 key 数值相加（drop_bonus / exp_bonus / rarity_boost / enemy_xxx_mult / player_xxx_mult ...）
@@ -77,12 +84,14 @@ func aggregate_active_effects() -> Dictionary:
 				totals[k] = totals.get(k, 0.0) + float(def[k])
 	return totals
 
+
 # ============ 试炼塔 ============
 func start_trial(starting_floor: int = 1) -> void:
 	trial_active = true
 	trial_current_floor = max(1, starting_floor)
 	trial_progress_changed.emit()
 	print("[EndgameSystem] 试炼塔开战，从 Lv.%d 开始" % trial_current_floor)
+
 
 ## 一层结算成功（玩家通过该层）。
 ## 返回 {next_floor, milestone_rewards, layer_rewards}
@@ -128,11 +137,13 @@ func clear_trial_floor() -> Dictionary:
 		"finished": not trial_active,
 	}
 
+
 ## 试炼失败：保留最高层记录，结束当前会话
 func abort_trial():
 	trial_active = false
 	trial_current_floor = 0
 	trial_progress_changed.emit()
+
 
 ## 当前层敌人难度倍率（HP/伤害/掉落）
 func get_trial_floor_multipliers() -> Dictionary:
@@ -144,6 +155,7 @@ func get_trial_floor_multipliers() -> Dictionary:
 		"drop_bonus": float(cfg.get("drop_bonus_per_floor", 0.02)) * (f - 1),
 		"is_boss_floor": (f % int(cfg.get("boss_every_n_floors", 5))) == 0,
 	}
+
 
 # ============ 裂隙 ============
 func start_rift() -> Dictionary:
@@ -168,7 +180,12 @@ func start_rift() -> Dictionary:
 	rift_start_time = Time.get_unix_time_from_system()
 	rift_started.emit(rift_seed, rift_modifiers)
 	print("[EndgameSystem] 裂隙启动: %s, modifiers=%s" % [rift_seed, str(rift_modifiers)])
-	return {"seed": rift_seed, "modifiers": rift_modifiers, "time_limit": cfg.get("time_limit_seconds", 300)}
+	return {
+		"seed": rift_seed,
+		"modifiers": rift_modifiers,
+		"time_limit": cfg.get("time_limit_seconds", 300)
+	}
+
 
 func is_rift_timed_out() -> bool:
 	if not rift_active:
@@ -176,6 +193,7 @@ func is_rift_timed_out() -> bool:
 	var cfg = ConfigLoader.get_endgame_config().get("rifts", {})
 	var limit = float(cfg.get("time_limit_seconds", 300))
 	return (Time.get_unix_time_from_system() - rift_start_time) > limit
+
 
 func complete_rift(success: bool) -> Dictionary:
 	var cfg = ConfigLoader.get_endgame_config().get("rifts", {})
@@ -199,6 +217,7 @@ func complete_rift(success: bool) -> Dictionary:
 	rift_completed.emit(success, rewards)
 	return rewards
 
+
 # ============ 通用奖励发放 ============
 func _grant_rewards(rewards: Dictionary):
 	for k in rewards:
@@ -216,12 +235,14 @@ func _grant_rewards(rewards: Dictionary):
 			# 视为材料
 			GameState.add_material(k, int(rewards[k]))
 
+
 # ============ 序列化（持久部分）============
 func serialize() -> Dictionary:
 	return {
 		"trial_max_floor": trial_max_floor,
 		"trial_milestones_claimed": trial_milestones_claimed.duplicate(true),
 	}
+
 
 func deserialize(data: Dictionary):
 	trial_max_floor = int(data.get("trial_max_floor", 0))

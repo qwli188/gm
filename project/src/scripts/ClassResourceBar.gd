@@ -3,14 +3,7 @@ extends HBoxContainer
 ## 可配置颜色、图标、数值范围
 
 ## 资源类型配置
-enum ResourceType {
-	MANA,      # 法力（蓝）
-	RAGE,      # 怒气（红）
-	ENERGY,    # 能量（黄）
-	COMBO,     # 连击点数（橙）
-	HOLY,      # 圣盾值（金）
-	CUSTOM     # 自定义
-}
+enum ResourceType { MANA, RAGE, ENERGY, COMBO, HOLY, CUSTOM }  # 法力（蓝）  # 怒气（红）  # 能量（黄）  # 连击点数（橙）  # 圣盾值（金）  # 自定义
 
 ## 配置
 @export var resource_type: ResourceType = ResourceType.MANA
@@ -29,10 +22,12 @@ var max_value: float = 100.0
 var label: Label
 var progress_bar: ProgressBar
 
+
 func _ready():
 	_setup_ui()
 	_apply_style()
 	update_display()
+
 
 ## ============ 初始化 ============
 func _setup_ui():
@@ -56,6 +51,7 @@ func _setup_ui():
 	progress_bar.show_percentage = show_percentage
 	add_child(progress_bar)
 
+
 ## 应用样式（根据资源类型）
 func _apply_style():
 	if not progress_bar:
@@ -70,6 +66,7 @@ func _apply_style():
 
 	if label:
 		label.add_theme_color_override("font_color", color)
+
 
 ## 获取资源颜色
 func _get_resource_color() -> Color:
@@ -89,6 +86,7 @@ func _get_resource_color() -> Color:
 		_:
 			return Color.WHITE
 
+
 ## 创建背景样式
 func _create_bg_style() -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
@@ -98,6 +96,7 @@ func _create_bg_style() -> StyleBoxFlat:
 	style.set_corner_radius_all(2)
 	return style
 
+
 ## 创建填充样式
 func _create_fill_style(color: Color) -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
@@ -105,12 +104,14 @@ func _create_fill_style(color: Color) -> StyleBoxFlat:
 	style.set_corner_radius_all(2)
 	return style
 
+
 ## ============ 公共接口 ============
 ## 设置资源值
 func set_resource_value(current: float, maximum: float):
 	current_value = current
 	max_value = maximum
 	update_display()
+
 
 ## 更新显示
 func update_display():
@@ -126,11 +127,13 @@ func update_display():
 		else:
 			label.text = "%s: %d" % [resource_name, int(current_value)]
 
+
 ## 设置资源类型（运行时切换）
 func set_resource_type(type: ResourceType):
 	resource_type = type
 	_apply_style()
 	update_display()
+
 
 ## 设置自定义颜色
 func set_custom_color(color: Color):
@@ -138,11 +141,13 @@ func set_custom_color(color: Color):
 	if resource_type == ResourceType.CUSTOM:
 		_apply_style()
 
+
 ## 设置资源名称
 func set_resource_name(name: String):
 	resource_name = name
 	if label:
 		update_display()
+
 
 ## ============ 动画效果 ============
 ## 闪烁效果（资源变化时）
@@ -158,6 +163,7 @@ func flash_effect(duration: float = 0.3):
 	if fill_style is StyleBoxFlat:
 		tween.tween_property(fill_style, "bg_color", flash_color, duration * 0.5)
 		tween.tween_property(fill_style, "bg_color", original_color, duration * 0.5)
+
 
 ## 平滑过渡到新值
 func smooth_set_value(target: float, duration: float = 0.2):

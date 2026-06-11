@@ -10,10 +10,12 @@ var completion_time: float = 0.0
 var kills: int = 0
 var gold_earned: int = 0
 
+
 func _ready():
 	hide()
 	next_button.pressed.connect(_on_next_pressed)
 	menu_button.pressed.connect(_on_menu_pressed)
+
 
 ## 显示通关界面
 func show_victory(time: float, kill_count: int, gold: int):
@@ -43,9 +45,7 @@ func show_victory(time: float, kill_count: int, gold: int):
 		if not gs.cleared_dungeons.has(dungeon_id):
 			# 首次通关该副本
 			gs.cleared_dungeons[dungeon_id] = {
-				"max_tier_cleared": tier,
-				"first_clear_time": now_iso,
-				"total_clears": 1
+				"max_tier_cleared": tier, "first_clear_time": now_iso, "total_clears": 1
 			}
 		else:
 			# 更新记录
@@ -58,13 +58,16 @@ func show_victory(time: float, kill_count: int, gold: int):
 
 	# P9: 通知任务系统副本通关
 	if has_node("/root/QuestSystem") and has_node("/root/GameState"):
-		get_node("/root/QuestSystem").register_clear_dungeon(get_node("/root/GameState").selected_dungeon_id)
+		get_node("/root/QuestSystem").register_clear_dungeon(
+			get_node("/root/GameState").selected_dungeon_id
+		)
 
 	# P4: 检查是否触发防御战
 	if _check_defense_trigger():
 		return  # 跳转到防御战,不显示通关界面
 
 	show()
+
 
 ## 领地出击结算：建筑产出材料入库，并在通关界面提示
 func _settle_territory_sortie():
@@ -78,11 +81,13 @@ func _settle_territory_sortie():
 		parts.append("%s +%d" % [_mat_display(mat), gains[mat]])
 	gold_label.text += "\n领地产出: " + "  ".join(parts)
 
+
 func _mat_display(material_id: String) -> String:
 	for m in ConfigLoader.get_basic_materials():
 		if m.get("id", "") == material_id:
 			return m.get("display_name", material_id)
 	return material_id
+
 
 ## P4: 防御战触发检查
 func _check_defense_trigger() -> bool:
@@ -94,6 +99,7 @@ func _check_defense_trigger() -> bool:
 		_resolve_defense_battle(ts)
 		return false  # 继续显示通关界面,附加防御战结果
 	return false
+
 
 ## 自动结算防御战:领地防御力 vs 威胁等级
 func _resolve_defense_battle(ts):
@@ -112,21 +118,24 @@ func _resolve_defense_battle(ts):
 		ts.penalty_defense_defeat()
 		gold_label.text += "\n\n[color=red]领地遭袭！防御失败[/color]\n损失了部分资源"
 
+
 func _calculate_defense_power(ts) -> float:
 	var power = 0.0
 	# 城墙 + 哨塔贡献
 	power += ts.get_defense_bonus() * 200  # 防御加成
-	power += ts.get_tower_damage() * 2     # 哨塔伤害
+	power += ts.get_tower_damage() * 2  # 哨塔伤害
 	# 士兵数量 × 50
 	power += ts.count_soldiers() * 50
 	# 领地等级基础
 	power += ts.level * 30
 	return power
 
+
 func _on_next_pressed():
 	# 返回主城（选下一个难度/副本）
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://scenes/Town.tscn")
+
 
 func _on_menu_pressed():
 	# 返回主菜单

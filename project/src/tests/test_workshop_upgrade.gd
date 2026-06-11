@@ -5,6 +5,7 @@ var _passed: int = 0
 var _failed: int = 0
 var _failed_names: Array = []
 
+
 func _check(name: String, cond: bool, msg: String = "") -> void:
 	if cond:
 		_passed += 1
@@ -13,9 +14,11 @@ func _check(name: String, cond: bool, msg: String = "") -> void:
 		_failed_names.append("workshop+: " + name)
 		print("[FAIL] " + name + (": " + msg if msg != "" else ""))
 
+
 func _reset_resources():
 	GameState.total_gold = 999999
 	GameState.materials = {"rune_shard": 9999, "void_fragment": 999, "bone_dust": 999}
+
 
 func _make_instance(slot: String, rarity: String) -> String:
 	# 找该 slot 的任一模板
@@ -24,6 +27,7 @@ func _make_instance(slot: String, rarity: String) -> String:
 		if item.get("slot", "") == slot:
 			return EquipmentSystem.roll_equipment(item.get("id", ""), rarity)
 	return ""
+
 
 func test_can_upgrade():
 	_reset_resources()
@@ -37,6 +41,7 @@ func test_can_upgrade():
 	var r2 = AffixWorkshop.can_upgrade(top)
 	_check("can_upgrade: mythic blocked", not r2["ok"], "")
 
+
 func test_upgrade_consumes_fodder():
 	_reset_resources()
 	var target = _make_instance("weapon", "common")
@@ -47,10 +52,17 @@ func test_upgrade_consumes_fodder():
 	var before_cnt = EquipmentSystem.equipment_instances.size()
 	var r = AffixWorkshop.upgrade_equipment(target, [f1, f2, f3])
 	_check("upgrade: success", r.get("success", false), r.get("message", ""))
-	_check("upgrade: rarity raised", EquipmentSystem.equipment_instances[target].get("rarity", "") == "rare", "")
+	_check(
+		"upgrade: rarity raised",
+		EquipmentSystem.equipment_instances[target].get("rarity", "") == "rare",
+		""
+	)
 	# 饲料被销毁
 	_check("upgrade: fodder destroyed", not EquipmentSystem.equipment_instances.has(f1), "")
-	_check("upgrade: total decreased", EquipmentSystem.equipment_instances.size() == before_cnt - 3, "")
+	_check(
+		"upgrade: total decreased", EquipmentSystem.equipment_instances.size() == before_cnt - 3, ""
+	)
+
 
 func test_upgrade_rejects_wrong_fodder():
 	_reset_resources()
@@ -70,6 +82,7 @@ func test_upgrade_rejects_wrong_fodder():
 	var r2 = AffixWorkshop.upgrade_equipment(target2, [helm, w2, w3])
 	_check("upgrade: wrong slot rejected", not r2.get("success", true), "")
 
+
 func test_sanctify_grants_next_success():
 	_reset_resources()
 	var inst = _make_instance("weapon", "rare")
@@ -87,12 +100,14 @@ func test_sanctify_grants_next_success():
 	_check("sanctify: enhance succeeded", r.get("success", false), r.get("message", ""))
 	_check("sanctify: flag cleared", not AffixWorkshop.is_sanctified(inst), "")
 
+
 func test_sanctify_dup_rejected():
 	_reset_resources()
 	var inst = _make_instance("weapon", "common")
 	AffixWorkshop.sanctify_equipment(inst)
 	var r = AffixWorkshop.sanctify_equipment(inst)
 	_check("sanctify: dup rejected", not r.get("success", true), "")
+
 
 func run_tests() -> Dictionary:
 	test_can_upgrade()

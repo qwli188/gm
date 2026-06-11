@@ -2,7 +2,7 @@ extends Node
 ## 职业核心机制系统 - 战士怒气/游侠精准/法师法力连锁
 
 signal rage_changed(current: float, maximum: float)
-signal rage_skill_activated()
+signal rage_skill_activated
 signal precision_changed(stacks: int, target: Node2D)
 signal mana_changed(current: float, maximum: float)
 signal chain_triggered(from: Node2D, to: Node2D)
@@ -67,11 +67,13 @@ const NECRO_MAX_SKELETONS: int = 3
 const NECRO_CORPSE_EXPLODE_RADIUS: float = 120.0
 const NECRO_CORPSE_EXPLODE_DAMAGE: float = 50.0
 
+
 func _ready():
 	print("[ClassMechanicSystem] 职业核心机制系统初始化")
 	# 等待玩家初始化后读取职业
 	await get_tree().process_frame
 	_initialize_class()
+
 
 func _initialize_class():
 	if not has_node("/root/GameState"):
@@ -88,6 +90,7 @@ func _initialize_class():
 	# 连接玩家信号
 	await get_tree().process_frame
 	_player = get_tree().get_first_node_in_group("player")
+
 
 func _load_mechanic_params():
 	var balance = ConfigLoader.get_balance_config()
@@ -119,6 +122,7 @@ func _load_mechanic_params():
 			chain_damage_reduction = mage_params.get("chain_damage_reduction", 0.2)
 			chain_max_targets = mage_params.get("chain_max_targets", 4)
 
+
 func _process(delta):
 	# 确保玩家引用有效
 	if _player == null or not is_instance_valid(_player):
@@ -142,6 +146,7 @@ func _process(delta):
 		"class_necromancer":
 			_update_necromancer(delta)
 
+
 # ============ 战士机制更新 ============
 func _update_warrior(delta):
 	# 怒气技能持续时间
@@ -157,6 +162,7 @@ func _update_warrior(delta):
 		if rage_skill_cooldown < 0:
 			rage_skill_cooldown = 0
 
+
 # ============ 法师机制更新 ============
 func _update_mage(delta):
 	# 法力自动回复
@@ -164,6 +170,7 @@ func _update_mage(delta):
 		mana += mana_regen_per_sec * delta
 		mana = min(mana, mana_max)
 		mana_changed.emit(mana, mana_max)
+
 
 # ============ 战士 - 怒气增加（玩家命中时调用） ============
 func on_player_hit_enemy():
@@ -177,6 +184,7 @@ func on_player_hit_enemy():
 	if rage >= rage_max:
 		print("[Warrior] 怒气已满！可释放怒气技能")
 
+
 # ============ 战士 - 怒气增加（玩家受击时调用） ============
 func on_player_damaged():
 	if _current_class_id != "class_warrior":
@@ -185,6 +193,7 @@ func on_player_damaged():
 	rage += rage_gain_on_damaged
 	rage = min(rage, rage_max)
 	rage_changed.emit(rage, rage_max)
+
 
 # ============ 战士 - 释放怒气技能 ============
 func activate_rage_skill() -> bool:
@@ -216,6 +225,7 @@ func activate_rage_skill() -> bool:
 
 	return true
 
+
 # ============ 战士 - 获取怒气伤害加成 ============
 func get_warrior_damage_mult() -> float:
 	if _current_class_id != "class_warrior":
@@ -224,6 +234,7 @@ func get_warrior_damage_mult() -> float:
 		return 1.0 + rage_damage_bonus
 	return 1.0
 
+
 # ============ 战士 - 获取怒气减伤 ============
 func get_warrior_damage_reduction() -> float:
 	if _current_class_id != "class_warrior":
@@ -231,6 +242,7 @@ func get_warrior_damage_reduction() -> float:
 	if rage_skill_active:
 		return rage_damage_reduction
 	return 0.0
+
 
 # ============ 游侠 - 命中目标（增加精准层数） ============
 func on_ranger_hit_target(target: Node2D):
@@ -251,17 +263,20 @@ func on_ranger_hit_target(target: Node2D):
 
 	precision_changed.emit(precision_stacks, precision_target)
 
+
 # ============ 游侠 - 获取精准暴击加成 ============
 func get_ranger_crit_bonus() -> float:
 	if _current_class_id != "class_ranger":
 		return 0.0
 	return precision_stacks * precision_crit_per_stack
 
+
 # ============ 游侠 - 获取精准暴伤加成 ============
 func get_ranger_crit_damage_bonus() -> float:
 	if _current_class_id != "class_ranger":
 		return 0.0
 	return precision_stacks * precision_crit_dmg_per_stack
+
 
 # ============ 法师 - 攻击消耗法力 ============
 func on_mage_cast():
@@ -271,6 +286,7 @@ func on_mage_cast():
 	mana -= mana_cost_per_cast
 	mana = max(mana, 0.0)
 	mana_changed.emit(mana, mana_max)
+
 
 # ============ 法师 - 触发连锁（命中时调用） ============
 func trigger_chain_lightning(source_enemy: Node2D, base_damage: float, player_stats: Dictionary):
@@ -294,7 +310,9 @@ func trigger_chain_lightning(source_enemy: Node2D, base_damage: float, player_st
 
 	for i in range(chain_max_targets):
 		# 查找附近未命中的敌人
-		var next_target = _find_nearest_unchained_enemy(current_target, chained_targets, all_enemies)
+		var next_target = _find_nearest_unchained_enemy(
+			current_target, chained_targets, all_enemies
+		)
 		if next_target == null:
 			break
 
@@ -304,12 +322,17 @@ func trigger_chain_lightning(source_enemy: Node2D, base_damage: float, player_st
 		# 应用伤害
 		if has_node("/root/CombatSystem"):
 			var target_armor = next_target.enemy_data.get("base_stats", {}).get("armor", 0)
-			var result = get_node("/root/CombatSystem").calculate_damage({
-				"damage": current_damage,
-				"crit_chance": player_stats.get("crit_chance", 0.05),
-				"crit_damage": player_stats.get("crit_damage", 1.5)
-			}, target_armor)
-			get_node("/root/CombatSystem").apply_damage(next_target, result.damage, player_stats, result.is_crit)
+			var result = get_node("/root/CombatSystem").calculate_damage(
+				{
+					"damage": current_damage,
+					"crit_chance": player_stats.get("crit_chance", 0.05),
+					"crit_damage": player_stats.get("crit_damage", 1.5)
+				},
+				target_armor
+			)
+			get_node("/root/CombatSystem").apply_damage(
+				next_target, result.damage, player_stats, result.is_crit
+			)
 
 			# 连锁特效
 			_spawn_chain_effect(current_target.global_position, next_target.global_position)
@@ -323,6 +346,7 @@ func trigger_chain_lightning(source_enemy: Node2D, base_damage: float, player_st
 
 	# 职业调优: 连锁结束，解除递归锁
 	_is_chaining = false
+
 
 # ============ 法师 - 查找最近未命中的敌人 ============
 func _find_nearest_unchained_enemy(from: Node2D, chained: Array, all_enemies: Array) -> Node2D:
@@ -343,6 +367,7 @@ func _find_nearest_unchained_enemy(from: Node2D, chained: Array, all_enemies: Ar
 			nearest = enemy
 
 	return nearest
+
 
 # ============ 法师 - 连锁闪电特效 ============
 func _spawn_chain_effect(from_pos: Vector2, to_pos: Vector2):
@@ -365,6 +390,7 @@ func _spawn_chain_effect(from_pos: Vector2, to_pos: Vector2):
 	await get_tree().create_timer(0.15).timeout
 	if is_instance_valid(line) and is_instance_valid(line.get_parent()):
 		line.queue_free()
+
 
 # ============ 重置机制状态（新游戏开始时调用） ============
 func reset():
@@ -400,6 +426,7 @@ func reset():
 
 	_initialize_class()
 
+
 # ============================================================
 # 刺客/骑士/死灵 职业机制 (A2模块)
 # ============================================================
@@ -415,6 +442,7 @@ func _update_assassin(delta):
 	if assassin_stealth_active:
 		_assassin_maintain_stealth_visual()
 
+
 func _assassin_enter_stealth():
 	"""进入潜行状态"""
 	assassin_stealth_active = true
@@ -423,6 +451,7 @@ func _assassin_enter_stealth():
 		assassin_original_alpha = sprite.modulate.a
 		sprite.modulate.a = 0.4  # 半透明
 	print("[Assassin] 进入潜行")
+
 
 func _assassin_exit_stealth():
 	"""退出潜行状态"""
@@ -433,12 +462,14 @@ func _assassin_exit_stealth():
 		sprite.modulate.a = assassin_original_alpha
 	print("[Assassin] 退出潜行")
 
+
 func _assassin_maintain_stealth_visual():
 	"""保持潜行视觉效果(避免其他系统覆盖透明度)"""
 	if _player.has_node("Sprite"):
 		var sprite = _player.get_node("Sprite")
 		if sprite.modulate.a > 0.5:  # 检测是否被覆盖
 			sprite.modulate.a = 0.4
+
 
 func assassin_on_attack():
 	"""刺客攻击时调用(由CombatSystem或Player调用)"""
@@ -450,9 +481,11 @@ func assassin_on_attack():
 	# 潜行首次攻击退出潜行
 	_assassin_exit_stealth()
 
+
 func assassin_is_backstab() -> bool:
 	"""检查是否为背刺攻击"""
 	return assassin_stealth_active
+
 
 func assassin_get_backstab_damage_mult() -> float:
 	"""获取背刺伤害倍率"""
@@ -460,9 +493,11 @@ func assassin_get_backstab_damage_mult() -> float:
 		return ASSASSIN_STEALTH_CRIT_MULT
 	return 1.0
 
+
 # ============================================================
 # 骑士(class_knight)：圣盾反伤
 # ============================================================
+
 
 func _update_knight(delta):
 	# 盾冷却倒计时
@@ -480,6 +515,7 @@ func _update_knight(delta):
 	# if Input.is_action_just_pressed("class_skill") and knight_shield_cooldown <= 0 and not knight_shield_active:
 	#     _knight_activate_shield()
 
+
 ## 职业调优: 骑士圣盾公共接口(供Player.gd调用)
 func activate_knight_shield() -> bool:
 	if _current_class_id != "class_knight":
@@ -491,6 +527,7 @@ func activate_knight_shield() -> bool:
 		return false
 	_knight_activate_shield()
 	return true
+
 
 func _knight_activate_shield():
 	"""激活圣盾"""
@@ -510,6 +547,7 @@ func _knight_activate_shield():
 
 	print("[Knight] 圣盾激活 持续%.1fs" % KNIGHT_SHIELD_DURATION)
 
+
 func _knight_deactivate_shield():
 	"""圣盾结束"""
 	knight_shield_active = false
@@ -521,6 +559,7 @@ func _knight_deactivate_shield():
 
 	print("[Knight] 圣盾结束")
 
+
 func knight_on_take_damage(damage_amount: float) -> float:
 	"""骑士受伤时调用(由Player.take_damage调用)，返回实际承受伤害"""
 	if not knight_shield_active:
@@ -531,6 +570,7 @@ func knight_on_take_damage(damage_amount: float) -> float:
 	_knight_reflect_damage(reflect_damage)
 
 	return damage_amount  # 骑士承受全伤，但反弹给敌人
+
 
 func _knight_reflect_damage(damage: float):
 	"""反弹伤害给最近敌人"""
@@ -545,13 +585,16 @@ func _knight_reflect_damage(damage: float):
 			EffectSprite.spawn(nearest.get_parent(), "holy", nearest.global_position, 1.0)
 		print("[Knight] 圣盾反弹 %.1f 伤害" % damage)
 
+
 func knight_is_shield_active() -> bool:
 	"""检查圣盾是否激活(供UI显示用)"""
 	return knight_shield_active
 
+
 # ============================================================
 # 死灵(class_necromancer)：召唤亡灵+尸爆
 # ============================================================
+
 
 func _update_necromancer(delta):
 	# 召唤冷却
@@ -569,6 +612,7 @@ func _update_necromancer(delta):
 	if Input.is_action_just_pressed("interact"):
 		_necro_explode_nearest_corpse()
 
+
 func _necro_summon_skeleton():
 	"""召唤骷髅随从"""
 	var skeleton = _necro_create_skeleton()
@@ -576,7 +620,9 @@ func _necro_summon_skeleton():
 		var scene = get_tree().current_scene
 		if scene:
 			scene.add_child(skeleton)
-			skeleton.global_position = _player.global_position + Vector2(randf_range(-50, 50), randf_range(-50, 50))
+			skeleton.global_position = (
+				_player.global_position + Vector2(randf_range(-50, 50), randf_range(-50, 50))
+			)
 			necro_skeletons.append(skeleton)
 			necro_summon_cooldown = NECRO_SUMMON_COOLDOWN
 
@@ -585,6 +631,7 @@ func _necro_summon_skeleton():
 				EffectSprite.spawn(scene, "poison", skeleton.global_position, 1.2)
 
 			print("[Necromancer] 召唤骷髅 (%d/%d)" % [necro_skeletons.size(), NECRO_MAX_SKELETONS])
+
 
 func _necro_create_skeleton() -> CharacterBody2D:
 	"""创建骷髅召唤物(友方单位)"""
@@ -623,6 +670,7 @@ func _necro_create_skeleton() -> CharacterBody2D:
 	skeleton.set_script(_necro_skeleton_script())
 
 	return skeleton
+
 
 func _necro_skeleton_script() -> GDScript:
 	"""骷髅AI脚本"""
@@ -703,6 +751,7 @@ func _die():
 	gd.reload()
 	return gd
 
+
 func necro_register_corpse(pos: Vector2):
 	"""敌人死亡时注册尸体(由Enemy.die调用)"""
 	if _current_class_id != "class_necromancer":
@@ -716,6 +765,7 @@ func necro_register_corpse(pos: Vector2):
 			scene.add_child(corpse)
 			necro_corpses.append(corpse)
 			print("[Necromancer] 尸体标记 x%d" % necro_corpses.size())
+
 
 func _create_corpse_marker(pos: Vector2) -> Node2D:
 	"""创建尸体可视标记"""
@@ -734,6 +784,7 @@ func _create_corpse_marker(pos: Vector2) -> Node2D:
 
 	return marker
 
+
 func _corpse_timer_script() -> GDScript:
 	"""尸体定时消失脚本"""
 	var src = """
@@ -748,6 +799,7 @@ func _process(delta):
 	gd.source_code = src
 	gd.reload()
 	return gd
+
 
 func _necro_explode_nearest_corpse():
 	"""引爆最近的尸体"""
@@ -777,6 +829,7 @@ func _necro_explode_nearest_corpse():
 	necro_corpses.erase(nearest_corpse)
 	nearest_corpse.queue_free()
 
+
 func _necro_corpse_explosion(pos: Vector2):
 	"""尸体爆炸范围伤害"""
 	var damage = NECRO_CORPSE_EXPLODE_DAMAGE
@@ -796,6 +849,7 @@ func _necro_corpse_explosion(pos: Vector2):
 
 	print("[Necromancer] 尸爆! 伤害:%.1f 范围:%.0f" % [damage, radius])
 
+
 func _cleanup_all_corpses():
 	"""清理所有尸体(重置时)"""
 	for corpse in necro_corpses:
@@ -803,9 +857,11 @@ func _cleanup_all_corpses():
 			corpse.queue_free()
 	necro_corpses.clear()
 
+
 # ============================================================
 # 工具方法(各职业共用)
 # ============================================================
+
 
 func _find_nearest_enemy() -> Node2D:
 	"""查找最近敌人"""

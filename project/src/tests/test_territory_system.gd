@@ -7,6 +7,7 @@ var _failed_names: Array = []
 
 const TEST_SLOT = 3
 
+
 func _check(name: String, cond: bool, msg: String = "") -> void:
 	if cond:
 		_passed += 1
@@ -14,6 +15,7 @@ func _check(name: String, cond: bool, msg: String = "") -> void:
 		_failed += 1
 		_failed_names.append("territory: " + name)
 		print("[FAIL] " + name + (": " + msg if msg != "" else ""))
+
 
 func _reset():
 	TerritorySystem.level = 1
@@ -23,17 +25,29 @@ func _reset():
 	# 给足资源
 	GameState.total_gold = 999999
 	GameState.materials = {
-		"timber": 9999, "stone_block": 9999, "food": 9999,
-		"bone_dust": 999, "frost_shard": 999, "plague_essence": 999,
-		"ember_core": 999, "void_fragment": 999, "rune_shard": 999,
+		"timber": 9999,
+		"stone_block": 9999,
+		"food": 9999,
+		"bone_dust": 999,
+		"frost_shard": 999,
+		"plague_essence": 999,
+		"ember_core": 999,
+		"void_fragment": 999,
+		"rune_shard": 999,
 	}
+
 
 func test_initial_state():
 	_reset()
 	_check("init: level 1", TerritorySystem.level == 1, "")
 	_check("init: has townhall", TerritorySystem.has_building("townhall"), "")
-	_check("init: used slots 0 (townhall not counted)", TerritorySystem.get_used_slots() == 0, "got " + str(TerritorySystem.get_used_slots()))
+	_check(
+		"init: used slots 0 (townhall not counted)",
+		TerritorySystem.get_used_slots() == 0,
+		"got " + str(TerritorySystem.get_used_slots())
+	)
 	_check("init: has free slot", TerritorySystem.has_free_slot(), "")
+
 
 func test_build():
 	_reset()
@@ -46,15 +60,23 @@ func test_build():
 	var r2 = TerritorySystem.build_building("lumber_mill")
 	_check("build: reject duplicate", not r2.get("ok", true), "")
 
+
 func test_build_cost_deducted():
 	_reset()
 	var gold_before = GameState.total_gold
 	var timber_before = GameState.get_material("timber")
 	TerritorySystem.build_building("lumber_mill")  # cost gold 300, timber 10
-	_check("cost: gold deducted", GameState.total_gold == gold_before - 300,
-		"got " + str(GameState.total_gold))
-	_check("cost: timber deducted", GameState.get_material("timber") == timber_before - 10,
-		"got " + str(GameState.get_material("timber")))
+	_check(
+		"cost: gold deducted",
+		GameState.total_gold == gold_before - 300,
+		"got " + str(GameState.total_gold)
+	)
+	_check(
+		"cost: timber deducted",
+		GameState.get_material("timber") == timber_before - 10,
+		"got " + str(GameState.get_material("timber"))
+	)
+
 
 func test_build_insufficient():
 	_reset()
@@ -62,6 +84,7 @@ func test_build_insufficient():
 	GameState.materials = {}
 	var r = TerritorySystem.build_building("lumber_mill")
 	_check("build: reject when poor", not r.get("ok", true), "")
+
 
 func test_slot_limit():
 	_reset()
@@ -72,6 +95,7 @@ func test_slot_limit():
 	var r4 = TerritorySystem.build_building("house")
 	_check("slot: reject 4th (cap 3)", not r4.get("ok", true), r4.get("reason", ""))
 
+
 func test_upgrade_building():
 	_reset()
 	TerritorySystem.build_building("lumber_mill")
@@ -79,29 +103,43 @@ func test_upgrade_building():
 	_check("upgrade: ok", r.get("ok", false), r.get("reason", ""))
 	_check("upgrade: level 2", TerritorySystem.get_building_level("lumber_mill") == 2, "")
 
+
 func test_upgrade_territory():
 	_reset()
 	var r = TerritorySystem.upgrade_territory()
 	_check("territory up: ok", r.get("ok", false), r.get("reason", ""))
 	_check("territory up: level 2", TerritorySystem.level == 2, "")
-	_check("territory up: townhall follows", TerritorySystem.get_building_level("townhall") == 2, "")
-	_check("territory up: more slots", TerritorySystem.get_building_slots() == 5, "got " + str(TerritorySystem.get_building_slots()))
+	_check(
+		"territory up: townhall follows", TerritorySystem.get_building_level("townhall") == 2, ""
+	)
+	_check(
+		"territory up: more slots",
+		TerritorySystem.get_building_slots() == 5,
+		"got " + str(TerritorySystem.get_building_slots())
+	)
+
 
 func test_settle_sortie_production():
 	_reset()
 	TerritorySystem.build_building("lumber_mill")  # produces timber 8/sortie at lv1
 	var timber_before = GameState.get_material("timber")
 	var gains = TerritorySystem.settle_sortie()
-	_check("settle: produces timber", gains.get("timber", 0) == 8, "got " + str(gains.get("timber", 0)))
+	_check(
+		"settle: produces timber", gains.get("timber", 0) == 8, "got " + str(gains.get("timber", 0))
+	)
 	_check("settle: material added", GameState.get_material("timber") == timber_before + 8, "")
+
 
 func test_resident_cap():
 	_reset()
 	var base_cap = TerritorySystem.get_resident_cap()  # lv1 = 5
 	TerritorySystem.build_building("house")  # +4/level resident_cap
-	_check("cap: house increases cap",
+	_check(
+		"cap: house increases cap",
 		TerritorySystem.get_resident_cap() == base_cap + 4,
-		"got " + str(TerritorySystem.get_resident_cap()))
+		"got " + str(TerritorySystem.get_resident_cap())
+	)
+
 
 func test_save_load():
 	_reset()
@@ -116,11 +154,14 @@ func test_save_load():
 	SaveSystem.load_game(TEST_SLOT)
 
 	_check("save/load: level 2", TerritorySystem.level == 2, "got " + str(TerritorySystem.level))
-	_check("save/load: lumber_mill level 2",
+	_check(
+		"save/load: lumber_mill level 2",
 		TerritorySystem.get_building_level("lumber_mill") == 2,
-		"got " + str(TerritorySystem.get_building_level("lumber_mill")))
+		"got " + str(TerritorySystem.get_building_level("lumber_mill"))
+	)
 	SaveSystem.delete_save(TEST_SLOT)
 	_reset()
+
 
 func test_materials_persist():
 	_reset()
@@ -128,10 +169,14 @@ func test_materials_persist():
 	SaveSystem.save_game(TEST_SLOT)
 	GameState.materials = {}
 	SaveSystem.load_game(TEST_SLOT)
-	_check("materials persist: timber", GameState.get_material("timber") == 77,
-		"got " + str(GameState.get_material("timber")))
+	_check(
+		"materials persist: timber",
+		GameState.get_material("timber") == 77,
+		"got " + str(GameState.get_material("timber"))
+	)
 	_check("materials persist: bone_dust", GameState.get_material("bone_dust") == 33, "")
 	SaveSystem.delete_save(TEST_SLOT)
+
 
 func run_tests() -> Dictionary:
 	print("\n=== TerritorySystem Tests ===")

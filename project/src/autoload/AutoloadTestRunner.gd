@@ -8,6 +8,7 @@ extends Node
 var _errors: Array = []
 var _warnings: Array = []
 
+
 func _ready():
 	# 仅在显式 --test-acceptance 标志下运行；否则作为 autoload 完全惰性
 	if not "--test-acceptance" in OS.get_cmdline_args():
@@ -22,6 +23,7 @@ func _ready():
 	_print_report()
 	await get_tree().create_timer(0.1).timeout
 	get_tree().quit(0 if _errors.is_empty() else 1)
+
 
 func _test_config_loading():
 	print("\n[TEST] 配置加载验收...")
@@ -56,14 +58,25 @@ func _test_config_loading():
 		if boss_count >= 6:
 			print("  [OK] Boss: %d 个" % boss_count)
 
+
 func _test_autoload_systems():
 	print("\n[TEST] Autoload 系统验收...")
-	var required = ["ConfigLoader", "EquipmentSystem", "AffixSystem", "CombatSystem", "ActiveSkillSystem", "GameState", "AudioManager", "ClassMechanicSystem"]
+	var required = [
+		"ConfigLoader",
+		"EquipmentSystem",
+		"AffixSystem",
+		"CombatSystem",
+		"ActiveSkillSystem",
+		"GameState",
+		"AudioManager",
+		"ClassMechanicSystem"
+	]
 	for name in required:
 		if not has_node("/root/" + name):
 			_errors.append("Autoload 缺失: " + name)
 		else:
 			print("  [OK] %s" % name)
+
 
 func _test_equipment_system():
 	print("\n[TEST] 装备系统验收...")
@@ -84,6 +97,7 @@ func _test_equipment_system():
 	var combat_effects = es.get_combat_effects()
 	print("  [OK] 词缀效果汇总: %d 条" % combat_effects.size())
 
+
 func _test_combat_system():
 	print("\n[TEST] 战斗系统验收...")
 	if not has_node("/root/CombatSystem"):
@@ -96,12 +110,19 @@ func _test_combat_system():
 		_errors.append("伤害计算返回格式错误")
 		return
 	print("  [OK] 伤害计算: %.1f (暴击=%s)" % [result.damage, result.is_crit])
-	var methods = ["trigger_lifesteal", "trigger_ignite", "trigger_freeze", "trigger_affix_summon", "trigger_affix_chain"]
+	var methods = [
+		"trigger_lifesteal",
+		"trigger_ignite",
+		"trigger_freeze",
+		"trigger_affix_summon",
+		"trigger_affix_chain"
+	]
 	for m in methods:
 		if not cs.has_method(m):
 			_errors.append("CombatSystem 缺失方法: " + m)
 		else:
 			print("  [OK] 方法: %s" % m)
+
 
 func _print_report():
 	print("\n============================================================")

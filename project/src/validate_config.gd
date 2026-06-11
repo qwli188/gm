@@ -5,7 +5,8 @@ extends SceneTree
 var errors: Array = []
 var warnings: Array = []
 var schema: Dictionary = {}
-var ConfigLoader: Node = null
+var ConfigLoader: Node = null  # gdlint:ignore=class-variable-name
+
 
 func _initialize() -> void:
 	await process_frame
@@ -34,6 +35,7 @@ func _initialize() -> void:
 	_print_results()
 
 	quit(1 if errors.size() > 0 else 0)
+
 
 ## 1. 检查所有配置是否符合 schema 定义的必填字段
 func _validate_schema_compliance():
@@ -77,15 +79,27 @@ func _validate_schema_compliance():
 	for set_item in sets:
 		_check_required_fields(set_item, required_all + required_sets, "set")
 
-	print("  装备: %d 条, 词缀: %d 条, 技能: %d 条, 敌人: %d 条, 副本: %d 条, 套装: %d 条" % [
-		equipment.size(), affixes.size(), skills.size(), enemies.size(), dungeons.size(), sets.size()
-	])
+	print(
+		(
+			"  装备: %d 条, 词缀: %d 条, 技能: %d 条, 敌人: %d 条, 副本: %d 条, 套装: %d 条"
+			% [
+				equipment.size(),
+				affixes.size(),
+				skills.size(),
+				enemies.size(),
+				dungeons.size(),
+				sets.size()
+			]
+		)
+	)
+
 
 func _check_required_fields(item: Dictionary, required_fields: Array, type: String):
 	var item_id = item.get("id", "未知")
 	for field in required_fields:
 		if not item.has(field):
 			errors.append("%s[%s] 缺少必填字段: %s" % [type, item_id, field])
+
 
 ## 2. 检查重复 ID
 func _validate_duplicate_ids():
@@ -109,6 +123,7 @@ func _validate_duplicate_ids():
 		if locations.size() > 1:
 			errors.append("重复 ID: %s 出现在 %s" % [id, ", ".join(locations)])
 
+
 func _collect_ids(items: Array, source: String, id_map: Dictionary):
 	for item in items:
 		var id = item.get("id", "")
@@ -116,6 +131,7 @@ func _collect_ids(items: Array, source: String, id_map: Dictionary):
 			if not id_map.has(id):
 				id_map[id] = []
 			id_map[id].append(source)
+
 
 ## 3. 检查跨配置表的引用完整性
 func _validate_cross_references():
@@ -166,6 +182,7 @@ func _validate_cross_references():
 			if not skill_ids.has(skill_id):
 				errors.append("class[%s] 引用不存在的技能: %s" % [cls.get("id", "?"), skill_id])
 
+
 func _build_id_set(items: Array) -> Dictionary:
 	var result = {}
 	for item in items:
@@ -173,6 +190,7 @@ func _build_id_set(items: Array) -> Dictionary:
 		if id != "":
 			result[id] = true
 	return result
+
 
 ## 4. 检查数值合理性
 func _validate_value_ranges():
@@ -190,10 +208,14 @@ func _validate_value_ranges():
 			var val = stats.attack_speed
 			if slot == "weapon":
 				if val < 0.5 or val > 3.0:
-					warnings.append("equipment[%s] attack_speed=%s 武器倍率超出范围 (0.5-3.0)" % [item_id, val])
+					warnings.append(
+						"equipment[%s] attack_speed=%s 武器倍率超出范围 (0.5-3.0)" % [item_id, val]
+					)
 			else:
 				if val < -0.3 or val > 0.5:
-					warnings.append("equipment[%s] attack_speed=%s 非武器加成超出范围 (-0.3-0.5)" % [item_id, val])
+					warnings.append(
+						"equipment[%s] attack_speed=%s 非武器加成超出范围 (-0.3-0.5)" % [item_id, val]
+					)
 
 		# crit_chance 应在 0-0.75
 		if stats.has("crit_chance"):
@@ -237,11 +259,14 @@ func _validate_value_ranges():
 		if stats.has("max_hp") and stats.max_hp <= 0:
 			errors.append("enemy[%s] max_hp=%s 必须大于 0" % [enemy_id, stats.max_hp])
 
+
 ## 5. 检查稀有度阶梯合理性
 func _validate_rarity_progression():
 	print("[检查] 稀有度阶梯...")
 
-	var rarity_order = schema.get("rarity_levels", {}).get("order", ["common", "rare", "epic", "legendary", "mythic"])
+	var rarity_order = schema.get("rarity_levels", {}).get(
+		"order", ["common", "rare", "epic", "legendary", "mythic"]
+	)
 
 	# 按 slot + drop_level 分组
 	var groups = {}
@@ -286,9 +311,13 @@ func _validate_rarity_progression():
 
 				# 允许 30% 偏差
 				if higher_power < lower_power * 0.7:
-					warnings.append("稀有度阶梯异常: %s 的 %s (%.1f) 明显弱于 %s (%.1f)" % [
-						group_key, higher_rarity, higher_power, lower_rarity, lower_power
-					])
+					warnings.append(
+						(
+							"稀有度阶梯异常: %s 的 %s (%.1f) 明显弱于 %s (%.1f)"
+							% [group_key, higher_rarity, higher_power, lower_rarity, lower_power]
+						)
+					)
+
 
 ## 综合战斗力评估（统一公式，覆盖所有部位）
 ## 把进攻、生存、增益都折算成一个可比数值，避免只看 damage+hp 误判防具/手套
@@ -321,6 +350,7 @@ func _equipment_power(item: Dictionary) -> float:
 
 	return power
 
+
 ## 6. Schema 白名单校验（PR-5 添加）
 ##    所有 rarity/slot/class 必须在 Schema 常量中；禁止旧的 uncommon、enhance_level 等
 func _validate_schema_whitelist():
@@ -344,16 +374,21 @@ func _validate_schema_whitelist():
 	for sk in ConfigLoader.get_all_skills():
 		var cls = sk.get("class", "all")
 		if cls != "all" and not Schema.is_valid_class(cls):
-			errors.append("[skill %s] class 非法: '%s' (合法: %s 或 'all')" % [
-				sk.get("id", "?"), cls, Schema.CLASS_IDS])
+			errors.append(
+				(
+					"[skill %s] class 非法: '%s' (合法: %s 或 'all')"
+					% [sk.get("id", "?"), cls, Schema.CLASS_IDS]
+				)
+			)
 
 	# 副本 unlock.clear_<id> 引用必须存在
 	for d in ConfigLoader.get_all_dungeons():
 		var unlock = d.get("unlock", {})
 		var prereq = unlock.get("clear_dungeon", "")
 		if prereq != "" and ConfigLoader.get_dungeon_by_id(prereq).is_empty():
-			errors.append("[dungeon %s] unlock.clear_dungeon 引用不存在的副本: '%s'" % [
-				d.get("id", "?"), prereq])
+			errors.append(
+				"[dungeon %s] unlock.clear_dungeon 引用不存在的副本: '%s'" % [d.get("id", "?"), prereq]
+			)
 
 	# balance.json class_mechanics 键名必须是去前缀的 6 个职业短名
 	var mechanics = ConfigLoader.balance_data.get("class_mechanics", {})
@@ -361,7 +396,9 @@ func _validate_schema_whitelist():
 		var allowed_short = Schema.CLASS_SHORT.values()
 		for key in mechanics:
 			if not (key in allowed_short) and key != "description" and key != "design_note":
-				warnings.append("[balance.class_mechanics] 未知键: '%s' (合法: %s)" % [key, allowed_short])
+				warnings.append(
+					"[balance.class_mechanics] 未知键: '%s' (合法: %s)" % [key, allowed_short]
+				)
 
 	# 禁止 JSON 中出现旧字段名 enhance_level / 旧稀有度 uncommon
 	var raw_balance = ConfigLoader.balance_data
@@ -369,8 +406,13 @@ func _validate_schema_whitelist():
 		errors.append("[balance.json] 含旧稀有度名 'uncommon'，已废弃合并入 'rare'")
 	for item in ConfigLoader.equipment_data.get("items", []):
 		if item.has("enhance_level"):
-			errors.append("[%s] 字段名错误: 'enhance_level' 应为 '%s'" % [
-				item.get("id", "?"), Schema.K_ENHANCEMENT_LEVEL])
+			errors.append(
+				(
+					"[%s] 字段名错误: 'enhance_level' 应为 '%s'"
+					% [item.get("id", "?"), Schema.K_ENHANCEMENT_LEVEL]
+				)
+			)
+
 
 ## 递归查找字典里是否含某个键名（用于检测旧字段残留）
 func _has_forbidden_token(d, token: String) -> bool:
@@ -385,6 +427,7 @@ func _has_forbidden_token(d, token: String) -> bool:
 			if _has_forbidden_token(v, token):
 				return true
 	return false
+
 
 ## 加载 schema
 func _load_schema() -> Dictionary:
@@ -401,6 +444,7 @@ func _load_schema() -> Dictionary:
 	if error != OK:
 		return {}
 	return json.data
+
 
 ## 输出结果
 func _print_results():

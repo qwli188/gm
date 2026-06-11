@@ -7,6 +7,7 @@ var _failed_names: Array = []
 
 const TEST_SLOT = 3
 
+
 func _check(name: String, cond: bool, msg: String = "") -> void:
 	if cond:
 		_passed += 1
@@ -15,9 +16,11 @@ func _check(name: String, cond: bool, msg: String = "") -> void:
 		_failed_names.append("roster: " + name)
 		print("[FAIL] " + name + (": " + msg if msg != "" else ""))
 
+
 func _reset_roster():
 	RosterSystem.characters.clear()
 	RosterSystem.active_char_id = ""
+
 
 func test_create_character():
 	_reset_roster()
@@ -30,8 +33,8 @@ func test_create_character():
 	_check("create: class set", c.get("class_id", "") == "class_warrior", "")
 	_check("create: level 1", c.get("level", 0) == 1, "")
 	# 起手武器应进 equipped
-	_check("create: has starting weapon", not c.get("equipped", {}).is_empty(),
-		"equipped empty")
+	_check("create: has starting weapon", not c.get("equipped", {}).is_empty(), "equipped empty")
+
 
 func test_switch_character():
 	_reset_roster()
@@ -47,16 +50,21 @@ func test_switch_character():
 	RosterSystem.switch_character(id1)
 	_check("switch: active is id1", RosterSystem.active_char_id == id1, "")
 	# 战士的技能应该是空的（独立）
-	_check("switch: warrior skills isolated",
-		SkillSystem.learned_skills.is_empty(), "got " + str(SkillSystem.learned_skills))
+	_check(
+		"switch: warrior skills isolated",
+		SkillSystem.learned_skills.is_empty(),
+		"got " + str(SkillSystem.learned_skills)
+	)
 
 	# 切回法师，技能应恢复
 	RosterSystem.switch_character(id2)
-	_check("switch: mage skills restored",
+	_check(
+		"switch: mage skills restored",
 		SkillSystem.learned_skills.get("skill_fireball_active", 0) == 2,
-		"got " + str(SkillSystem.learned_skills))
-	_check("switch: mage class applied",
-		GameState.selected_class_id == "class_mage", "")
+		"got " + str(SkillSystem.learned_skills)
+	)
+	_check("switch: mage class applied", GameState.selected_class_id == "class_mage", "")
+
 
 func test_delete_character():
 	_reset_roster()
@@ -71,14 +79,19 @@ func test_delete_character():
 	_check("delete: blocks last", not blocked, "")
 	_check("delete: still 1", RosterSystem.character_count() == 1, "")
 
+
 func test_delete_active_switches():
 	_reset_roster()
 	var id1 = RosterSystem.create_character("class_warrior")
 	var id2 = RosterSystem.create_character("class_mage")
 	# 当前操控 id2，删它应自动切到 id1
 	RosterSystem.delete_character(id2)
-	_check("delete active: switched to remaining",
-		RosterSystem.active_char_id == id1, "got " + RosterSystem.active_char_id)
+	_check(
+		"delete active: switched to remaining",
+		RosterSystem.active_char_id == id1,
+		"got " + RosterSystem.active_char_id
+	)
+
 
 func test_max_characters():
 	_reset_roster()
@@ -87,6 +100,7 @@ func test_max_characters():
 	_check("max: at cap", RosterSystem.character_count() == RosterSystem.MAX_CHARACTERS, "")
 	var overflow = RosterSystem.create_character("class_warrior")
 	_check("max: rejects overflow", overflow == "", "")
+
 
 func test_legacy_migration():
 	_reset_roster()
@@ -108,6 +122,7 @@ func test_legacy_migration():
 	_check("migrate: skills", c.get("learned_skills", {}).get("skill_multishot_active", 0) == 3, "")
 	_check("migrate: attr points", c.get("attribute_points", 0) == 2, "")
 
+
 func test_save_load_roster():
 	_reset_roster()
 	var id1 = RosterSystem.create_character("class_warrior", "存档战士")
@@ -121,9 +136,16 @@ func test_save_load_roster():
 	SkillSystem.learned_skills = {}
 
 	SaveSystem.load_game(TEST_SLOT)
-	_check("save/load: count 2", RosterSystem.character_count() == 2, "got " + str(RosterSystem.character_count()))
-	_check("save/load: active is warrior",
-		RosterSystem.get_active_character().get("class_id", "") == "class_warrior", "")
+	_check(
+		"save/load: count 2",
+		RosterSystem.character_count() == 2,
+		"got " + str(RosterSystem.character_count())
+	)
+	_check(
+		"save/load: active is warrior",
+		RosterSystem.get_active_character().get("class_id", "") == "class_warrior",
+		""
+	)
 	# 两个角色都在
 	var classes = []
 	for c in RosterSystem.characters:
@@ -132,6 +154,7 @@ func test_save_load_roster():
 
 	SaveSystem.delete_save(TEST_SLOT)
 	_reset_roster()
+
 
 func run_tests() -> Dictionary:
 	print("\n=== RosterSystem Tests ===")

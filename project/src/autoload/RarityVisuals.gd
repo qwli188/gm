@@ -6,22 +6,27 @@ extends Node
 ## 稀有度排序（委托 Schema.RARITIES，保留常量名兼容调用方）
 const RARITY_ORDER = Schema.RARITIES
 
+
 ## 获取稀有度中文名（委托 Schema）
 func _rarity_name(rarity: String) -> String:
 	return Schema.rarity_display(rarity)
+
 
 ## ============ 颜色系统（全部委托 Schema）============
 ## 获取稀有度颜色
 func get_rarity_color(rarity: String) -> Color:
 	return Schema.rarity_color(rarity)
 
+
 ## 获取稀有度暗色（背景用）
 func get_rarity_dark_color(rarity: String) -> Color:
 	return Schema.rarity_dark_color(rarity)
 
+
 ## 获取稀有度发光色（特效用）
 func get_rarity_glow_color(rarity: String) -> Color:
 	return Schema.rarity_glow_color(rarity)
+
 
 ## ============ 边框样式 ============
 ## 获取稀有度边框样式（返回 StyleBoxFlat）
@@ -57,13 +62,16 @@ func get_rarity_border_style(rarity: String, bg_alpha: float = 0.9) -> StyleBoxF
 
 	return style
 
+
 ## 获取边框宽度（委托 Schema）
 func _get_border_width(rarity: String) -> int:
 	return Schema.rarity_border_width(rarity)
 
+
 ## 获取圆角半径（委托 Schema）
 func _get_corner_radius(rarity: String) -> int:
 	return Schema.rarity_corner_radius(rarity)
+
 
 ## ============ 背景渐变 ============
 ## 获取稀有度背景渐变（用于 tooltip/面板）
@@ -73,14 +81,16 @@ func get_rarity_bg_gradient(rarity: String) -> Gradient:
 	var darker_color = dark_color.darkened(0.3)
 
 	gradient.set_color(0, darker_color)  # 顶部更暗
-	gradient.set_color(1, dark_color)     # 底部稍亮
+	gradient.set_color(1, dark_color)  # 底部稍亮
 
 	return gradient
+
 
 ## ============ 文本标签 ============
 ## 获取稀有度中文名（委托 Schema）
 func get_rarity_label(rarity: String) -> String:
 	return Schema.rarity_display(rarity)
+
 
 ## 获取稀有度带颜色的富文本标签（用于 RichTextLabel）
 func get_rarity_rich_text(rarity: String) -> String:
@@ -88,16 +98,24 @@ func get_rarity_rich_text(rarity: String) -> String:
 	var label = get_rarity_label(rarity)
 	return "[color=#%s]%s[/color]" % [color.to_html(false), label]
 
+
 ## ============ 特效等级 ============
 ## 获取稀有度特效等级（0=无 1=描边 2=粒子 3=光环 4=全屏）
 func get_rarity_vfx_level(rarity: String) -> int:
 	match rarity:
-		"common": return 0
-		"rare": return 1
-		"epic": return 2
-		"legendary": return 3
-		"mythic": return 4
-		_: return 0
+		"common":
+			return 0
+		"rare":
+			return 1
+		"epic":
+			return 2
+		"legendary":
+			return 3
+		"mythic":
+			return 4
+		_:
+			return 0
+
 
 ## ============ UI元素生成器 ============
 ## 创建稀有度标签（Label节点）
@@ -107,11 +125,13 @@ func create_rarity_label(rarity: String) -> Label:
 	label.add_theme_color_override("font_color", get_rarity_color(rarity))
 	return label
 
+
 ## 创建带边框的稀有度面板（PanelContainer）
 func create_rarity_panel(rarity: String) -> PanelContainer:
 	var panel = PanelContainer.new()
 	panel.add_theme_stylebox_override("panel", get_rarity_border_style(rarity))
 	return panel
+
 
 ## ============ 装备Tooltip美化 ============
 ## 生成装备tooltip（完整版，带稀有度视觉）
@@ -187,6 +207,7 @@ func generate_equipment_tooltip(item_data: Dictionary) -> String:
 
 	return "\n".join(lines)
 
+
 ## 格式化属性行
 func _format_stat_line(stat_key: String, value: float) -> String:
 	match stat_key:
@@ -203,14 +224,14 @@ func _format_stat_line(stat_key: String, value: float) -> String:
 		"attack_speed":
 			if value > 1.0:
 				return "%.2fx 攻击速度" % value
-			else:
-				return "+%.1f%% 攻击速度" % (value * 100)
+			return "+%.1f%% 攻击速度" % (value * 100)
 		"move_speed":
 			return "+%.1f%% 移动速度" % (value * 100)
 		"hp_regen":
 			return "+%.1f 生命回复/秒" % value
 		_:
 			return "%s: %.2f" % [stat_key, value]
+
 
 ## 格式化词缀行
 func _format_affix_line(affix: Dictionary) -> String:
@@ -225,15 +246,22 @@ func _format_affix_line(affix: Dictionary) -> String:
 			var dmg_type = effect.get("damage_type", "physical")
 			return "%s (+%.0f %s伤害)" % [display_name, effect.get("value", 0), dmg_type]
 		"ignite":
-			return "%s (%.0f DPS, %.1fs)" % [display_name, effect.get("dps", 0), effect.get("duration", 0)]
+			return (
+				"%s (%.0f DPS, %.1fs)"
+				% [display_name, effect.get("dps", 0), effect.get("duration", 0)]
+			)
 		"freeze":
-			return "%s (%.1f%% 几率, %.1fs)" % [display_name, effect.get("chance", 0) * 100, effect.get("duration", 0)]
+			return (
+				"%s (%.1f%% 几率, %.1fs)"
+				% [display_name, effect.get("chance", 0) * 100, effect.get("duration", 0)]
+			)
 		"add_stat":
 			var stat = effect.get("stat", "")
 			var value = effect.get("value", 0)
 			return "%s (%s)" % [display_name, _format_stat_line(stat, value)]
 		_:
 			return display_name
+
 
 ## 格式化套装加成
 func _format_set_bonus(bonus: Dictionary) -> String:
@@ -246,15 +274,25 @@ func _format_set_bonus(bonus: Dictionary) -> String:
 		parts.append(str(effect_key) + ": " + str(effects[effect_key]))
 	return ", ".join(parts) if not parts.is_empty() else "未知加成"
 
+
 ## 部位中文名映射
 func _get_slot_display_name(slot: String) -> String:
 	match slot:
-		"weapon": return "武器"
-		"helmet": return "头盔"
-		"chest": return "胸甲"
-		"legs": return "腿甲"
-		"boots": return "靴子"
-		"gloves": return "手套"
-		"ring": return "戒指"
-		"amulet": return "项链"
-		_: return slot
+		"weapon":
+			return "武器"
+		"helmet":
+			return "头盔"
+		"chest":
+			return "胸甲"
+		"legs":
+			return "腿甲"
+		"boots":
+			return "靴子"
+		"gloves":
+			return "手套"
+		"ring":
+			return "戒指"
+		"amulet":
+			return "项链"
+		_:
+			return slot

@@ -17,6 +17,7 @@ const REGION_THEMES = {
 	"field": {"obstacle": Color(0.4, 0.35, 0.25), "accent": Color(0.6, 0.5, 0.3)}
 }
 
+
 ## 生成地形（DungeonFlow.start_dungeon时调用）
 func generate_terrain(region: String, parent: Node2D):
 	var theme = REGION_THEMES.get(region, REGION_THEMES["crypt"])
@@ -37,18 +38,21 @@ func generate_terrain(region: String, parent: Node2D):
 		_:
 			_generate_crypt(parent, theme)
 
-	print("[DungeonTerrain] 生成%s地形: %d障碍物, %d互动元素" % [region, obstacles.size(), interactables.size()])
+	print(
+		"[DungeonTerrain] 生成%s地形: %d障碍物, %d互动元素" % [region, obstacles.size(), interactables.size()]
+	)
+
 
 # ────────────────────────────────────────────────────────────
 # 各区域地形生成
 # ────────────────────────────────────────────────────────────
 
+
 ## 王陵：4石柱 + 中央祭坛 + 骨堆
 func _generate_crypt(parent: Node2D, theme: Dictionary):
 	# 4个石柱（矩形布局）
 	var pillar_positions = [
-		Vector2(-200, -150), Vector2(200, -150),
-		Vector2(-200, 150), Vector2(200, 150)
+		Vector2(-200, -150), Vector2(200, -150), Vector2(-200, 150), Vector2(200, 150)
 	]
 	for pos in pillar_positions:
 		_create_obstacle(parent, pos, Vector2(48, 48), theme.obstacle, "石柱")
@@ -59,6 +63,7 @@ func _generate_crypt(parent: Node2D, theme: Dictionary):
 	# 2个骨堆（互动）
 	_create_interactable(parent, Vector2(-300, 0), "骨堆", "gold")
 	_create_interactable(parent, Vector2(300, 0), "骨堆", "gold")
+
 
 ## 熔炉：3熔炉 + 矿车轨道
 func _generate_forge(parent: Node2D, theme: Dictionary):
@@ -76,6 +81,7 @@ func _generate_forge(parent: Node2D, theme: Dictionary):
 	_create_interactable(parent, Vector2(-350, 100), "矿石堆", "material")
 	_create_interactable(parent, Vector2(350, 100), "矿石堆", "material")
 
+
 ## 冰封：城墙 + 火盆 + 冰锥陷阱
 func _generate_ice(parent: Node2D, theme: Dictionary):
 	# 崩塌城墙（掩体）
@@ -89,8 +95,9 @@ func _generate_ice(parent: Node2D, theme: Dictionary):
 	_create_interactable(parent, Vector2(-150, 150), "火盆", "buff_warm")
 	_create_interactable(parent, Vector2(150, 150), "火盆", "buff_warm")
 
+
 ## 沼泽：枯树 + 泥潭 + 毒花
-func _generate_swamp(parent: Node2D, theme: Dictionary):
+func _generate_swamp(parent: Node2D, _theme: Dictionary):
 	# 中央枯树（Boss出现点）
 	_create_decoration(parent, Vector2(0, 0), Vector2(72, 100), Color(0.25, 0.2, 0.15), "枯树")
 
@@ -102,12 +109,16 @@ func _generate_swamp(parent: Node2D, theme: Dictionary):
 	_create_interactable(parent, Vector2(-250, -150), "毒花", "clear_poison")
 	_create_interactable(parent, Vector2(250, -150), "毒花", "clear_poison")
 
+
 ## 虚空：浮空平台 + 虚空裂缝
 func _generate_void(parent: Node2D, theme: Dictionary):
 	# 浮空岩石（可躲避）
 	var rock_positions = [
-		Vector2(-180, -120), Vector2(180, -120),
-		Vector2(0, 0), Vector2(-180, 120), Vector2(180, 120)
+		Vector2(-180, -120),
+		Vector2(180, -120),
+		Vector2(0, 0),
+		Vector2(-180, 120),
+		Vector2(180, 120)
 	]
 	for pos in rock_positions:
 		_create_obstacle(parent, pos, Vector2(56, 56), theme.obstacle, "浮空岩")
@@ -118,6 +129,7 @@ func _generate_void(parent: Node2D, theme: Dictionary):
 
 	# 虚空水晶（互动-飞行buff）
 	_create_interactable(parent, Vector2(0, -200), "虚空水晶", "buff_fly")
+
 
 ## 荒野：帐篷 + 篝火 + 补给箱
 func _generate_field(parent: Node2D, theme: Dictionary):
@@ -135,9 +147,11 @@ func _generate_field(parent: Node2D, theme: Dictionary):
 	_create_interactable(parent, Vector2(-300, 100), "补给箱", "heal")
 	_create_interactable(parent, Vector2(300, 100), "战鼓", "buff_haste")
 
+
 # ────────────────────────────────────────────────────────────
 # 通用元素创建
 # ────────────────────────────────────────────────────────────
+
 
 ## 创建障碍物（StaticBody2D，阻挡移动）
 func _create_obstacle(parent: Node2D, pos: Vector2, size: Vector2, color: Color, label: String):
@@ -162,6 +176,7 @@ func _create_obstacle(parent: Node2D, pos: Vector2, size: Vector2, color: Color,
 	parent.add_child(obstacle)
 	obstacles.append(obstacle)
 
+
 ## 创建装饰（纯视觉，无碰撞）
 func _create_decoration(parent: Node2D, pos: Vector2, size: Vector2, color: Color, label: String):
 	var deco = Node2D.new()
@@ -175,6 +190,7 @@ func _create_decoration(parent: Node2D, pos: Vector2, size: Vector2, color: Colo
 	deco.add_child(rect)
 
 	parent.add_child(deco)
+
 
 ## 创建危险区（Area2D，进入受伤/减速）
 func _create_hazard(parent: Node2D, pos: Vector2, size: Vector2, color: Color, label: String):
@@ -196,6 +212,7 @@ func _create_hazard(parent: Node2D, pos: Vector2, size: Vector2, color: Color, l
 	hazard.add_child(collision)
 
 	parent.add_child(hazard)
+
 
 ## 创建互动元素（Area2D，F键交互）
 func _create_interactable(parent: Node2D, pos: Vector2, label: String, action: String):
@@ -230,6 +247,7 @@ func _create_interactable(parent: Node2D, pos: Vector2, label: String, action: S
 	parent.add_child(inter)
 	interactables.append(inter)
 
+
 ## 清理地形
 func clear_terrain():
 	for o in obstacles:
@@ -248,10 +266,12 @@ func clear_terrain():
 
 var _player_ref: Node2D = null
 
+
 func _process(_delta):
 	# F键交互检测
 	if Input.is_action_just_pressed("interact"):
 		_try_interact()
+
 
 func _try_interact():
 	if not _player_ref or not is_instance_valid(_player_ref):
@@ -270,6 +290,7 @@ func _try_interact():
 		if dist <= 50:
 			_execute_interaction(inter)
 			break
+
 
 func _execute_interaction(inter: Area2D):
 	var action = inter.get_meta("action", "")
@@ -328,6 +349,7 @@ func _execute_interaction(inter: Area2D):
 		if child is ColorRect:
 			child.color = Color(0.3, 0.3, 0.3, 0.5)
 
+
 func _show_interact_feedback(inter: Area2D, text: String, color: Color):
 	var label = Label.new()
 	label.text = text
@@ -344,6 +366,7 @@ func _show_interact_feedback(inter: Area2D, text: String, color: Color):
 
 	if has_node("/root/AudioManager"):
 		AudioManager.play("coin")
+
 
 ## 通用玩家buff(限时倍率加成,可叠加多种)
 ## stat_key: "damage_mult" / "attack_speed_mult" / "move_speed_mult"
@@ -377,26 +400,27 @@ func _apply_player_buff(buff_id: String, stat_key: String, value: float, duratio
 	t.one_shot = true
 	t.autostart = true
 	add_child(t)
-	t.timeout.connect(func():
-		if not is_instance_valid(_player_ref):
+	t.timeout.connect(
+		func():
+			if not is_instance_valid(_player_ref):
+				t.queue_free()
+				return
+			var ab = _player_ref.get_meta("active_buffs", {})
+			if not ab.has(buff_id):
+				t.queue_free()
+				return
+			var b = ab[buff_id]
+			# 回退倍率(假设期间属性没被其他系统改写,简化做法)
+			match b["stat"]:
+				"damage_mult":
+					_player_ref.damage /= (1.0 + b["value"])
+				"attack_speed_mult":
+					_player_ref.attack_speed /= (1.0 + b["value"])
+				"move_speed_mult":
+					_player_ref.move_speed /= (1.0 + b["value"])
+			ab.erase(buff_id)
+			_player_ref.set_meta("active_buffs", ab)
 			t.queue_free()
-			return
-		var ab = _player_ref.get_meta("active_buffs", {})
-		if not ab.has(buff_id):
-			t.queue_free()
-			return
-		var b = ab[buff_id]
-		# 回退倍率(假设期间属性没被其他系统改写,简化做法)
-		match b["stat"]:
-			"damage_mult":
-				_player_ref.damage /= (1.0 + b["value"])
-			"attack_speed_mult":
-				_player_ref.attack_speed /= (1.0 + b["value"])
-			"move_speed_mult":
-				_player_ref.move_speed /= (1.0 + b["value"])
-		ab.erase(buff_id)
-		_player_ref.set_meta("active_buffs", ab)
-		t.queue_free()
 	)
 	# 视觉反馈:玩家身上短暂粒子
 	if has_node("/root/ParticleHelper") or ResourceLoader.exists("res://scripts/ParticleHelper.gd"):

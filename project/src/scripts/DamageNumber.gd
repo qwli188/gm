@@ -3,12 +3,16 @@ class_name DamageNumber
 ## 漂浮伤害数字 - 显示后上浮淡出并销毁
 ## 用法: DamageNumber.spawn(parent, pos, amount, is_crit)
 
-static func spawn(parent: Node, pos: Vector2, amount: float, is_crit: bool = false, is_heal: bool = false) -> void:
+
+static func spawn(
+	parent: Node, pos: Vector2, amount: float, is_crit: bool = false, is_heal: bool = false
+) -> void:
 	var node := Node2D.new()
 	node.set_script(load("res://scripts/DamageNumber.gd"))
 	node.global_position = pos
 	parent.add_child(node)
 	node._setup(amount, is_crit, is_heal)
+
 
 var _label: Label
 var _life: float = 0.0
@@ -16,6 +20,7 @@ const DURATION := 1.0
 var _is_crit: bool = false
 var _bounce_tween: Tween
 var _is_heal: bool = false
+
 
 ## 累计伤害更新：FeedbackSystem 0.3s 窗口内的同目标伤害合并
 func update_amount(new_amount: float, is_crit: bool):
@@ -33,7 +38,13 @@ func update_amount(new_amount: float, is_crit: bool):
 		_bounce_tween.kill()
 	_bounce_tween = create_tween()
 	_label.scale = Vector2(1.3, 1.3)
-	_bounce_tween.tween_property(_label, "scale", Vector2(1.0, 1.0), 0.10).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	(
+		_bounce_tween
+		. tween_property(_label, "scale", Vector2(1.0, 1.0), 0.10)
+		. set_trans(Tween.TRANS_BACK)
+		. set_ease(Tween.EASE_OUT)
+	)
+
 
 func _setup(amount: float, is_crit: bool, is_heal: bool) -> void:
 	_is_crit = is_crit
@@ -63,12 +74,18 @@ func _setup(amount: float, is_crit: bool, is_heal: bool) -> void:
 	# 弹跳动画: scale从1.5挤压到1.0,增强打击感
 	_label.scale = Vector2(1.5, 1.5)
 	_bounce_tween = create_tween()
-	_bounce_tween.tween_property(_label, "scale", Vector2(1.0, 1.0), 0.15).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	(
+		_bounce_tween
+		. tween_property(_label, "scale", Vector2(1.0, 1.0), 0.15)
+		. set_trans(Tween.TRANS_BACK)
+		. set_ease(Tween.EASE_OUT)
+	)
 
 	# 暴击额外弹跳一次(连续两段弹跳)
 	if is_crit:
 		_bounce_tween.tween_property(_label, "scale", Vector2(1.1, 1.1), 0.08)
 		_bounce_tween.tween_property(_label, "scale", Vector2(1.0, 1.0), 0.08)
+
 
 func _process(delta: float) -> void:
 	_life += delta

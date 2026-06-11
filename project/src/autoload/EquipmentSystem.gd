@@ -18,14 +18,16 @@ var equipment_instances: Dictionary = {}
 # 当前激活的套装效果缓存 {set_id: piece_count}
 var active_sets: Dictionary = {}
 
-signal equipment_changed()
+signal equipment_changed
 signal set_bonus_changed(set_id: String, pieces: int)
+
 
 func _ready():
 	for slot in SLOTS:
 		equipped_items[slot] = null
 	print("[EquipmentSystem] 装备系统初始化 (8部位)")
 	ConfigLoader.config_reloaded.connect(_on_config_reloaded)
+
 
 ## ============ 装备实例管理 ============
 ## 生成装备实例（roll 随机词缀）
@@ -49,18 +51,26 @@ func roll_equipment(template_id: String, rarity: String = "") -> String:
 		"acquired_at": now_iso,
 	}
 	equipment_instances[uuid] = instance
-	print("[EquipmentSystem] 生成实例: %s (%s, id=%s)" % [template.get("display_name", "?"), rarity, uuid])
+	print(
+		"[EquipmentSystem] 生成实例: %s (%s, id=%s)" % [template.get("display_name", "?"), rarity, uuid]
+	)
 	return uuid
+
 
 ## roll 随机词缀（根据稀有度决定词缀数量）
 func _roll_affixes(rarity: String) -> Array:
 	var affix_count = 0
 	match rarity:
-		"common": affix_count = 0
-		"rare": affix_count = 1
-		"epic": affix_count = 2
-		"legendary": affix_count = 3
-		"mythic": affix_count = 4
+		"common":
+			affix_count = 0
+		"rare":
+			affix_count = 1
+		"epic":
+			affix_count = 2
+		"legendary":
+			affix_count = 3
+		"mythic":
+			affix_count = 4
 	var affixes = []
 	# 简化：从配置表随机抽取词缀（实际可按 slot/tier 过滤）
 	var all_affixes = ConfigLoader.get_all_affixes()
@@ -68,11 +78,17 @@ func _roll_affixes(rarity: String) -> Array:
 		return affixes
 	for i in affix_count:
 		var affix = all_affixes[randi() % all_affixes.size()]
-		affixes.append({
-			"affix_id": affix.get("id", ""),
-			"roll_value": randf_range(0.8, 1.0),  # roll 倍率 0.8~1.0
-		})
+		(
+			affixes
+			. append(
+				{
+					"affix_id": affix.get("id", ""),
+					"roll_value": randf_range(0.8, 1.0),  # roll 倍率 0.8~1.0
+				}
+			)
+		)
 	return affixes
+
 
 ## 生成简单 UUID（不依赖外部插件）
 func _generate_uuid() -> String:
@@ -81,6 +97,7 @@ func _generate_uuid() -> String:
 	for i in 12:
 		result += chars[randi() % chars.length()]
 	return result
+
 
 ## 根据 instance_id 获取完整装备数据（模板 + 词缀）
 func get_equipment_instance_data(instance_id: String) -> Dictionary:
@@ -106,6 +123,7 @@ func get_equipment_instance_data(instance_id: String) -> Dictionary:
 			item_data["fixed_affixes"].append(affix_id)
 	return item_data
 
+
 ## 装备一件物品（通过 instance_id）
 func equip_item_by_id(instance_id: String) -> bool:
 	var item_data = get_equipment_instance_data(instance_id)
@@ -116,7 +134,12 @@ func equip_item_by_id(instance_id: String) -> bool:
 		push_warning("[EquipmentSystem] 未知部位: %s" % slot)
 		return false
 	equipped_items[slot] = instance_id
-	print("[EquipmentSystem] 装备: %s [%s] (id=%s)" % [item_data.get("display_name", "?"), slot, instance_id])
+	print(
+		(
+			"[EquipmentSystem] 装备: %s [%s] (id=%s)"
+			% [item_data.get("display_name", "?"), slot, instance_id]
+		)
+	)
 	_recompute_sets()
 	equipment_changed.emit()
 	_notify_player()
@@ -134,6 +157,7 @@ func equip_item(item_data: Dictionary) -> bool:
 		return false
 	var instance_id = roll_equipment(template_id, item_data.get("rarity", ""))
 	return equip_item_by_id(instance_id)
+
 
 ## 从背包穿戴（PR-3 添加）：
 ## - 背包移除该实例
@@ -171,6 +195,7 @@ func equip_from_backpack(instance_id: String) -> bool:
 	print("[EquipmentSystem] 从背包穿戴: %s [%s]" % [item.get("display_name", "?"), slot])
 	return true
 
+
 ## 卸下部位
 func unequip_item(slot: String):
 	if not equipped_items.has(slot):
@@ -190,6 +215,7 @@ func unequip_item(slot: String):
 	equipment_changed.emit()
 	_notify_player()
 
+
 ## 通知玩家重算属性
 func _notify_player():
 	var tree = Engine.get_main_loop()
@@ -197,6 +223,7 @@ func _notify_player():
 		var player = tree.get_first_node_in_group("player")
 		if player and player.has_method("recalculate_stats"):
 			player.recalculate_stats()
+
 
 ## ============ 套装检测 ============
 ## 重算当前激活的套装件数
@@ -218,9 +245,11 @@ func _recompute_sets():
 			set_bonus_changed.emit(sid, counts[sid])
 	active_sets = counts
 
+
 ## 获取某套装当前件数
 func get_set_pieces(set_id: String) -> int:
 	return active_sets.get(set_id, 0)
+
 
 ## 获取所有激活的套装加成（供属性汇总）
 func get_set_bonuses() -> Dictionary:
@@ -237,6 +266,7 @@ func get_set_bonuses() -> Dictionary:
 				_merge_set_tier(bonuses, tier)
 	return bonuses
 
+
 ## 合并单个套装阶梯加成
 func _merge_set_tier(bonuses: Dictionary, tier: Dictionary):
 	var stats = tier.get("stats", {})
@@ -247,15 +277,21 @@ func _merge_set_tier(bonuses: Dictionary, tier: Dictionary):
 	for k in effects:
 		bonuses["effect_" + k] = effects[k]
 
+
 ## ============ 属性汇总 ============
 ## 汇总所有装备的基础属性 + 套装加成（供 Player.recalculate_stats 调用）
 ## equipped_map 默认用当前操控角色的 equipped_items；传入其他角色的
 ## {slot: instance_id} 可计算任意角色的面板（P2 AI 队友用，不切换全局状态）。
 func get_total_stats(equipped_map: Dictionary = equipped_items) -> Dictionary:
 	var total = {
-		"damage": 0.0, "max_hp": 0.0, "armor": 0.0,
-		"crit_chance": 0.0, "crit_damage": 0.0,
-		"attack_speed_mult": 1.0, "move_speed_mult": 1.0, "hp_regen": 0.0
+		"damage": 0.0,
+		"max_hp": 0.0,
+		"armor": 0.0,
+		"crit_chance": 0.0,
+		"crit_damage": 0.0,
+		"attack_speed_mult": 1.0,
+		"move_speed_mult": 1.0,
+		"hp_regen": 0.0
 	}
 
 	for slot in equipped_map:
@@ -314,6 +350,7 @@ func get_total_stats(equipped_map: Dictionary = equipped_items) -> Dictionary:
 
 	return total
 
+
 ## 应用装备上词缀的属性加成
 func _apply_item_affix_stats(item: Dictionary, total: Dictionary):
 	for affix_id in item.get("fixed_affixes", []):
@@ -323,6 +360,7 @@ func _apply_item_affix_stats(item: Dictionary, total: Dictionary):
 			var stat = eff.get("stat", "")
 			if total.has(stat):
 				total[stat] += eff.get("value", 0)
+
 
 ## 汇总所有装备的词缀效果（吸血、点燃、附加伤害等，传给战斗系统）
 func get_combat_effects() -> Dictionary:
@@ -346,6 +384,7 @@ func get_combat_effects() -> Dictionary:
 			effects[k.trim_prefix("effect_")] = set_bonus[k]
 	return effects
 
+
 ## 把单个词缀的效果合并进 effects
 func _merge_affix_effect(effects: Dictionary, affix: Dictionary):
 	var eff = affix.get("effect", {})
@@ -358,19 +397,29 @@ func _merge_affix_effect(effects: Dictionary, affix: Dictionary):
 			effects["damage_type"] = eff.get("damage_type", "physical")
 		"ignite":
 			effects["ignite_dps"] = effects.get("ignite_dps", 0.0) + eff.get("dps", 0)
-			effects["ignite_duration"] = max(effects.get("ignite_duration", 0.0), eff.get("duration", 0))
+			effects["ignite_duration"] = max(
+				effects.get("ignite_duration", 0.0), eff.get("duration", 0)
+			)
 		"poison":
 			effects["poison_dps"] = effects.get("poison_dps", 0.0) + eff.get("dps", 0)
-			effects["poison_duration"] = max(effects.get("poison_duration", 0.0), eff.get("duration", 0))
+			effects["poison_duration"] = max(
+				effects.get("poison_duration", 0.0), eff.get("duration", 0)
+			)
 		"freeze":
 			effects["freeze_chance"] = effects.get("freeze_chance", 0.0) + eff.get("chance", 0)
-			effects["freeze_duration"] = max(effects.get("freeze_duration", 0.0), eff.get("duration", 0))
+			effects["freeze_duration"] = max(
+				effects.get("freeze_duration", 0.0), eff.get("duration", 0)
+			)
 		"slow":
 			effects["slow_percent"] = effects.get("slow_percent", 0.0) + eff.get("percent", 0)
-			effects["slow_duration"] = max(effects.get("slow_duration", 0.0), eff.get("duration", 0))
+			effects["slow_duration"] = max(
+				effects.get("slow_duration", 0.0), eff.get("duration", 0)
+			)
 		"stun":
 			effects["stun_chance"] = effects.get("stun_chance", 0.0) + eff.get("chance", 0)
-			effects["stun_duration"] = max(effects.get("stun_duration", 0.0), eff.get("duration", 0))
+			effects["stun_duration"] = max(
+				effects.get("stun_duration", 0.0), eff.get("duration", 0)
+			)
 		"mult_stat":
 			var stat = eff.get("stat", "")
 			effects[stat + "_mult"] = effects.get(stat + "_mult", 0.0) + eff.get("value", 0)
@@ -382,38 +431,64 @@ func _merge_affix_effect(effects: Dictionary, affix: Dictionary):
 			match sub.get("kind", ""):
 				"stun":
 					effects["stun_chance"] = min(0.6, effects.get("stun_chance", 0.0) + chance)
-					effects["stun_duration"] = max(effects.get("stun_duration", 0.0), sub.get("duration", 0))
+					effects["stun_duration"] = max(
+						effects.get("stun_duration", 0.0), sub.get("duration", 0)
+					)
 				"freeze":
 					effects["freeze_chance"] = min(0.6, effects.get("freeze_chance", 0.0) + chance)
-					effects["freeze_duration"] = max(effects.get("freeze_duration", 0.0), sub.get("duration", 0))
+					effects["freeze_duration"] = max(
+						effects.get("freeze_duration", 0.0), sub.get("duration", 0)
+					)
 				"slow":
 					effects["slow_chance"] = min(0.8, effects.get("slow_chance", 0.0) + chance)
-					effects["slow_percent"] = max(effects.get("slow_percent", 0.0), sub.get("value", 0))
-					effects["slow_duration"] = max(effects.get("slow_duration", 0.0), sub.get("duration", 0))
+					effects["slow_percent"] = max(
+						effects.get("slow_percent", 0.0), sub.get("value", 0)
+					)
+					effects["slow_duration"] = max(
+						effects.get("slow_duration", 0.0), sub.get("duration", 0)
+					)
 				"ignite":
 					effects["ignite_chance"] = min(0.8, effects.get("ignite_chance", 0.0) + chance)
 					effects["ignite_dps"] = max(effects.get("ignite_dps", 0.0), sub.get("dps", 10))
-					effects["ignite_duration"] = max(effects.get("ignite_duration", 0.0), sub.get("duration", 3))
+					effects["ignite_duration"] = max(
+						effects.get("ignite_duration", 0.0), sub.get("duration", 3)
+					)
 				"poison":
 					effects["poison_chance"] = min(0.8, effects.get("poison_chance", 0.0) + chance)
 					effects["poison_dps"] = max(effects.get("poison_dps", 0.0), sub.get("dps", 8))
-					effects["poison_duration"] = max(effects.get("poison_duration", 0.0), sub.get("duration", 4))
+					effects["poison_duration"] = max(
+						effects.get("poison_duration", 0.0), sub.get("duration", 4)
+					)
 				"summon":
 					# 召唤词缀: 命中时按概率召唤伴生骷髅/活尸,由 CombatSystem 触发
 					effects["summon_chance"] = min(0.5, effects.get("summon_chance", 0.0) + chance)
-					effects["summon_duration"] = max(effects.get("summon_duration", 0.0), sub.get("duration", 8))
-					effects["summon_damage"] = max(effects.get("summon_damage", 0.0), sub.get("damage", 6))
+					effects["summon_duration"] = max(
+						effects.get("summon_duration", 0.0), sub.get("duration", 8)
+					)
+					effects["summon_damage"] = max(
+						effects.get("summon_damage", 0.0), sub.get("damage", 6)
+					)
 				"chain":
 					# 连锁词缀: 命中时按概率链向附近敌人
 					effects["chain_chance"] = min(0.5, effects.get("chain_chance", 0.0) + chance)
-					effects["chain_targets"] = max(effects.get("chain_targets", 0), sub.get("targets", 2))
-					effects["chain_damage_mult"] = max(effects.get("chain_damage_mult", 0.0), sub.get("damage_mult", 0.5))
+					effects["chain_targets"] = max(
+						effects.get("chain_targets", 0), sub.get("targets", 2)
+					)
+					effects["chain_damage_mult"] = max(
+						effects.get("chain_damage_mult", 0.0), sub.get("damage_mult", 0.5)
+					)
 		_:
 			pass
 
+
 ## ============ 掉落系统（含稀有度特效） ============
 ## 在地图随机掉落装备（Enemy 死亡调用）
-func drop_random_equipment(position: Vector2, quality_bonus: float = 0.0, set_bias: String = "", slot_weights: Dictionary = {}):
+func drop_random_equipment(
+	position: Vector2,
+	quality_bonus: float = 0.0,
+	set_bias: String = "",
+	slot_weights: Dictionary = {}
+):
 	var all_equipment = ConfigLoader.get_all_equipment()
 	if all_equipment.is_empty():
 		return
@@ -425,11 +500,19 @@ func drop_random_equipment(position: Vector2, quality_bonus: float = 0.0, set_bi
 	if instance_id == "":
 		return
 	var item_data = get_equipment_instance_data(instance_id)
-	print("[EquipmentSystem] 掉落: %s (%s)" % [item_data.get("display_name", "?"), item_data.get("rarity", "?")])
+	print(
+		(
+			"[EquipmentSystem] 掉落: %s (%s)"
+			% [item_data.get("display_name", "?"), item_data.get("rarity", "?")]
+		)
+	)
 	_spawn_drop_item(item_data, position)
 
+
 ## 按稀有度权重随机抽一件装备
-func _roll_equipment(pool: Array, quality_bonus: float, set_bias: String = "", slot_weights: Dictionary = {}) -> Dictionary:
+func _roll_equipment(
+	pool: Array, quality_bonus: float, set_bias: String = "", slot_weights: Dictionary = {}
+) -> Dictionary:
 	# 从 balance.json 读权重，失败用默认
 	var weights = {"common": 50, "rare": 28, "epic": 14, "legendary": 6, "mythic": 2}
 	var cfg_weights = ConfigLoader.balance_data.get("drop_rates", {}).get("rarity_weights", {})
@@ -443,7 +526,8 @@ func _roll_equipment(pool: Array, quality_bonus: float, set_bias: String = "", s
 	# roll 稀有度
 	var order = ["common", "rare", "epic", "legendary", "mythic"]
 	var total_w = 0
-	for r in order: total_w += int(weights.get(r, 0))
+	for r in order:
+		total_w += int(weights.get(r, 0))
 	var roll = randi() % int(max(total_w, 1))
 	var chosen_rarity = "common"
 	var acc = 0
@@ -498,6 +582,7 @@ func _roll_equipment(pool: Array, quality_bonus: float, set_bias: String = "", s
 
 	return candidates[randi() % candidates.size()]
 
+
 ## 实例化掉落物到场景（附带稀有度特效）
 func _spawn_drop_item(item_data: Dictionary, position: Vector2):
 	# P9: 通知任务系统稀有度掉落（无视过滤，统计真实掉落事件）
@@ -511,7 +596,12 @@ func _spawn_drop_item(item_data: Dictionary, position: Vector2):
 			var inst_id = item_data.get("instance_id", "")
 			if inst_id != "":
 				equipment_instances.erase(inst_id)
-			print("[EquipmentSystem] 掉落被过滤: %s (%s 低于阈值)" % [item_data.get("display_name", "?"), rarity])
+			print(
+				(
+					"[EquipmentSystem] 掉落被过滤: %s (%s 低于阈值)"
+					% [item_data.get("display_name", "?"), rarity]
+				)
+			)
 			return
 	var tree = Engine.get_main_loop()
 	if not tree:
@@ -529,20 +619,29 @@ func _spawn_drop_item(item_data: Dictionary, position: Vector2):
 	if current_scene:
 		current_scene.add_child(drop)
 
+
 ## 获取稀有度对应的颜色（供UI和特效使用）
 ## A1 收口：委托 Schema 单一真源，不再本地硬编码
 func get_rarity_color(rarity: String) -> Color:
 	return Schema.rarity_color(rarity)
 
+
 ## 获取稀有度特效等级（0=无 1=描边 2=粒子 3=光环 4=全屏）
 func get_rarity_vfx_level(rarity: String) -> int:
 	match rarity:
-		"common": return 0
-		"rare": return 1
-		"epic": return 2
-		"legendary": return 3
-		"mythic": return 4
-		_: return 0
+		"common":
+			return 0
+		"rare":
+			return 1
+		"epic":
+			return 2
+		"legendary":
+			return 3
+		"mythic":
+			return 4
+		_:
+			return 0
+
 
 ## 拾取装备：进入 Inventory 背包；若对应槽位为空则自动穿戴
 ## 注意：背包已拆分到 Inventory autoload，此处只是路由
@@ -568,6 +667,7 @@ func pickup_equipment(item_data: Dictionary):
 				push_warning("[EquipmentSystem] 背包已满，丢弃: %s" % instance_id)
 				equipment_instances.erase(instance_id)
 
+
 func _on_config_reloaded(file_name: String) -> void:
 	if file_name in ["equipment.json", "affixes.json", "sets.json"]:
 		_recompute_sets()
@@ -575,15 +675,18 @@ func _on_config_reloaded(file_name: String) -> void:
 		equipment_changed.emit()
 		print("[EquipmentSystem] 响应配置重载: " + file_name)
 
+
 ## ============ 序列化与反序列化（供 SaveSystem 调用）============
 ## 序列化所有装备实例
 func serialize_instances() -> Dictionary:
 	return equipment_instances.duplicate(true)
 
+
 ## 反序列化装备实例
 func deserialize_instances(data: Dictionary):
 	equipment_instances = data.duplicate(true)
 	print("[EquipmentSystem] 加载装备实例: %d 件" % equipment_instances.size())
+
 
 ## 序列化已穿戴装备（返回 {slot: instance_id}）
 func serialize_equipped() -> Dictionary:
@@ -593,6 +696,7 @@ func serialize_equipped() -> Dictionary:
 		if instance_id != null:
 			result[slot] = instance_id
 	return result
+
 
 ## 反序列化已穿戴装备
 func deserialize_equipped(data: Dictionary):
@@ -606,6 +710,7 @@ func deserialize_equipped(data: Dictionary):
 	equipment_changed.emit()
 	_notify_player()
 	print("[EquipmentSystem] 恢复穿戴: %d 件" % data.size())
+
 
 # serialize_backpack / deserialize_backpack 已迁移到 Inventory.serialize() / deserialize() (PR-3)
 

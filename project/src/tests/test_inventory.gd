@@ -6,6 +6,7 @@ var _passed: int = 0
 var _failed: int = 0
 var _failed_names: Array = []
 
+
 func _check(name: String, cond: bool, msg: String = "") -> void:
 	if cond:
 		_passed += 1
@@ -13,6 +14,7 @@ func _check(name: String, cond: bool, msg: String = "") -> void:
 		_failed += 1
 		_failed_names.append("inventory: " + name)
 		print("[FAIL] " + name + (": " + msg if msg != "" else ""))
+
 
 func _setup_clean():
 	# 清空背包/仓库以保证测试独立
@@ -22,16 +24,23 @@ func _setup_clean():
 	for id in Inventory.backpack + Inventory.warehouse:
 		EquipmentSystem.equipment_instances.erase(id)
 
+
 func _make_test_instance() -> String:
 	# 用真实模板生成一个实例(铁剑是 common 武器,稳定存在)
 	return EquipmentSystem.roll_equipment("weapon_iron_sword", "common")
+
 
 func test_add_to_backpack_basic():
 	_setup_clean()
 	var id = _make_test_instance()
 	_check("add_to_backpack: returns true on empty", Inventory.add_to_backpack(id), "")
-	_check("add_to_backpack: backpack size = 1", Inventory.backpack.size() == 1, str(Inventory.backpack.size()))
+	_check(
+		"add_to_backpack: backpack size = 1",
+		Inventory.backpack.size() == 1,
+		str(Inventory.backpack.size())
+	)
 	_check("add_to_backpack: contains id", id in Inventory.backpack, "")
+
 
 func test_backpack_full_rejects():
 	_setup_clean()
@@ -39,12 +48,19 @@ func test_backpack_full_rejects():
 	for i in Inventory.MAX_BACKPACK_SIZE:
 		var id = _make_test_instance()
 		Inventory.add_to_backpack(id)
-	_check("backpack full: size = MAX", Inventory.backpack.size() == Inventory.MAX_BACKPACK_SIZE, "")
+	_check(
+		"backpack full: size = MAX", Inventory.backpack.size() == Inventory.MAX_BACKPACK_SIZE, ""
+	)
 	_check("backpack full: is_backpack_full true", Inventory.is_backpack_full(), "")
 	# 再加一件应失败
 	var extra = _make_test_instance()
 	_check("backpack full: add returns false", not Inventory.add_to_backpack(extra), "")
-	_check("backpack full: size unchanged", Inventory.backpack.size() == Inventory.MAX_BACKPACK_SIZE, "")
+	_check(
+		"backpack full: size unchanged",
+		Inventory.backpack.size() == Inventory.MAX_BACKPACK_SIZE,
+		""
+	)
+
 
 func test_transfer_to_warehouse():
 	_setup_clean()
@@ -53,6 +69,7 @@ func test_transfer_to_warehouse():
 	_check("transfer: success", Inventory.transfer_to_warehouse(id), "")
 	_check("transfer: not in backpack", not (id in Inventory.backpack), "")
 	_check("transfer: in warehouse", id in Inventory.warehouse, "")
+
 
 func test_transfer_back():
 	_setup_clean()
@@ -63,6 +80,7 @@ func test_transfer_back():
 	_check("transfer_back: in backpack", id in Inventory.backpack, "")
 	_check("transfer_back: not in warehouse", not (id in Inventory.warehouse), "")
 
+
 func test_destroy_basic():
 	_setup_clean()
 	var id = _make_test_instance()
@@ -70,6 +88,7 @@ func test_destroy_basic():
 	_check("destroy: returns true", Inventory.destroy_equipment(id), "")
 	_check("destroy: not in backpack", not (id in Inventory.backpack), "")
 	_check("destroy: instance pool clean", not EquipmentSystem.equipment_instances.has(id), "")
+
 
 func test_destroy_rejects_equipped():
 	_setup_clean()
@@ -82,6 +101,7 @@ func test_destroy_rejects_equipped():
 	_check("destroy_equipped: instance preserved", EquipmentSystem.equipment_instances.has(id), "")
 	# 恢复
 	EquipmentSystem.equipped_items["weapon"] = orig_weapon
+
 
 func test_serialize_roundtrip():
 	_setup_clean()
@@ -104,6 +124,7 @@ func test_serialize_roundtrip():
 	_check("deserialize: backpack restored", Inventory.backpack.size() == 2, "")
 	_check("deserialize: warehouse restored", Inventory.warehouse.size() == 1, "")
 
+
 func test_deserialize_filters_invalid():
 	_setup_clean()
 	var fake_data = {
@@ -111,8 +132,17 @@ func test_deserialize_filters_invalid():
 		"warehouse": ["nonexistent_id_3"],
 	}
 	Inventory.deserialize(fake_data)
-	_check("deserialize: invalid filtered from backpack", Inventory.backpack.size() == 0, str(Inventory.backpack.size()))
-	_check("deserialize: invalid filtered from warehouse", Inventory.warehouse.size() == 0, str(Inventory.warehouse.size()))
+	_check(
+		"deserialize: invalid filtered from backpack",
+		Inventory.backpack.size() == 0,
+		str(Inventory.backpack.size())
+	)
+	_check(
+		"deserialize: invalid filtered from warehouse",
+		Inventory.warehouse.size() == 0,
+		str(Inventory.warehouse.size())
+	)
+
 
 func test_equip_from_backpack():
 	_setup_clean()
@@ -123,15 +153,22 @@ func test_equip_from_backpack():
 
 	_check("equip_from_backpack: returns true", EquipmentSystem.equip_from_backpack(id), "")
 	_check("equip_from_backpack: removed from backpack", not (id in Inventory.backpack), "")
-	_check("equip_from_backpack: now equipped", EquipmentSystem.equipped_items.get("weapon") == id, "")
+	_check(
+		"equip_from_backpack: now equipped", EquipmentSystem.equipped_items.get("weapon") == id, ""
+	)
 	# 若原槽位有装备应回到背包(背包总数不变)
 	if orig_weapon != null:
-		_check("equip_from_backpack: old weapon back to backpack", orig_weapon in Inventory.backpack, "")
+		_check(
+			"equip_from_backpack: old weapon back to backpack",
+			orig_weapon in Inventory.backpack,
+			""
+		)
 
 	# 恢复
 	EquipmentSystem.equipped_items["weapon"] = orig_weapon
 	Inventory.backpack.erase(id)
 	Inventory.backpack.erase(orig_weapon)
+
 
 func run_tests() -> Dictionary:
 	print("\n=== Inventory Tests ===")

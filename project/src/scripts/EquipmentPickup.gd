@@ -14,6 +14,7 @@ var current_item_data: Dictionary = {}
 var current_slot: String = ""
 var icon_rect: TextureRect = null
 
+
 func _ready():
 	hide()
 	equip_button.pressed.connect(_on_equip_pressed)
@@ -29,6 +30,7 @@ func _ready():
 	vbox.add_child(icon_rect)
 	vbox.move_child(icon_rect, 0)
 
+
 func _input(event):
 	if not visible:
 		return
@@ -37,6 +39,7 @@ func _input(event):
 		_on_equip_pressed()
 	elif event.is_action_pressed("discard_item"):
 		_on_discard_pressed()
+
 
 ## 显示装备拾取弹窗
 func show_equipment(item_data: Dictionary, slot: String):
@@ -49,6 +52,7 @@ func show_equipment(item_data: Dictionary, slot: String):
 	# 暂停游戏并显示
 	get_tree().paused = true
 	show()
+
 
 ## 填充装备信息
 func _populate_equipment_info(item_data: Dictionary, slot: String):
@@ -71,7 +75,9 @@ func _populate_equipment_info(item_data: Dictionary, slot: String):
 	var stats_text = "属性:\n"
 	for stat_key in base_stats:
 		var value = base_stats[stat_key]
-		stats_text += "  %s: %s\n" % [_translate_stat(stat_key), _format_stat_value(stat_key, value)]
+		stats_text += (
+			"  %s: %s\n" % [_translate_stat(stat_key), _format_stat_value(stat_key, value)]
+		)
 	stats_label.text = stats_text
 
 	# 显示词缀
@@ -88,6 +94,7 @@ func _populate_equipment_info(item_data: Dictionary, slot: String):
 
 	# 对比当前装备
 	_show_comparison(item_data, slot)
+
 
 ## 显示装备对比
 func _show_comparison(new_item: Dictionary, slot: String):
@@ -114,52 +121,74 @@ func _show_comparison(new_item: Dictionary, slot: String):
 		var diff = new_value - old_value
 
 		if diff > 0:
-			comparison_text += "  %s: +%s [color=green]↑[/color]\n" % [_translate_stat(stat_key), _format_stat_value(stat_key, diff)]
+			comparison_text += (
+				"  %s: +%s [color=green]↑[/color]\n"
+				% [_translate_stat(stat_key), _format_stat_value(stat_key, diff)]
+			)
 		elif diff < 0:
-			comparison_text += "  %s: %s [color=red]↓[/color]\n" % [_translate_stat(stat_key), _format_stat_value(stat_key, diff)]
+			comparison_text += (
+				"  %s: %s [color=red]↓[/color]\n"
+				% [_translate_stat(stat_key), _format_stat_value(stat_key, diff)]
+			)
 		else:
 			comparison_text += "  %s: 相同\n" % _translate_stat(stat_key)
 
 	comparison_label.text = comparison_text
 
+
 ## 翻译稀有度
 func _translate_rarity(rarity: String) -> String:
 	match rarity:
-		"common": return "普通"
-		"rare": return "稀有"
-		"epic": return "史诗"
-		"legendary": return "传奇"
-		"mythic": return "神话"
-		_: return rarity
+		"common":
+			return "普通"
+		"rare":
+			return "稀有"
+		"epic":
+			return "史诗"
+		"legendary":
+			return "传奇"
+		"mythic":
+			return "神话"
+		_:
+			return rarity
+
 
 ## 翻译属性名
 func _translate_stat(stat: String) -> String:
 	match stat:
-		"damage": return "伤害"
-		"attack_speed": return "攻速"
-		"crit_chance": return "暴击率"
-		"armor": return "护甲"
-		"max_hp": return "生命"
-		"move_speed": return "移速"
-		"hp_regen": return "生命回复"
-		_: return stat
+		"damage":
+			return "伤害"
+		"attack_speed":
+			return "攻速"
+		"crit_chance":
+			return "暴击率"
+		"armor":
+			return "护甲"
+		"max_hp":
+			return "生命"
+		"move_speed":
+			return "移速"
+		"hp_regen":
+			return "生命回复"
+		_:
+			return stat
+
 
 ## 格式化属性值
 func _format_stat_value(stat: String, value) -> String:
 	if stat in ["attack_speed", "crit_chance", "move_speed"]:
 		if value > 0:
 			return "+%.1f%%" % (value * 100)
-		else:
-			return "%.1f%%" % (value * 100)
-	else:
-		if value > 0:
-			return "+%d" % value
-		else:
-			return "%d" % value
+		return "%.1f%%" % (value * 100)
+	if value > 0:
+		return "+%d" % value
+	return "%d" % value
+
 
 ## 获取稀有度颜色（统一用 EquipmentSystem）
 func _get_rarity_color(rarity: String) -> Color:
 	return EquipmentSystem.get_rarity_color(rarity)
+
 
 func _on_equip_pressed():
 	equipment_equipped.emit(current_item_data)
@@ -171,6 +200,7 @@ func _on_equip_pressed():
 	# 恢复游戏并隐藏
 	get_tree().paused = false
 	hide()
+
 
 func _on_discard_pressed():
 	equipment_discarded.emit()

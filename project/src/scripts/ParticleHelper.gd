@@ -3,6 +3,7 @@ class_name ParticleHelper
 ## 粒子特效工具类 - 用GPUParticles2D生成各类战斗特效
 ## 所有粒子都是一次性的(one_shot=true),播完自动销毁
 
+
 ## 命中迸溅粒子 - 用于普通攻击命中
 static func spawn_hit_particles(parent: Node, pos: Vector2, color: Color = Color.WHITE) -> void:
 	var particles = GPUParticles2D.new()
@@ -36,13 +37,17 @@ static func spawn_hit_particles(parent: Node, pos: Vector2, color: Color = Color
 	particles.emitting = true
 
 	# 0.5秒后销毁(留足粒子生命周期)
-	particles.get_tree().create_timer(0.5).timeout.connect(func():
-		if is_instance_valid(particles):
-			particles.queue_free()
+	particles.get_tree().create_timer(0.5).timeout.connect(
+		func():
+			if is_instance_valid(particles):
+				particles.queue_free()
 	)
 
+
 ## 敌人死亡爆裂粒子 - 更大更炸裂
-static func spawn_death_burst(parent: Node, pos: Vector2, color: Color = Color(1.0, 0.3, 0.3)) -> void:
+static func spawn_death_burst(
+	parent: Node, pos: Vector2, color: Color = Color(1.0, 0.3, 0.3)
+) -> void:
 	var particles = GPUParticles2D.new()
 	particles.global_position = pos
 	particles.one_shot = true
@@ -75,10 +80,12 @@ static func spawn_death_burst(parent: Node, pos: Vector2, color: Color = Color(1
 	parent.add_child(particles)
 	particles.emitting = true
 
-	particles.get_tree().create_timer(0.8).timeout.connect(func():
-		if is_instance_valid(particles):
-			particles.queue_free()
+	particles.get_tree().create_timer(0.8).timeout.connect(
+		func():
+			if is_instance_valid(particles):
+				particles.queue_free()
 	)
+
 
 ## 暴击特殊粒子 - 金色星爆
 static func spawn_crit_particles(parent: Node, pos: Vector2) -> void:
@@ -115,10 +122,12 @@ static func spawn_crit_particles(parent: Node, pos: Vector2) -> void:
 	parent.add_child(particles)
 	particles.emitting = true
 
-	particles.get_tree().create_timer(0.6).timeout.connect(func():
-		if is_instance_valid(particles):
-			particles.queue_free()
+	particles.get_tree().create_timer(0.6).timeout.connect(
+		func():
+			if is_instance_valid(particles):
+				particles.queue_free()
 	)
+
 
 ## 升级光环粒子 - 环绕玩家上升的金色光点
 static func spawn_levelup_aura(parent: Node, node: Node2D) -> void:
@@ -160,10 +169,12 @@ static func spawn_levelup_aura(parent: Node, node: Node2D) -> void:
 	parent.add_child(particles)
 	particles.emitting = true
 
-	particles.get_tree().create_timer(2.0).timeout.connect(func():
-		if is_instance_valid(particles):
-			particles.queue_free()
+	particles.get_tree().create_timer(2.0).timeout.connect(
+		func():
+			if is_instance_valid(particles):
+				particles.queue_free()
 	)
+
 
 ## 装备掉落闪烁 - 按稀有度颜色
 static func spawn_pickup_sparkle(parent: Node, pos: Vector2, rarity: String) -> void:
@@ -202,14 +213,17 @@ static func spawn_pickup_sparkle(parent: Node, pos: Vector2, rarity: String) -> 
 	parent.add_child(particles)
 	particles.emitting = true
 
-	particles.get_tree().create_timer(1.0).timeout.connect(func():
-		if is_instance_valid(particles):
-			particles.queue_free()
+	particles.get_tree().create_timer(1.0).timeout.connect(
+		func():
+			if is_instance_valid(particles):
+				particles.queue_free()
 	)
+
 
 ## 辅助:获取稀有度对应颜色（A1 收口：委托 Schema 单一真源）
 static func _get_rarity_color(rarity: String) -> Color:
 	return Schema.rarity_color(rarity)
+
 
 # ============================================================
 # A3: 元素配色 + 攻击拖尾 + 技能特效 + Boss 入场演出
@@ -230,12 +244,16 @@ const ELEMENT_COLORS := {
 	"crit": Color("#FFE08A"),
 }
 
+
 static func element_color(element: String) -> Color:
 	return ELEMENT_COLORS.get(element, Color.WHITE)
 
+
 ## 攻击挥砍拖尾 - 沿攻击方向的弧形残影（用 Line2D + 渐隐 tween）
 ## from: 起点(角色), dir: 朝向(单位向量), length: 挥砍半径, color: 元素色
-static func spawn_slash_trail(parent: Node, from: Vector2, dir: Vector2, length: float = 70.0, color: Color = Color("#FFE08A")) -> void:
+static func spawn_slash_trail(
+	parent: Node, from: Vector2, dir: Vector2, length: float = 70.0, color: Color = Color("#FFE08A")
+) -> void:
 	if parent == null:
 		return
 	var line = Line2D.new()
@@ -259,8 +277,15 @@ static func spawn_slash_trail(parent: Node, from: Vector2, dir: Vector2, length:
 	tw.tween_property(line, "modulate:a", 0.0, 0.18)
 	tw.tween_callback(line.queue_free)
 
+
 ## 冲刺/闪避残影 - 在指定位置留一个角色轮廓快照，渐隐
-static func spawn_dash_afterimage(parent: Node, pos: Vector2, sprite_tex: Texture2D = null, color: Color = Color(0.6, 0.8, 1.0, 0.5), flip_h: bool = false) -> void:
+static func spawn_dash_afterimage(
+	parent: Node,
+	pos: Vector2,
+	sprite_tex: Texture2D = null,
+	color: Color = Color(0.6, 0.8, 1.0, 0.5),
+	flip_h: bool = false
+) -> void:
 	if parent == null:
 		return
 	var ghost: CanvasItem
@@ -274,9 +299,9 @@ static func spawn_dash_afterimage(parent: Node, pos: Vector2, sprite_tex: Textur
 	else:
 		# 无纹理回退：用 Polygon2D 画一个角色轮廓近似（Node2D 系，可设 global_position）
 		var poly = Polygon2D.new()
-		poly.polygon = PackedVector2Array([
-			Vector2(-20, -32), Vector2(20, -32), Vector2(20, 32), Vector2(-20, 32)
-		])
+		poly.polygon = PackedVector2Array(
+			[Vector2(-20, -32), Vector2(20, -32), Vector2(20, 32), Vector2(-20, 32)]
+		)
 		poly.global_position = pos
 		ghost = poly
 	ghost.modulate = color
@@ -286,9 +311,12 @@ static func spawn_dash_afterimage(parent: Node, pos: Vector2, sprite_tex: Textur
 	tw.tween_property(ghost, "modulate:a", 0.0, 0.25)
 	tw.tween_callback(ghost.queue_free)
 
+
 ## 技能释放特效 - 按元素类型生成不同色调的爆发粒子
 ## element: fire/poison/ice/lightning/shadow/physical
-static func spawn_skill_burst(parent: Node, pos: Vector2, element: String = "physical", scale_mult: float = 1.0) -> void:
+static func spawn_skill_burst(
+	parent: Node, pos: Vector2, element: String = "physical", scale_mult: float = 1.0
+) -> void:
 	var color = element_color(element)
 	var particles = GPUParticles2D.new()
 	particles.global_position = pos
@@ -326,14 +354,18 @@ static func spawn_skill_burst(parent: Node, pos: Vector2, element: String = "phy
 	particles.process_material = material
 	parent.add_child(particles)
 	particles.emitting = true
-	particles.get_tree().create_timer(0.7).timeout.connect(func():
-		if is_instance_valid(particles):
-			particles.queue_free()
+	particles.get_tree().create_timer(0.7).timeout.connect(
+		func():
+			if is_instance_valid(particles):
+				particles.queue_free()
 	)
+
 
 ## Boss 入场演出 - 地面冲击波环 + 屏幕暗角脉冲（配合 FeedbackSystem 震屏）
 ## 返回总演出时长（秒），调用方可据此延迟开战
-static func spawn_boss_entrance(parent: Node, pos: Vector2, tint: Color = Color(1.0, 0.4, 0.3)) -> float:
+static func spawn_boss_entrance(
+	parent: Node, pos: Vector2, tint: Color = Color(1.0, 0.4, 0.3)
+) -> float:
 	if parent == null:
 		return 0.0
 	# 扩散冲击波环（Line2D 圆环放大 + 渐隐）
@@ -353,7 +385,9 @@ static func spawn_boss_entrance(parent: Node, pos: Vector2, tint: Color = Color(
 		var delay = ring_i * 0.18
 		var tw = ring.create_tween()
 		tw.tween_interval(delay)
-		tw.tween_property(ring, "scale", Vector2(8, 8), 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tw.tween_property(ring, "scale", Vector2(8, 8), 0.5).set_trans(Tween.TRANS_QUAD).set_ease(
+			Tween.EASE_OUT
+		)
 		tw.parallel().tween_property(ring, "modulate:a", 0.0, 0.5)
 		tw.tween_callback(ring.queue_free)
 	# 升腾的能量粒子柱

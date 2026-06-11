@@ -4,7 +4,9 @@ extends Node
 var combat_system: Node
 var test_results: Array = []
 
-class MockTarget extends Node2D:
+
+class MockTarget:
+	extends Node2D
 	var damage_received: float = 0.0
 	var is_crit_received: bool = false
 	var ignite_dps: float = 0.0
@@ -34,7 +36,9 @@ class MockTarget extends Node2D:
 		slow_percent = percent
 		slow_duration = duration
 
-class MockPlayer extends Node2D:
+
+class MockPlayer:
+	extends Node2D
 	var health: float = 100.0
 	var healed_amount: float = 0.0
 
@@ -44,6 +48,7 @@ class MockPlayer extends Node2D:
 
 	func _init():
 		add_to_group("player")
+
 
 func run_tests() -> Dictionary:
 	combat_system = get_node_or_null("/root/CombatSystem")
@@ -73,6 +78,7 @@ func run_tests() -> Dictionary:
 			failed_names.append("combat: " + r.name)
 	return {"pass": passed, "fail": test_results.size() - passed, "failed_names": failed_names}
 
+
 func test_calculate_damage_basic():
 	var test_name = "test_calculate_damage_basic"
 	var attacker_stats = {"damage": 10}
@@ -87,17 +93,16 @@ func test_calculate_damage_basic():
 	else:
 		# If crit happened randomly, we can't fail the test, so we check if it's reasonable
 		if result.is_crit:
-			log_test(test_name, true, "Crit occurred randomly (5% chance), damage=" + str(result.damage))
+			log_test(
+				test_name, true, "Crit occurred randomly (5% chance), damage=" + str(result.damage)
+			)
 		else:
 			log_test(test_name, false, "Expected damage=10, got " + str(result.damage))
 
+
 func test_calculate_damage_crit():
 	var test_name = "test_calculate_damage_crit"
-	var attacker_stats = {
-		"damage": 10,
-		"crit_chance": 1.0,  # 100% crit
-		"crit_damage": 2.0
-	}
+	var attacker_stats = {"damage": 10, "crit_chance": 1.0, "crit_damage": 2.0}  # 100% crit
 	var target_armor = 0.0
 
 	var result = combat_system.calculate_damage(attacker_stats, target_armor)
@@ -105,14 +110,21 @@ func test_calculate_damage_crit():
 	if result.is_crit and is_equal_approx(result.damage, 20.0):
 		log_test(test_name, true, "Crit with 2.0x multiplier: 10 * 2.0 = 20")
 	else:
-		log_test(test_name, false, "Expected is_crit=true and damage=20, got is_crit=" + str(result.is_crit) + " damage=" + str(result.damage))
+		log_test(
+			test_name,
+			false,
+			(
+				"Expected is_crit=true and damage=20, got is_crit="
+				+ str(result.is_crit)
+				+ " damage="
+				+ str(result.damage)
+			)
+		)
+
 
 func test_calculate_damage_armor():
 	var test_name = "test_calculate_damage_armor"
-	var attacker_stats = {
-		"damage": 10,
-		"crit_chance": 0.0  # No crit for deterministic test
-	}
+	var attacker_stats = {"damage": 10, "crit_chance": 0.0}  # No crit for deterministic test
 	var target_armor = 100.0
 
 	# resistance = 1.0 - (100 / (100 + 100)) = 1.0 - 0.5 = 0.5
@@ -124,13 +136,10 @@ func test_calculate_damage_armor():
 	else:
 		log_test(test_name, false, "Expected damage=5.0, got " + str(result.damage))
 
+
 func test_calculate_damage_added():
 	var test_name = "test_calculate_damage_added"
-	var attacker_stats = {
-		"damage": 10,
-		"added_damage": 5,
-		"crit_chance": 0.0
-	}
+	var attacker_stats = {"damage": 10, "added_damage": 5, "crit_chance": 0.0}
 	var target_armor = 0.0
 
 	# final_damage = (10 + 5) = 15
@@ -141,13 +150,10 @@ func test_calculate_damage_added():
 	else:
 		log_test(test_name, false, "Expected damage=15.0, got " + str(result.damage))
 
+
 func test_calculate_damage_mult():
 	var test_name = "test_calculate_damage_mult"
-	var attacker_stats = {
-		"damage": 10,
-		"damage_mult": 2.0,
-		"crit_chance": 0.0
-	}
+	var attacker_stats = {"damage": 10, "damage_mult": 2.0, "crit_chance": 0.0}
 	var target_armor = 0.0
 
 	# final_damage = 10 * 2.0 = 20
@@ -158,6 +164,7 @@ func test_calculate_damage_mult():
 	else:
 		log_test(test_name, false, "Expected damage=20.0, got " + str(result.damage))
 
+
 func test_apply_lifesteal():
 	var test_name = "test_apply_lifesteal"
 	var target = MockTarget.new()
@@ -166,9 +173,7 @@ func test_apply_lifesteal():
 	var mock_player = MockPlayer.new()
 	add_child(mock_player)
 
-	var attacker_stats = {
-		"lifesteal": 0.2  # 20% lifesteal
-	}
+	var attacker_stats = {"lifesteal": 0.2}  # 20% lifesteal
 	var damage = 100.0
 
 	combat_system.apply_damage(target, damage, attacker_stats, false)
@@ -189,15 +194,13 @@ func test_apply_lifesteal():
 	mock_player.queue_free()
 	target.queue_free()
 
+
 func test_apply_ignite():
 	var test_name = "test_apply_ignite"
 	var target = MockTarget.new()
 	add_child(target)
 
-	var attacker_stats = {
-		"ignite_dps": 10.0,
-		"ignite_duration": 3.0
-	}
+	var attacker_stats = {"ignite_dps": 10.0, "ignite_duration": 3.0}
 	var damage = 50.0
 
 	combat_system.apply_damage(target, damage, attacker_stats, false)
@@ -205,9 +208,19 @@ func test_apply_ignite():
 	if is_equal_approx(target.ignite_dps, 10.0) and is_equal_approx(target.ignite_duration, 3.0):
 		log_test(test_name, true, "Ignite applied: 10 DPS for 3 seconds")
 	else:
-		log_test(test_name, false, "Expected ignite_dps=10.0 and duration=3.0, got dps=" + str(target.ignite_dps) + " duration=" + str(target.ignite_duration))
+		log_test(
+			test_name,
+			false,
+			(
+				"Expected ignite_dps=10.0 and duration=3.0, got dps="
+				+ str(target.ignite_dps)
+				+ " duration="
+				+ str(target.ignite_duration)
+			)
+		)
 
 	target.queue_free()
+
 
 func log_test(test_name: String, passed: bool, message: String = ""):
 	var status = "PASS" if passed else "FAIL"
@@ -217,6 +230,7 @@ func log_test(test_name: String, passed: bool, message: String = ""):
 
 	print(log_msg)
 	test_results.append({"name": test_name, "passed": passed, "message": message})
+
 
 func print_results():
 	print("\n========== Test Summary ==========")

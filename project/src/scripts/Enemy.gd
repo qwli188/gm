@@ -26,6 +26,7 @@ var _is_boss: bool = false
 var attack_speed_mult: float = 1.0  # 阶段转换时提升，缩短攻击间隔
 var _casting: bool = false  # 防止多个 AOE await 叠加
 
+
 func _ready():
 	if enemy_data.is_empty():
 		push_error("Enemy: enemy_data not set")
@@ -54,6 +55,7 @@ func _ready():
 	if _is_boss:
 		call_deferred("_play_boss_entrance")
 
+
 ## A3: Boss 入场演出
 func _play_boss_entrance():
 	if not is_instance_valid(self) or get_parent() == null:
@@ -63,11 +65,13 @@ func _play_boss_entrance():
 	if has_node("/root/FeedbackSystem"):
 		get_node("/root/FeedbackSystem").shake(10.0, 0.4)
 
+
 ## 应用难度倍率（生成器调用）
 func apply_difficulty(hp_mult: float, dmg_mult: float):
 	max_hp *= hp_mult
 	current_hp = max_hp
 	damage *= dmg_mult
+
 
 ## 根据配置创建动画精灵（使用 SpriteLibrary 生成的卡通素材）
 func _setup_visual():
@@ -87,6 +91,7 @@ func _setup_visual():
 	# A4: 落地阴影（尺寸随 rank 缩放，Boss 阴影更大）
 	ShaderHelper.ensure_drop_shadow(self, 16.0 * scl, 6.0 * scl, 13.0 * scl)
 
+
 ## 创建碰撞体
 func _setup_collision():
 	var col = CollisionShape2D.new()
@@ -96,6 +101,7 @@ func _setup_collision():
 	shape.size = Vector2(sz, sz)
 	col.shape = shape
 	add_child(col)
+
 
 ## 敌人头顶血条
 func _setup_hp_bar():
@@ -122,6 +128,7 @@ func _setup_hp_bar():
 	_hp_bar.add_theme_stylebox_override("fill", fill)
 	_hp_bar.add_theme_stylebox_override("background", bg)
 	add_child(_hp_bar)
+
 
 func _physics_process(delta):
 	if not player or not is_instance_valid(player):
@@ -159,7 +166,8 @@ func _physics_process(delta):
 
 	move_and_slide()
 
-func chase_player(delta):
+
+func chase_player(_delta):
 	# 应用减速效果和眩晕
 	var effective_speed = move_speed * slow_multiplier
 	if is_frozen or is_stunned:
@@ -173,6 +181,7 @@ func chase_player(delta):
 		anim_sprite.flip_h = direction.x < 0
 	if anim_sprite and not _is_attacking and anim_sprite.animation != "idle":
 		anim_sprite.play("idle")
+
 
 func attack():
 	velocity = Vector2.ZERO
@@ -192,10 +201,12 @@ func attack():
 			player.take_damage(damage)
 	attack_cooldown = 1.0 / attack_speed_mult  # 攻速提升时间隔缩短(Boss狂暴)
 
+
 func _on_attack_anim_done():
 	_is_attacking = false
 	if anim_sprite:
 		anim_sprite.play("idle")
+
 
 func take_damage(damage_amount: float, is_crit: bool = false):
 	current_hp -= damage_amount
@@ -216,13 +227,22 @@ func take_damage(damage_amount: float, is_crit: bool = false):
 	if _is_boss:
 		_check_phase_transition()
 
+
 ## 打击感 - 受击挤压变形(B2)
 func _squash_hit():
 	if anim_sprite:
 		var original_scale = anim_sprite.scale
 		var tween = create_tween()
-		tween.tween_property(anim_sprite, "scale", Vector2(original_scale.x * 1.15, original_scale.y * 0.85), 0.06)
-		tween.tween_property(anim_sprite, "scale", original_scale, 0.1).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tween.tween_property(
+			anim_sprite, "scale", Vector2(original_scale.x * 1.15, original_scale.y * 0.85), 0.06
+		)
+		(
+			tween
+			. tween_property(anim_sprite, "scale", original_scale, 0.1)
+			. set_trans(Tween.TRANS_BACK)
+			. set_ease(Tween.EASE_OUT)
+		)
+
 
 ## 打击感 - 击退效果
 func apply_knockback(attacker_pos: Vector2, is_crit: bool):
@@ -232,6 +252,7 @@ func apply_knockback(attacker_pos: Vector2, is_crit: bool):
 	_knockback_decay = 0.15  # 击退持续 0.15 秒
 	velocity = _knockback_velocity
 
+
 ## ============ Boss 阶段系统 ============
 func _check_phase_transition():
 	var hp_percent = current_hp / max_hp
@@ -239,6 +260,7 @@ func _check_phase_transition():
 		_enter_phase(2)
 	elif hp_percent <= phase_thresholds[1] and current_phase == 2:
 		_enter_phase(3)
+
 
 func _enter_phase(phase: int):
 	current_phase = phase
@@ -283,6 +305,7 @@ func _use_boss_skill():
 		"summon":
 			_summon_adds(3)
 
+
 ## AOE 攻击：先显示预警圈，1.5 秒后在范围内结算伤害
 func _boss_aoe_attack(center: Vector2, radius: float):
 	_casting = true
@@ -305,6 +328,7 @@ func _boss_aoe_attack(center: Vector2, radius: float):
 		warning.queue_free()
 	_casting = false
 
+
 ## 生成红色半透明预警圈（带闪烁动画）
 func _create_warning_circle(pos: Vector2, radius: float) -> Node2D:
 	var circle = ColorRect.new()
@@ -314,6 +338,7 @@ func _create_warning_circle(pos: Vector2, radius: float) -> Node2D:
 	circle.z_index = -1  # 画在角色脚下
 	return circle
 
+
 ## AOE 伤害判定：用 distance_to 遍历 player 组
 func _deal_aoe_damage(center: Vector2, radius: float, dmg: float):
 	var players = get_tree().get_nodes_in_group("player")
@@ -322,6 +347,7 @@ func _deal_aoe_damage(center: Vector2, radius: float, dmg: float):
 			continue
 		if p.global_position.distance_to(center) <= radius and p.has_method("take_damage"):
 			p.take_damage(dmg)
+
 
 ## 召唤援军：在 Boss 周围生成普通小怪
 func _summon_adds(count: int):
@@ -340,6 +366,7 @@ func _summon_adds(count: int):
 			get_parent().add_child(add)
 			EffectSprite.spawn(get_parent(), "frost", spawn_pos, 1.0)
 
+
 ## 根据 Boss 自身配置克隆一个弱化的普通小怪
 func _spawn_minion_from_self(spawn_pos: Vector2) -> Node2D:
 	var minion_data = enemy_data.duplicate(true)
@@ -350,13 +377,15 @@ func _spawn_minion_from_self(spawn_pos: Vector2) -> Node2D:
 		bs["max_hp"] = bs.get("max_hp", 20) * 0.3
 		bs["damage"] = bs.get("damage", 5) * 0.5
 	var minion = CharacterBody2D.new()
-	minion.set_script(load("res://scripts/Enemy.gd"))
+	minion.set_script(load("res://scripts/Enemy.gd"))  # gdlint:ignore=duplicated-load
 	minion.enemy_data = minion_data
 	minion.global_position = spawn_pos
 	return minion
 
 
 var _dying := false
+
+
 func die():
 	if _dying:
 		return
@@ -386,14 +415,14 @@ func die():
 			get_node("/root/FeedbackSystem").hitstop(0.05)
 	else:
 		Engine.time_scale = 0.0
-		get_tree().create_timer(0.05, true, false, true).timeout.connect(func():
+		get_tree().create_timer(0.05, true, false, true).timeout.connect(
+			func(): Engine.time_scale = 1.0
+		)
 
 	# D2: 成就系统 - Boss 首杀
 	if rank == "boss" and has_node("/root/AchievementSystem"):
 		var boss_id = enemy_data.get("id", "")
 		get_node("/root/AchievementSystem").register_boss_kill(boss_id)
-			Engine.time_scale = 1.0
-		)
 
 	# B1 shader接线: 死亡溶解效果(替代瞬间消失)
 	if anim_sprite:
@@ -415,6 +444,7 @@ func die():
 
 	queue_free()
 
+
 func drop_loot():
 	var drop_table = enemy_data.get("drop_table", {})
 	var drop_chance = drop_table.get("equipment_drop_chance", 0.03)
@@ -425,7 +455,10 @@ func drop_loot():
 			if has_node("/root/GameState"):
 				bonus = get_node("/root/GameState").selected_drop_bonus
 				set_bias = get_node("/root/GameState").selected_set_drop
-			get_node("/root/EquipmentSystem").drop_random_equipment(global_position, bonus, set_bias)
+			get_node("/root/EquipmentSystem").drop_random_equipment(
+				global_position, bonus, set_bias
+			)
+
 
 ## 掉落区域专属材料
 func drop_material():
@@ -446,7 +479,9 @@ func drop_material():
 		return
 
 	# 从 balance.json 读取材料掉落配置
-	var materials_config = ConfigLoader.balance_data.get("region_materials", {}).get("materials", [])
+	var materials_config = ConfigLoader.balance_data.get("region_materials", {}).get(
+		"materials", []
+	)
 	var material_data = null
 	for mat in materials_config:
 		if mat.get("id", "") == material_type:
@@ -465,16 +500,19 @@ func drop_material():
 		game_state.add_material(material_type, amount)
 		print("[Enemy] 掉落材料: %s x%d" % [material_type, amount])
 
+
 func call_equipment_drop():
 	# 从 equipment.json 随机掉落装备
 	# 需要 EquipmentSystem 存在时调用
 	if has_node("/root/EquipmentSystem"):
 		get_node("/root/EquipmentSystem").drop_random_equipment(global_position)
 
+
 func _update_hp_bar():
 	if _hp_bar:
 		_hp_bar.max_value = max_hp
 		_hp_bar.value = max(0, current_hp)
+
 
 ## 状态效果
 var ignite_timer: float = 0.0
@@ -489,15 +527,18 @@ var slow_multiplier: float = 1.0
 var stun_timer: float = 0.0
 var is_stunned: bool = false
 
+
 func apply_ignite(dps: float, duration: float):
 	ignite_dps = max(ignite_dps, dps)  # 取最高DPS
 	ignite_timer = max(ignite_timer, duration)  # 刷新持续时间
 	EffectSprite.spawn(get_parent(), "fire", global_position, 1.2)
 
+
 func apply_poison(dps: float, duration: float):
 	poison_dps = max(poison_dps, dps)
 	poison_timer = max(poison_timer, duration)
 	EffectSprite.spawn(get_parent(), "poison", global_position, 1.2)
+
 
 func apply_freeze(duration: float):
 	if not is_frozen:
@@ -512,9 +553,11 @@ func apply_freeze(duration: float):
 	if anim_sprite:
 		ShaderHelper.apply_status_overlay(anim_sprite, "freeze", 0.6)
 
+
 func apply_slow(slow_percent: float, duration: float):
 	slow_multiplier = 1.0 - slow_percent
 	slow_timer = duration
+
 
 func apply_stun(duration: float):
 	is_stunned = true
@@ -524,7 +567,9 @@ func apply_stun(duration: float):
 		base_move_speed = move_speed
 	move_speed = 0
 
+
 var _dot_tick: float = 0.0
+
 
 func _process(delta):
 	# 点燃伤害
@@ -555,7 +600,9 @@ func _process(delta):
 				# B1 shader接线: 清除冰冻层
 				if anim_sprite:
 					ShaderHelper.remove_status_overlay(anim_sprite)
-					anim_sprite.modulate = SpriteLibrary.RANK_TINT.get(enemy_data.get("rank", "normal"), Color.WHITE)
+					anim_sprite.modulate = SpriteLibrary.RANK_TINT.get(
+						enemy_data.get("rank", "normal"), Color.WHITE
+					)
 
 	if slow_timer > 0:
 		slow_timer -= delta
@@ -575,6 +622,7 @@ func _process(delta):
 	if current_hp <= 0:
 		die()
 
+
 ## 受击闪白（shader 实现）
 func _flash_white():
 	if anim_sprite:
@@ -593,6 +641,7 @@ func _flash_white():
 # 阶段1: 区域专属Boss技能 (模块3扩展)
 # ============================================================
 
+
 ## 使用区域专属技能（覆盖通用技能）
 func _use_regional_boss_skill():
 	"""从boss_skills数组随机选择一个技能执行"""
@@ -600,24 +649,25 @@ func _use_regional_boss_skill():
 	if skills.is_empty():
 		_use_boss_skill()  # 回退到通用技能
 		return
-	
+
 	if not player or not is_instance_valid(player):
 		return
 	if _casting:
 		return
-	
+
 	# 根据阶段过滤可用技能（阶段越高技能越多）
 	var available = []
 	for skill in skills:
 		var skill_index = skills.find(skill)
 		if skill_index < current_phase:  # 阶段1只用第1个技能，阶段2用前2个，阶段3全部
 			available.append(skill)
-	
+
 	if available.is_empty():
 		available = [skills[0]]  # 至少用第1个技能
-	
+
 	var selected = available[randi() % available.size()]
 	_execute_regional_skill(selected)
+
 
 ## 执行区域专属技能
 func _execute_regional_skill(skill_name: String):
@@ -654,19 +704,21 @@ func _execute_regional_skill(skill_name: String):
 			print("[Boss] 未实现的技能: ", skill_name)
 			_use_boss_skill()  # 回退
 
+
 # ────────────────────────────────────────────────────────────
 # 简单技能组
 # ────────────────────────────────────────────────────────────
+
 
 ## 熔铸之锤：直线冲击波 + 点燃
 func _skill_forge_hammer():
 	_casting = true
 	var direction = (player.global_position - global_position).normalized()
-	
+
 	# 1秒蓄力动画（身体发红光）
 	if anim_sprite:
 		anim_sprite.modulate = Color(2.0, 0.5, 0.5)
-	
+
 	# 显示冲击波预警线（5米长，宽50）
 	var warning = ColorRect.new()
 	warning.size = Vector2(500, 50)
@@ -675,22 +727,24 @@ func _skill_forge_hammer():
 	warning.rotation = direction.angle()
 	warning.z_index = -1
 	get_parent().add_child(warning)
-	
+
 	var blink = warning.create_tween().set_loops()
 	blink.tween_property(warning, "modulate:a", 0.7, 0.25)
 	blink.tween_property(warning, "modulate:a", 0.2, 0.25)
-	
+
 	await get_tree().create_timer(1.0).timeout
-	
+
 	if not is_instance_valid(self):
 		if is_instance_valid(warning):
 			warning.queue_free()
 		return
-	
+
 	# 恢复颜色
 	if anim_sprite:
-		anim_sprite.modulate = SpriteLibrary.RANK_TINT.get(enemy_data.get("rank", "normal"), Color.WHITE)
-	
+		anim_sprite.modulate = SpriteLibrary.RANK_TINT.get(
+			enemy_data.get("rank", "normal"), Color.WHITE
+		)
+
 	# 冲击波判定（射线检测）
 	var hit_player = false
 	if player and is_instance_valid(player):
@@ -702,105 +756,108 @@ func _skill_forge_hammer():
 			if has_node("/root/CombatSystem"):
 				get_node("/root/CombatSystem").trigger_ignite(player, 20, 5.0)
 			hit_player = true
-	
+
 	# 特效
 	EffectSprite.spawn(get_parent(), "fire", global_position + direction * 250, 3.0)
 	AudioManager.play("attack")
-	
+
 	if is_instance_valid(warning):
 		warning.queue_free()
 	_casting = false
+
 
 ## 永冻吐息：扇形180度 + 冰冻叠层
 func _skill_frost_breath():
 	_casting = true
 	var direction = (player.global_position - global_position).normalized()
-	
+
 	# 2秒预警（扇形区域）
 	var warning = _create_fan_warning(global_position, direction, 300, PI)  # 180度扇形
 	get_parent().add_child(warning)
-	
+
 	var blink = warning.create_tween().set_loops()
 	blink.tween_property(warning, "modulate:a", 0.8, 0.3)
 	blink.tween_property(warning, "modulate:a", 0.3, 0.3)
-	
+
 	await get_tree().create_timer(2.0).timeout
-	
+
 	if not is_instance_valid(self):
 		if is_instance_valid(warning):
 			warning.queue_free()
 		return
-	
+
 	# 扇形判定
 	if player and is_instance_valid(player):
 		var to_player = player.global_position - global_position
 		var distance = to_player.length()
 		var angle_diff = abs(to_player.angle() - direction.angle())
-		
+
 		if distance <= 300 and angle_diff < PI / 2:  # 180度内
 			# 冰冻效果
 			if player.has_method("apply_freeze"):
 				player.apply_freeze(3.0)
 			else:
 				player.take_damage(60)
-	
+
 	# 冰霜特效
 	EffectSprite.spawn(get_parent(), "frost", global_position + direction * 150, 2.5)
-	
+
 	if is_instance_valid(warning):
 		warning.queue_free()
 	_casting = false
+
 
 ## 死亡之息：扇形120度 + 死亡标记debuff
 func _skill_death_breath():
 	_casting = true
 	var direction = (player.global_position - global_position).normalized()
-	
+
 	# 3秒预警（扇形120度）
 	var warning = _create_fan_warning(global_position, direction, 350, PI * 0.67)  # 120度
 	warning.color = Color(0.5, 0.2, 0.5, 0.4)  # 紫黑色
 	get_parent().add_child(warning)
-	
+
 	var blink = warning.create_tween().set_loops()
 	blink.tween_property(warning, "modulate:a", 0.9, 0.35)
 	blink.tween_property(warning, "modulate:a", 0.25, 0.35)
-	
+
 	await get_tree().create_timer(3.0).timeout
-	
+
 	if not is_instance_valid(self):
 		if is_instance_valid(warning):
 			warning.queue_free()
 		return
-	
+
 	# 扇形判定
 	if player and is_instance_valid(player):
 		var to_player = player.global_position - global_position
 		var distance = to_player.length()
 		var angle_diff = abs(to_player.angle() - direction.angle())
-		
+
 		if distance <= 350 and angle_diff < PI / 3:  # 120度内
 			# 造成最大生命15%伤害
 			var max_hp = player.max_hp if "max_hp" in player else 100.0
 			var death_damage = max_hp * 0.15
 			player.take_damage(death_damage)
-			
+
 			# TODO: 死亡标记debuff（受到伤害+30%，持续8秒）
 			# 需要扩展Player.gd的debuff系统
 			print("[Boss] 死亡标记命中玩家！")
-	
+
 	# 死亡特效
 	EffectSprite.spawn(get_parent(), "dark", global_position + direction * 175, 2.8)
-	
+
 	if is_instance_valid(warning):
 		warning.queue_free()
 	_casting = false
+
 
 ## 辅助：创建扇形预警区域
 func _create_fan_warning(pos: Vector2, dir: Vector2, radius: float, angle: float) -> Polygon2D:
 	var fan = Polygon2D.new()
 	fan.color = Color(0.8, 1.0, 1.0, 0.4)  # 冰蓝色半透明
 	fan.z_index = -1
-	
+
 	# 生成扇形多边形顶点
 	var points = [Vector2.ZERO]  # 中心点
 	var segments = 16
@@ -810,14 +867,16 @@ func _create_fan_warning(pos: Vector2, dir: Vector2, radius: float, angle: float
 		# 旋转到方向
 		var rotated = point.rotated(dir.angle())
 		points.append(rotated)
-	
+
 	fan.polygon = PackedVector2Array(points)
 	fan.global_position = pos
 	return fan
 
+
 # ────────────────────────────────────────────────────────────
 # 中等技能组（待实现）
 # ────────────────────────────────────────────────────────────
+
 
 ## 瘟疫脉冲：全屏DOT + 毒层叠加
 func _skill_plague_pulse():
@@ -860,6 +919,7 @@ func _skill_plague_pulse():
 	if is_instance_valid(warning):
 		warning.queue_free()
 	_casting = false
+
 
 ## 白骨旋风：追踪旋风 + 持续伤害
 func _skill_bone_whirlwind():
@@ -919,6 +979,7 @@ func _skill_bone_whirlwind():
 	_casting = false
 	print("[Boss] 白骨旋风结束")
 
+
 ## 孵化狂潮：持续召唤小怪
 func _skill_spawn_frenzy():
 	_casting = true
@@ -943,6 +1004,7 @@ func _skill_spawn_frenzy():
 	_casting = false
 	print("[Boss] 孵化狂潮结束，共生成", duration * 5, "只蛆群")
 
+
 ## 辅助：生成小怪
 func _spawn_minion(minion_type: String):
 	"""生成指定类型的小怪"""
@@ -956,18 +1018,13 @@ func _spawn_minion(minion_type: String):
 		"id": "minion_" + minion_type,
 		"name": "蛆群",
 		"rank": "normal",
-		"base_stats": {
-			"hp": 20,  # 血量减半
-			"damage": 5,
-			"armor": 0,
-			"move_speed": 80
-		},
+		"base_stats": {"hp": 20, "damage": 5, "armor": 0, "move_speed": 80},  # 血量减半
 		"sprite_region": [391, 238, 16, 16],  # 小虫精灵
 		"behavior": {"ai_type": "aggressive", "attack_range": 50, "chase_range": 300}
 	}
 
 	# 生成敌人实例
-	var minion = preload("res://scripts/Enemy.gd").new()
+	var minion = preload("res://scripts/Enemy.gd").new()  # gdlint:ignore=duplicated-load
 	minion.enemy_data = minion_data
 	minion.global_position = spawn_pos
 
@@ -976,10 +1033,10 @@ func _spawn_minion(minion_type: String):
 	minion._ready()  # 手动初始化
 
 
-
 # ────────────────────────────────────────────────────────────
 # 复杂技能组 (阶段1深度实施)
 # ────────────────────────────────────────────────────────────
+
 
 ## 王座审判：飞天无敌 + 8方位骨刺 + 召唤
 func _skill_throne_judgment():
@@ -1030,6 +1087,7 @@ func _skill_throne_judgment():
 
 	_casting = false
 
+
 ## 陨石天降：6颗陨石随机落点 + 永久岩浆池
 func _skill_meteor_storm():
 	_casting = true
@@ -1065,6 +1123,7 @@ func _skill_meteor_storm():
 	AudioManager.play("attack")
 	_casting = false
 
+
 ## 寒冰牢笼：困住玩家 + 可破坏
 func _skill_ice_prison():
 	_casting = true
@@ -1099,6 +1158,7 @@ func _skill_ice_prison():
 		print("[Boss] 玩家被冰封！")
 
 	_casting = false
+
 
 ## 现实撕裂：3道虚空裂隙
 func _skill_reality_rift():
@@ -1143,6 +1203,7 @@ func _skill_reality_rift():
 			rift.queue_free()
 
 	_casting = false
+
 
 ## 深渊冲锋：锁定方向高速冲锋
 func _skill_abyss_charge():
@@ -1200,6 +1261,7 @@ func _skill_abyss_charge():
 		warning.queue_free()
 
 	_casting = false
+
 
 ## 腐化号令：召唤强化怪
 func _skill_corruption_call():

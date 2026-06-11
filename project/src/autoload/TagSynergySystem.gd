@@ -11,10 +11,12 @@ var _prev_tag_counts: Dictionary = {}
 
 signal tag_synergy_changed(tag: String, count: int)
 
+
 func _ready():
 	print("[TagSynergySystem] 标签联动系统初始化")
 	if has_node("/root/EquipmentSystem"):
 		get_node("/root/EquipmentSystem").equipment_changed.connect(_on_equipment_changed)
+
 
 ## 重新统计当前所有标签（装备+技能）
 func recompute_tags():
@@ -56,9 +58,11 @@ func recompute_tags():
 		if not bonuses.is_empty():
 			print("[TagSynergySystem] 标签联动加成激活: %s" % str(bonuses))
 
+
 ## 获取某标签当前数量
 func get_tag_count(tag: String) -> int:
 	return active_tag_counts.get(tag, 0)
+
 
 ## 获取当前激活的标签联动加成
 ## 返回格式: {"fire_damage_mult": 0.2, "crit_chance": 0.05, ...}
@@ -86,6 +90,7 @@ func get_tag_synergy_bonuses() -> Dictionary:
 					bonuses[stat_key] = bonuses.get(stat_key, 0.0) + tier_bonuses[stat_key]
 
 	return bonuses
+
 
 ## 获取标签联动的描述（供UI显示）
 ## 返回格式: [{"tag": "fire", "count": 5, "active_tiers": [3, 5], "next_tier": null}, ...]
@@ -122,14 +127,12 @@ func get_tag_synergy_info() -> Array:
 				next_tier = tier
 				break
 
-		info.append({
-			"tag": tag,
-			"count": count,
-			"active_tiers": active_tiers,
-			"next_tier": next_tier
-		})
+		info.append(
+			{"tag": tag, "count": count, "active_tiers": active_tiers, "next_tier": next_tier}
+		)
 
 	return info
+
 
 ## 装备变化时自动重算
 func _on_equipment_changed():

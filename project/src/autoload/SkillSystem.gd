@@ -15,8 +15,10 @@ var current_class: String = ""
 signal skill_learned(skill_id: String, new_level: int)
 signal skill_points_changed(points: int)
 
+
 func _ready():
 	print("[SkillSystem] 技能树系统初始化")
+
 
 ## 重置（新游戏开始时）
 func reset():
@@ -25,16 +27,19 @@ func reset():
 	current_class = ""
 	print("[SkillSystem] 技能树已重置")
 
+
 ## 设置当前职业
 func set_current_class(class_id: String):
 	current_class = class_id
 	print("[SkillSystem] 职业设为: %s" % class_id)
+
 
 ## 增加技能点（升级时调用）
 func add_skill_points(amount: int):
 	skill_points_unspent += amount
 	skill_points_changed.emit(skill_points_unspent)
 	print("[SkillSystem] 获得技能点 +%d, 当前未分配: %d" % [amount, skill_points_unspent])
+
 
 ## 检查是否可以学习/升级技能
 func can_learn(skill_id: String) -> bool:
@@ -68,6 +73,7 @@ func can_learn(skill_id: String) -> bool:
 
 	return true
 
+
 ## 学习/升级技能
 func learn_skill(skill_id: String) -> bool:
 	if not can_learn(skill_id):
@@ -88,7 +94,12 @@ func learn_skill(skill_id: String) -> bool:
 	skill_learned.emit(skill_id, new_level)
 	skill_points_changed.emit(skill_points_unspent)
 
-	print("[SkillSystem] 学习技能: %s Lv.%d (消耗 %d SP)" % [skill_data.get("display_name", "?"), new_level, sp_cost])
+	print(
+		(
+			"[SkillSystem] 学习技能: %s Lv.%d (消耗 %d SP)"
+			% [skill_data.get("display_name", "?"), new_level, sp_cost]
+		)
+	)
 
 	# 如果是主动技能，注册到ActiveSkillSystem
 	if skill_data.get("type") == "active" and has_node("/root/ActiveSkillSystem"):
@@ -100,14 +111,16 @@ func learn_skill(skill_id: String) -> bool:
 
 	return true
 
+
 ## 应用被动技能到玩家属性
-func _apply_passive_skill(skill_data: Dictionary, level: int):
+func _apply_passive_skill(_skill_data: Dictionary, _level: int):
 	var player = get_tree().get_first_node_in_group("player")
 	if player == null or not player.has_method("recalculate_stats"):
 		return
 
 	# 被动技能效果会在Player的recalculate_stats中统一读取
 	player.recalculate_stats()
+
 
 ## 获取技能当前等级效果
 func get_skill_effect(skill_id: String) -> Dictionary:
@@ -138,6 +151,7 @@ func get_skill_effect(skill_id: String) -> Dictionary:
 
 	return effect
 
+
 ## 获取当前职业所有可用技能（用于UI显示）
 func get_available_skills_for_class() -> Array:
 	var all_skills = ConfigLoader.get_all_skills()
@@ -150,14 +164,12 @@ func get_available_skills_for_class() -> Array:
 
 	return available
 
+
 ## 获取技能当前等级
 func get_skill_level(skill_id: String) -> int:
 	return learned_skills.get(skill_id, 0)
 
+
 ## 获取所有已学技能列表
 func get_learned_skills() -> Dictionary:
 	return learned_skills.duplicate()
-
-
-
-

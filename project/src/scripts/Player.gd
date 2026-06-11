@@ -30,12 +30,7 @@ var current_exp: float = 0.0
 var exp_to_next_level: float = 10.0
 
 # 属性加点系统
-var attributes: Dictionary = {
-	"strength": 0,
-	"agility": 0,
-	"vitality": 0,
-	"intelligence": 0
-}
+var attributes: Dictionary = {"strength": 0, "agility": 0, "vitality": 0, "intelligence": 0}
 var attribute_points_unspent: int = 0
 
 # 游戏统计
@@ -43,7 +38,7 @@ var survival_time: float = 0.0
 var kills: int = 0
 var gold: int = 0
 
-signal stats_recalculated()
+signal stats_recalculated
 
 signal hp_changed(current: float, maximum: float)
 signal auto_attack_toggled(enabled: bool)
@@ -69,6 +64,7 @@ var dodge_direction: Vector2 = Vector2.ZERO  # 闪避方向
 var _dodge_requested: bool = false  # 输入缓冲(由 _unhandled_input 设置,_physics_process 消费)
 var _afterimage_accum: float = 0.0  # A3: 冲刺残影生成间隔累计
 
+
 func _ready():
 	add_to_group("player")
 	_setup_visual()
@@ -76,6 +72,7 @@ func _ready():
 	recalculate_stats()
 	current_hp = max_hp
 	_calculate_exp_to_next_level()
+
 
 ## 创建职业动画精灵
 func _setup_visual():
@@ -85,6 +82,7 @@ func _setup_visual():
 	add_child(anim_sprite)
 	# A4: 落地阴影（增强占位精灵的立体感与贴地感）
 	ShaderHelper.ensure_drop_shadow(self, 44.0, 16.0, 30.0)
+
 
 ## 根据选中职业设置基础属性和起手武器
 func _apply_class():
@@ -116,6 +114,7 @@ func _apply_class():
 		anim_sprite.sprite_frames = SpriteLibrary.get_class_frames(class_id)
 		anim_sprite.animation = "idle"
 		anim_sprite.play("idle")
+
 
 ## 重算最终属性 = 基础 + 局外强化 + 属性加点 + 装备 + 词缀
 ## 每次装备/卸下/局外升级/加点后调用
@@ -166,18 +165,28 @@ func recalculate_stats():
 				if k.ends_with("_mult"):
 					var stat = k.trim_suffix("_mult")
 					match stat:
-						"damage": damage *= (1.0 + syn[k])
-						"attack_speed": attack_speed *= (1.0 + syn[k])
-						"move_speed": move_speed *= (1.0 + syn[k])
-						_: combat_stats[k] = combat_stats.get(k, 0.0) + syn[k]
+						"damage":
+							damage *= (1.0 + syn[k])
+						"attack_speed":
+							attack_speed *= (1.0 + syn[k])
+						"move_speed":
+							move_speed *= (1.0 + syn[k])
+						_:
+							combat_stats[k] = combat_stats.get(k, 0.0) + syn[k]
 				else:
 					match k:
-						"crit_chance": crit_chance += syn[k]
-						"crit_damage": crit_damage += syn[k]
-						"max_hp": max_hp += syn[k]
-						"armor": armor += syn[k]
-						"damage": damage += syn[k]
-						_: combat_stats[k] = combat_stats.get(k, 0.0) + syn[k]
+						"crit_chance":
+							crit_chance += syn[k]
+						"crit_damage":
+							crit_damage += syn[k]
+						"max_hp":
+							max_hp += syn[k]
+						"armor":
+							armor += syn[k]
+						"damage":
+							damage += syn[k]
+						_:
+							combat_stats[k] = combat_stats.get(k, 0.0) + syn[k]
 
 	# A1: 游侠精准射击叠层(暴击加成)
 	if has_node("/root/ClassMechanicSystem"):
@@ -218,21 +227,32 @@ func recalculate_stats():
 		var talent_effects = ConfigLoader.get_unlocked_talent_effects(GameState.unlocked_talents)
 		for k in talent_effects:
 			match k:
-				"damage": damage += talent_effects[k]
-				"damage_pct": damage *= (1.0 + talent_effects[k])
-				"max_hp": max_hp += talent_effects[k]
-				"max_hp_pct": max_hp *= (1.0 + talent_effects[k])
-				"armor": armor += talent_effects[k]
-				"crit_chance": crit_chance += talent_effects[k]
-				"crit_damage": crit_damage += talent_effects[k]
-				"attack_speed_pct": attack_speed *= (1.0 + talent_effects[k])
-				"move_speed_pct": move_speed *= (1.0 + talent_effects[k])
-				_: combat_stats[k] = combat_stats.get(k, 0.0) + talent_effects[k]
+				"damage":
+					damage += talent_effects[k]
+				"damage_pct":
+					damage *= (1.0 + talent_effects[k])
+				"max_hp":
+					max_hp += talent_effects[k]
+				"max_hp_pct":
+					max_hp *= (1.0 + talent_effects[k])
+				"armor":
+					armor += talent_effects[k]
+				"crit_chance":
+					crit_chance += talent_effects[k]
+				"crit_damage":
+					crit_damage += talent_effects[k]
+				"attack_speed_pct":
+					attack_speed *= (1.0 + talent_effects[k])
+				"move_speed_pct":
+					move_speed *= (1.0 + talent_effects[k])
+				_:
+					combat_stats[k] = combat_stats.get(k, 0.0) + talent_effects[k]
 
 	# 最终暴击率再clamp(游侠精准+雾加成后)
 	crit_chance = min(crit_chance, 0.95)
 
 	stats_recalculated.emit()
+
 
 func _physics_process(delta):
 	survival_time += delta
@@ -263,10 +283,12 @@ func _physics_process(delta):
 	handle_attack(delta)
 	move_and_slide()
 
+
 ## 闪避输入用 _unhandled_input 检测,避免顿帧(time_scale=0)期间物理帧停摆吞输入
 func _unhandled_input(event):
 	if event.is_action_pressed("dodge"):
 		_dodge_requested = true
+
 
 func handle_dodge(delta):
 	# 消费输入缓冲(冷却好了且不在闪避中)
@@ -274,10 +296,13 @@ func handle_dodge(delta):
 		_dodge_requested = false
 		if dodge_cooldown <= 0 and not is_dodging:
 			# 确定闪避方向
-			var input_dir = Vector2(
-				Input.get_axis("move_left", "move_right"),
-				Input.get_axis("move_up", "move_down")
-			).normalized()
+			var input_dir = (
+				Vector2(
+					Input.get_axis("move_left", "move_right"),
+					Input.get_axis("move_up", "move_down")
+				)
+				. normalized()
+			)
 			# 有移动输入则用移动方向,否则用朝向
 			if input_dir.length() > 0.1:
 				dodge_direction = input_dir
@@ -300,8 +325,16 @@ func handle_dodge(delta):
 		_afterimage_accum += delta
 		if _afterimage_accum >= 0.06:
 			_afterimage_accum = 0.0
-			var tex = anim_sprite.sprite_frames.get_frame_texture(anim_sprite.animation, anim_sprite.frame) if anim_sprite and anim_sprite.sprite_frames else null
-			ParticleHelper.spawn_dash_afterimage(get_parent(), global_position, tex, Color(0.6, 0.8, 1.0, 0.5), _facing_left)
+			var tex = (
+				anim_sprite.sprite_frames.get_frame_texture(
+					anim_sprite.animation, anim_sprite.frame
+				)
+				if anim_sprite and anim_sprite.sprite_frames
+				else null
+			)
+			ParticleHelper.spawn_dash_afterimage(
+				get_parent(), global_position, tex, Color(0.6, 0.8, 1.0, 0.5), _facing_left
+			)
 		if dodge_timer < dodge_duration:
 			velocity = dodge_direction * dodge_speed
 		else:
@@ -309,11 +342,12 @@ func handle_dodge(delta):
 			if anim_sprite:
 				anim_sprite.modulate.a = 1.0
 
+
 func handle_movement():
-	var input_dir = Vector2(
-		Input.get_axis("move_left", "move_right"),
-		Input.get_axis("move_up", "move_down")
-	).normalized()
+	var input_dir = (
+		Vector2(Input.get_axis("move_left", "move_right"), Input.get_axis("move_up", "move_down"))
+		. normalized()
+	)
 
 	velocity = input_dir * move_speed
 
@@ -329,6 +363,7 @@ func handle_movement():
 	if anim_sprite and abs(input_dir.x) > 0.1:
 		_facing_left = input_dir.x < 0
 		anim_sprite.flip_h = _facing_left
+
 
 func handle_attack(delta):
 	if attack_cooldown > 0:
@@ -383,6 +418,7 @@ func handle_attack(delta):
 	if should_attack:
 		perform_attack()
 
+
 func perform_attack():
 	attack_cooldown = 1.0 / attack_speed
 	AudioManager.play("attack")
@@ -421,10 +457,12 @@ func perform_attack():
 	if attack_area and has_node("/root/CombatSystem"):
 		get_node("/root/CombatSystem").check_player_attack(attack_area, stats)
 
+
 func _on_attack_done():
 	_attacking = false
 	if anim_sprite:
 		anim_sprite.play("idle")
+
 
 ## A3: 根据当前武器词缀效果决定挥砍拖尾颜色（火>毒>冰>雷>暗>物理，按优先级取第一个生效的）
 func _attack_element_color() -> Color:
@@ -437,6 +475,7 @@ func _attack_element_color() -> Color:
 	if combat_stats.get("chain_chance", 0) > 0:
 		return ParticleHelper.element_color("lightning")
 	return ParticleHelper.element_color("physical")
+
 
 func take_damage(damage: float):
 	# 闪避无敌帧检测(也是 Boss AOE 防护的唯一来源,不可丢)
@@ -469,6 +508,7 @@ func take_damage(damage: float):
 	if current_hp <= 0:
 		die()
 
+
 func heal(amount: float):
 	current_hp += amount
 	current_hp = clamp(current_hp, 0, max_hp)
@@ -476,18 +516,26 @@ func heal(amount: float):
 	# 治疗数字
 	DamageNumber.spawn(get_parent(), global_position + Vector2(0, -40), amount, false, true)
 
+
 func die():
 	print("Player died")
 	player_died.emit(survival_time, kills, gold)
 	# 不要直接 queue_free，让 GameOver UI 接管
 
+
 func get_stat(stat_name: String) -> float:
 	match stat_name:
-		"armor": return armor
-		"max_hp": return max_hp
-		"damage": return damage
-		"move_speed": return move_speed
-		_: return 0.0
+		"armor":
+			return armor
+		"max_hp":
+			return max_hp
+		"damage":
+			return damage
+		"move_speed":
+			return move_speed
+		_:
+			return 0.0
+
 
 ## 获得经验值
 func gain_exp(amount: float):
@@ -508,6 +556,7 @@ func gain_exp(amount: float):
 		if has_node("/root/GameState"):
 			GameState.gain_paragon_exp(overflow)
 
+
 ## 计算下一级所需经验
 func _calculate_exp_to_next_level():
 	var curve = ConfigLoader.get_balance_config().get("level_curve", {})
@@ -515,10 +564,12 @@ func _calculate_exp_to_next_level():
 	var growth = float(curve.get("growth", 1.15))
 	exp_to_next_level = base_exp * pow(growth, current_level - 1)
 
+
 ## 配置驱动的最高等级（默认 60）
 func _get_max_level() -> int:
 	var curve = ConfigLoader.get_balance_config().get("level_curve", {})
 	return int(curve.get("max_level", 60))
+
 
 ## 升级时调用
 func _on_level_up():
@@ -551,6 +602,7 @@ func _on_level_up():
 	# B2: 升级粒子光环
 	ParticleHelper.spawn_levelup_aura(get_parent(), self)
 
+
 ## 击杀敌人时调用
 func on_enemy_killed(enemy_data: Dictionary):
 	kills += 1
@@ -565,6 +617,7 @@ func on_enemy_killed(enemy_data: Dictionary):
 	var max_gold = gold_drop.get("max", 0)
 	var gold_amount = randi_range(min_gold, max_gold)
 	gold += gold_amount
+
 
 ## 分配属性点
 func add_attribute(attr_name: String, points: int):
@@ -584,6 +637,7 @@ func add_attribute(attr_name: String, points: int):
 	attributes_changed.emit(attributes)
 
 	print("[Player] +%d %s (剩余点数: %d)" % [points, attr_name, attribute_points_unspent])
+
 
 ## 应用属性加点对数值的影响
 func _apply_attribute_bonuses():
@@ -622,4 +676,3 @@ func _apply_attribute_bonuses():
 		var magic_dmg = int_val * int_cfg.get("magic_damage_flat", 0)
 		if magic_dmg > 0:
 			combat_stats["magic_damage"] = magic_dmg
-

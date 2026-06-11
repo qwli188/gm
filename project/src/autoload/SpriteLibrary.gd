@@ -4,7 +4,7 @@ extends Node
 ## 提供 AnimatedSprite2D 的 SpriteFrames 构建
 
 const GEN = "res://assets/generated/"
-const FRAME_SIZE = 64       # 角色/敌人帧尺寸
+const FRAME_SIZE = 64  # 角色/敌人帧尺寸
 const EFFECT_SIZE = 64
 
 # region -> 敌人家族
@@ -26,16 +26,18 @@ const RANK_SCALE = {
 }
 const RANK_TINT = {
 	"normal": Color(1, 1, 1),
-	"elite": Color(1.15, 1.05, 0.8),     # 偏金
-	"boss": Color(1.2, 0.7, 0.7),        # 偏红
+	"elite": Color(1.15, 1.05, 0.8),  # 偏金
+	"boss": Color(1.2, 0.7, 0.7),  # 偏红
 	"field_boss": Color(0.9, 1.1, 1.1),
 }
 
-var _sheet_cache: Dictionary = {}      # path -> Array[Texture2D]
-var _frames_cache: Dictionary = {}     # key -> SpriteFrames
+var _sheet_cache: Dictionary = {}  # path -> Array[Texture2D]
+var _frames_cache: Dictionary = {}  # key -> SpriteFrames
+
 
 func _ready():
 	print("[SpriteLibrary] 初始化")
+
 
 ## 切割横向 spritesheet 为帧纹理数组
 func _slice_sheet(path: String, frame_size: int = FRAME_SIZE) -> Array:
@@ -58,6 +60,7 @@ func _slice_sheet(path: String, frame_size: int = FRAME_SIZE) -> Array:
 	_sheet_cache[path] = frames
 	return frames
 
+
 ## 为职业构建 SpriteFrames（idle/walk/attack/hurt）
 func get_class_frames(class_id: String) -> SpriteFrames:
 	var key := "class_" + class_id
@@ -76,6 +79,7 @@ func get_class_frames(class_id: String) -> SpriteFrames:
 			sf.add_frame(anim, f)
 	_frames_cache[key] = sf
 	return sf
+
 
 ## 为敌人构建 SpriteFrames（idle/attack），按 region 取家族
 func get_enemy_frames(region: String) -> SpriteFrames:
@@ -96,6 +100,7 @@ func get_enemy_frames(region: String) -> SpriteFrames:
 	_frames_cache[key] = sf
 	return sf
 
+
 ## 职业头像（单帧 idle 的第一帧）
 func get_class_portrait(class_id: String) -> Texture2D:
 	var short := class_id.replace("class_", "")
@@ -103,6 +108,7 @@ func get_class_portrait(class_id: String) -> Texture2D:
 	if ResourceLoader.exists(path):
 		return load(path)
 	return null
+
 
 ## 装备图标（按 slot + rarity）
 ## slot: weapon->按category, 其它直接用 slot 名
@@ -117,27 +123,39 @@ func get_equipment_icon(slot: String, category: String, rarity: String) -> Textu
 		return load(path)
 	return null
 
+
 func _slot_to_icon(slot: String, category: String) -> String:
 	if slot == "weapon":
 		match category:
-			"sword", "scythe", "dagger", "mace": return "sword"
-			"staff", "wand": return "staff"
-			"bow": return "bow"
-			_: return "sword"
+			"sword", "scythe", "dagger", "mace":
+				return "sword"
+			"staff", "wand":
+				return "staff"
+			"bow":
+				return "bow"
+			_:
+				return "sword"
 	if slot in ["helmet", "chest", "legs", "boots", "gloves", "ring", "amulet"]:
 		return slot
 	return "sword"
+
 
 ## 技能图标（按 shape 关键字）
 func get_skill_icon(shape: String) -> Texture2D:
 	var path := GEN + "icons/skills/%s.png" % shape
 	if ResourceLoader.exists(path):
 		return load(path)
-	return load(GEN + "icons/skills/slash.png") if ResourceLoader.exists(GEN + "icons/skills/slash.png") else null
+	return (
+		load(GEN + "icons/skills/slash.png")
+		if ResourceLoader.exists(GEN + "icons/skills/slash.png")
+		else null
+	)
+
 
 ## 特效帧数组
 func get_effect_frames(kind: String) -> Array:
 	return _slice_sheet(GEN + "effects/%s.png" % kind, EFFECT_SIZE)
+
 
 ## 地块纹理
 func get_tile(region: String, is_obstacle: bool = false) -> Texture2D:
@@ -148,6 +166,7 @@ func get_tile(region: String, is_obstacle: bool = false) -> Texture2D:
 	path = GEN + "tiles/%s%s.png" % [prefix, "field"]
 	return load(path) if ResourceLoader.exists(path) else null
 
+
 ## 地板变体(0..3) - 用于随机混铺打破网格感; 缺失则回退默认floor
 func get_floor_variant(region: String, variant: int) -> Texture2D:
 	var path := GEN + "tiles/floor_%s_%d.png" % [region, variant]
@@ -155,10 +174,12 @@ func get_floor_variant(region: String, variant: int) -> Texture2D:
 		return load(path)
 	return get_tile(region, false)
 
+
 ## 区域装饰道具(0..3) - 非阻挡氛围物; 缺失返回 null
 func get_prop(region: String, variant: int) -> Texture2D:
 	var path := GEN + "props/prop_%s_%d.png" % [region, variant]
 	return load(path) if ResourceLoader.exists(path) else null
+
 
 ## 区域可用地板变体数(探测连续存在的 floor_<region>_N)
 func count_floor_variants(region: String) -> int:
@@ -167,12 +188,14 @@ func count_floor_variants(region: String) -> int:
 		n += 1
 	return n
 
+
 ## 区域可用道具数
 func count_props(region: String) -> int:
 	var n := 0
 	while ResourceLoader.exists(GEN + "props/prop_%s_%d.png" % [region, n]):
 		n += 1
 	return n
+
 
 ## UI 纹理
 func get_ui(name: String) -> Texture2D:

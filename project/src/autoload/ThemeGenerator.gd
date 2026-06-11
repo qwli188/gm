@@ -3,21 +3,21 @@ extends Node
 ## 使用代码生成 Theme 资源，避免依赖编辑器手动操作
 
 ## 主题色调
-const COLOR_BG_DARK = Color("#1A1A1A")       # 主背景（深黑）
-const COLOR_BG_PANEL = Color("#242424")      # 面板背景（深灰）
-const COLOR_BG_INPUT = Color("#2A2A2A")      # 输入框背景
-const COLOR_BG_BUTTON = Color("#3A3A3A")     # 按钮默认
+const COLOR_BG_DARK = Color("#1A1A1A")  # 主背景（深黑）
+const COLOR_BG_PANEL = Color("#242424")  # 面板背景（深灰）
+const COLOR_BG_INPUT = Color("#2A2A2A")  # 输入框背景
+const COLOR_BG_BUTTON = Color("#3A3A3A")  # 按钮默认
 const COLOR_BG_BUTTON_HOVER = Color("#4A4A4A")  # 按钮悬停
-const COLOR_BG_BUTTON_PRESSED = Color("#2A2A2A") # 按钮按下
+const COLOR_BG_BUTTON_PRESSED = Color("#2A2A2A")  # 按钮按下
 
-const COLOR_BORDER = Color("#555555")        # 边框颜色
+const COLOR_BORDER = Color("#555555")  # 边框颜色
 const COLOR_BORDER_FOCUS = Color("#888888")  # 聚焦边框
 
 const COLOR_TEXT_PRIMARY = Color("#EEEEEE")  # 主文本（亮白）
-const COLOR_TEXT_SECONDARY = Color("#AAAAAA") # 次要文本（灰）
+const COLOR_TEXT_SECONDARY = Color("#AAAAAA")  # 次要文本（灰）
 const COLOR_TEXT_DISABLED = Color("#666666")  # 禁用文本
 
-const COLOR_ACCENT = Color("#E8A317")        # 强调色（金色）
+const COLOR_ACCENT = Color("#E8A317")  # 强调色（金色）
 const COLOR_ACCENT_HOVER = Color("#FFC840")  # 强调色悬停
 
 ## 字体大小
@@ -35,9 +35,11 @@ const PADDING_BUTTON = 8
 ## 生成的主题实例（单例）
 var main_theme: Theme = null
 
+
 func _ready():
 	print("[ThemeGenerator] 初始化主题生成器")
 	main_theme = generate_theme()
+
 
 ## ============ 主题生成 ============
 ## 生成完整主题
@@ -99,6 +101,7 @@ func generate_theme() -> Theme:
 	print("[ThemeGenerator] 主题生成完成")
 	return theme
 
+
 ## ============ StyleBox 生成器 ============
 ## Panel 样式（深色背景 + 边框）
 func _create_panel_style() -> StyleBoxFlat:
@@ -111,6 +114,7 @@ func _create_panel_style() -> StyleBoxFlat:
 	style.shadow_color = Color(0, 0, 0, 0.5)
 	style.shadow_size = 4
 	return style
+
 
 ## Button 样式
 func _create_button_style(bg_color: Color, alpha: float = 1.0) -> StyleBoxFlat:
@@ -126,6 +130,7 @@ func _create_button_style(bg_color: Color, alpha: float = 1.0) -> StyleBoxFlat:
 	style.content_margin_bottom = PADDING_BUTTON
 	return style
 
+
 ## 输入框样式
 func _create_input_style() -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
@@ -136,12 +141,14 @@ func _create_input_style() -> StyleBoxFlat:
 	style.set_content_margin_all(MARGIN_NORMAL)
 	return style
 
+
 ## 输入框聚焦样式
 func _create_input_style_focus() -> StyleBoxFlat:
 	var style = _create_input_style()
 	style.border_color = COLOR_BORDER_FOCUS
 	style.set_border_width_all(2)
 	return style
+
 
 ## ProgressBar 背景
 func _create_progress_bg() -> StyleBoxFlat:
@@ -152,12 +159,14 @@ func _create_progress_bg() -> StyleBoxFlat:
 	style.set_corner_radius_all(2)
 	return style
 
+
 ## ProgressBar 填充（通用，可在运行时覆盖颜色）
 func _create_progress_fill() -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color("#44AA44")  # 默认绿色
 	style.set_corner_radius_all(2)
 	return style
+
 
 ## Tooltip 样式
 func _create_tooltip_style() -> StyleBoxFlat:
@@ -171,12 +180,14 @@ func _create_tooltip_style() -> StyleBoxFlat:
 	style.shadow_size = 6
 	return style
 
+
 ## 透明样式（ScrollContainer 等）
 func _create_transparent_style() -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0, 0, 0, 0)
 	style.draw_center = false
 	return style
+
 
 ## ============ 特殊样式生成 ============
 ## 生成血条样式（红色渐变）
@@ -186,12 +197,14 @@ func create_health_bar_style() -> StyleBoxFlat:
 	style.set_corner_radius_all(2)
 	return style
 
+
 ## 生成法力条样式（蓝色渐变）
 func create_mana_bar_style() -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color("#3366CC")
 	style.set_corner_radius_all(2)
 	return style
+
 
 ## 生成经验条样式（金色渐变）
 func create_exp_bar_style() -> StyleBoxFlat:
@@ -200,12 +213,14 @@ func create_exp_bar_style() -> StyleBoxFlat:
 	style.set_corner_radius_all(2)
 	return style
 
+
 ## 生成职业资源条样式（可自定义颜色）
 func create_class_resource_bar_style(color: Color) -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
 	style.bg_color = color
 	style.set_corner_radius_all(2)
 	return style
+
 
 ## ============ 应用主题到节点 ============
 ## 应用主题到节点（递归）
@@ -215,6 +230,7 @@ func apply_theme_to_node(node: Node):
 	for child in node.get_children():
 		apply_theme_to_node(child)
 
+
 ## ============ 工具函数 ============
 ## 创建带样式的 Panel
 func create_styled_panel() -> Panel:
@@ -222,12 +238,14 @@ func create_styled_panel() -> Panel:
 	panel.add_theme_stylebox_override("panel", _create_panel_style())
 	return panel
 
+
 ## 创建带样式的 Button
 func create_styled_button(text: String) -> Button:
 	var btn = Button.new()
 	btn.text = text
 	btn.theme = main_theme
 	return btn
+
 
 ## 创建标题 Label
 func create_title_label(text: String) -> Label:
@@ -237,6 +255,7 @@ func create_title_label(text: String) -> Label:
 	label.add_theme_color_override("font_color", COLOR_ACCENT)
 	return label
 
+
 ## 创建副标题 Label
 func create_subtitle_label(text: String) -> Label:
 	var label = Label.new()
@@ -245,11 +264,13 @@ func create_subtitle_label(text: String) -> Label:
 	label.add_theme_color_override("font_color", COLOR_TEXT_PRIMARY)
 	return label
 
+
 ## 获取主题（供外部调用）
 func get_main_theme() -> Theme:
 	if main_theme == null:
 		main_theme = generate_theme()
 	return main_theme
+
 
 # ============================================================
 # A2: 区域感知色温 + 稀有度面板工厂（见 design/art-spec.md §2 §5）
@@ -257,12 +278,12 @@ func get_main_theme() -> Theme:
 
 ## 区域主色温（与 art-spec.md §2 一致）。用于面板强调色随当前副本微调。
 const REGION_ACCENT := {
-	"crypt": Color("#6B7A8F"),   # 冷青灰
-	"swamp": Color("#7A8F4A"),   # 黄绿
-	"forge": Color("#D9622A"),   # 橙红
-	"ice": Color("#8FC4D9"),     # 蓝白
-	"void": Color("#7A4ACA"),    # 紫黑
-	"field": Color("#8F8456"),   # 中性褐绿
+	"crypt": Color("#6B7A8F"),  # 冷青灰
+	"swamp": Color("#7A8F4A"),  # 黄绿
+	"forge": Color("#D9622A"),  # 橙红
+	"ice": Color("#8FC4D9"),  # 蓝白
+	"void": Color("#7A4ACA"),  # 紫黑
+	"field": Color("#8F8456"),  # 中性褐绿
 }
 
 ## 区域暗角色（DungeonTerrain / vignette 用）
@@ -275,9 +296,11 @@ const REGION_VIGNETTE := {
 	"field": Color("#23200E"),
 }
 
+
 ## 取某区域的强调色（缺省回退到金色 COLOR_ACCENT）
 func get_region_accent(region: String) -> Color:
 	return REGION_ACCENT.get(region, COLOR_ACCENT)
+
 
 ## 取当前选中副本所在区域的强调色（GameState 驱动）
 func get_current_region_accent() -> Color:
@@ -288,8 +311,10 @@ func get_current_region_accent() -> Color:
 			return get_region_accent(region)
 	return COLOR_ACCENT
 
+
 func get_region_vignette(region: String) -> Color:
 	return REGION_VIGNETTE.get(region, COLOR_BG_DARK)
+
 
 ## 创建稀有度感知面板样式（装备 tooltip / 战利品面板用）
 ## 委托 RarityVisuals（它已全部走 Schema），保证与地图掉落特效同色
@@ -301,6 +326,7 @@ func create_rarity_panel(rarity: String) -> Panel:
 		panel.add_theme_stylebox_override("panel", _create_panel_style())
 	return panel
 
+
 ## 创建区域感知面板样式（进副本时 UI 微调色温；城镇用金色默认）
 ## region 为空 → 用默认金色描边面板
 func create_region_panel(region: String = "") -> Panel:
@@ -310,6 +336,7 @@ func create_region_panel(region: String = "") -> Panel:
 		style.border_color = REGION_ACCENT[region]
 	panel.add_theme_stylebox_override("panel", style)
 	return panel
+
 
 ## 统一的"系统面板"工厂：给 P6-P10 新系统（巅峰/天赋/任务/商人）用，
 ## 标题栏 + 内容区一致样式，避免每个程序化 Panel 各写各的。

@@ -7,6 +7,7 @@ var is_flying: bool = false
 var target_player: Node2D
 var _vfx_time: float = 0.0
 
+
 func setup(data: Dictionary):
 	item_data = data
 	_setup_rarity_visual()
@@ -14,9 +15,11 @@ func setup(data: Dictionary):
 	var rarity = item_data.get("rarity", "common")
 	ParticleHelper.spawn_pickup_sparkle(get_parent(), global_position, rarity)
 
+
 func _ready():
 	body_entered.connect(_on_body_entered)
 	_setup_rarity_visual()
+
 
 ## 根据稀有度设置视觉（颜色+特效等级）
 func _setup_rarity_visual():
@@ -39,6 +42,7 @@ func _setup_rarity_visual():
 	if visual:
 		ShaderHelper.apply_rarity_glow(visual, rarity)
 
+
 ## 高稀有度光柱
 func _add_drop_beam(color: Color):
 	var beam = ColorRect.new()
@@ -48,6 +52,7 @@ func _add_drop_beam(color: Color):
 	beam.position = Vector2(-4, -80)
 	add_child(beam)
 
+
 ## 发光节点
 func _add_glow(color: Color, level: int):
 	var glow = ColorRect.new()
@@ -55,9 +60,10 @@ func _add_glow(color: Color, level: int):
 	var s = 24 + level * 6
 	glow.color = Color(color.r, color.g, color.b, 0.25)
 	glow.size = Vector2(s, s)
-	glow.position = Vector2(-s/2.0, -s/2.0)
+	glow.position = Vector2(-s / 2.0, -s / 2.0)
 	add_child(glow)
 	move_child(glow, 0)
+
 
 func _physics_process(delta):
 	# 高稀有度脉冲动画
@@ -72,10 +78,12 @@ func _physics_process(delta):
 		if global_position.distance_to(target_player.global_position) < 20:
 			pickup()
 
+
 func _on_body_entered(body: Node2D):
 	if body.is_in_group("player") and not is_flying:
 		target_player = body
 		is_flying = true
+
 
 func pickup():
 	if not target_player:

@@ -8,6 +8,7 @@ signal enemy_died(enemy: Node2D)
 var crit_multiplier_base: float = 1.5
 var armor_constant: float = 100.0
 
+
 func _ready():
 	var config = ConfigLoader.balance_data
 	if not config.is_empty():
@@ -15,6 +16,7 @@ func _ready():
 		crit_multiplier_base = dmg_formula.get("crit_multiplier_base", 1.5)
 	print("[CombatSystem] 战斗系统初始化")
 	ConfigLoader.config_reloaded.connect(_on_config_reloaded)
+
 
 ## 计算最终伤害
 ## 公式: (基础伤害 + 附加伤害) × 增益 × 暴击 × 抗性
@@ -32,10 +34,8 @@ func calculate_damage(attacker_stats: Dictionary, target_armor: float) -> Dictio
 
 	var final_damage = (base_damage + added_damage) * damage_mult * crit_mult * resistance
 
-	return {
-		"damage": final_damage,
-		"is_crit": is_crit
-	}
+	return {"damage": final_damage, "is_crit": is_crit}
+
 
 ## 应用伤害到目标
 func apply_damage(target: Node2D, damage: float, attacker_stats: Dictionary, is_crit: bool = false):
@@ -99,12 +99,14 @@ func apply_damage(target: Node2D, damage: float, attacker_stats: Dictionary, is_
 	if chain_chance > 0 and randf() < chain_chance:
 		trigger_affix_chain(target, damage, attacker_stats)
 
+
 ## 吸血效果
 func trigger_lifesteal(damage: float, lifesteal_percent: float):
 	var heal = damage * lifesteal_percent
 	var player = get_tree().get_first_node_in_group("player")
 	if player and player.has_method("heal"):
 		player.heal(heal)
+
 
 ## 点燃效果
 func trigger_ignite(target: Node2D, dps: float, duration: float):
@@ -116,6 +118,7 @@ func trigger_ignite(target: Node2D, dps: float, duration: float):
 	if sprite:
 		ShaderHelper.apply_status_overlay(sprite, "ignite", 0.5)
 
+
 ## 中毒效果
 func trigger_poison(target: Node2D, dps: float, duration: float):
 	if not target.has_method("apply_poison"):
@@ -125,6 +128,7 @@ func trigger_poison(target: Node2D, dps: float, duration: float):
 	var sprite = target.get_node_or_null("AnimatedSprite2D")
 	if sprite:
 		ShaderHelper.apply_status_overlay(sprite, "poison", 0.5)
+
 
 ## 冰冻效果
 func trigger_freeze(target: Node2D, duration: float):
@@ -136,17 +140,20 @@ func trigger_freeze(target: Node2D, duration: float):
 	if sprite:
 		ShaderHelper.apply_status_overlay(sprite, "freeze", 0.6)
 
+
 ## 减速效果
 func trigger_slow(target: Node2D, slow_percent: float, duration: float):
 	if not target.has_method("apply_slow"):
 		return
 	target.apply_slow(slow_percent, duration)
 
+
 ## 眩晕效果
 func trigger_stun(target: Node2D, duration: float):
 	if not target.has_method("apply_stun"):
 		return
 	target.apply_stun(duration)
+
 
 ## 召唤词缀效果(命中时召唤友方伴生)
 ## 这是装备词缀的本地实现,不走 ActiveSkillSystem.summons 池
@@ -178,6 +185,7 @@ func trigger_affix_summon(pos: Vector2, attacker_stats: Dictionary):
 	if has_node("/root/EffectSprite") or ResourceLoader.exists("res://scripts/EffectSprite.gd"):
 		EffectSprite.spawn(scene, "poison", pos, 1.1)
 
+
 ## 连锁词缀效果(命中目标时弹射给附近敌人)
 func trigger_affix_chain(origin: Node2D, damage: float, attacker_stats: Dictionary):
 	var targets_count = int(attacker_stats.get("chain_targets", 2))
@@ -197,6 +205,7 @@ func trigger_affix_chain(origin: Node2D, damage: float, attacker_stats: Dictiona
 		chained.append(next)
 		current = next
 
+
 func _find_nearest_unchained(origin: Node2D, exclude: Array, max_range: float) -> Node2D:
 	var nearest = null
 	var min_d = max_range
@@ -208,6 +217,7 @@ func _find_nearest_unchained(origin: Node2D, exclude: Array, max_range: float) -
 			min_d = d
 			nearest = e
 	return nearest
+
 
 func _draw_chain_bolt(from: Vector2, to: Vector2):
 	var scene = get_tree().current_scene
@@ -223,6 +233,7 @@ func _draw_chain_bolt(from: Vector2, to: Vector2):
 	var tw = line.create_tween()
 	tw.tween_property(line, "modulate:a", 0.0, 0.18)
 	tw.tween_callback(line.queue_free)
+
 
 func _minion_script() -> GDScript:
 	var src = """
@@ -263,6 +274,7 @@ func _nearest_enemy():
 	gd.source_code = src
 	gd.reload()
 	return gd
+
 
 ## 玩家攻击检测（Area2D）- 三方合并: A1职业机制 + A2刺客背刺 + B2粒子
 func check_player_attack(attack_area: Area2D, player_stats: Dictionary):
@@ -326,7 +338,10 @@ func check_player_attack(attack_area: Area2D, player_stats: Dictionary):
 			if result.is_crit:
 				ParticleHelper.spawn_crit_particles(enemy.get_parent(), hit_pos)
 			else:
-				ParticleHelper.spawn_hit_particles(enemy.get_parent(), hit_pos, Color(1.0, 0.9, 0.7))
+				ParticleHelper.spawn_hit_particles(
+					enemy.get_parent(), hit_pos, Color(1.0, 0.9, 0.7)
+				)
+
 
 ## 敌人攻击玩家
 func enemy_attack_player(enemy_damage: float, player: Node2D):
@@ -348,11 +363,13 @@ func enemy_attack_player(enemy_damage: float, player: Node2D):
 
 	player.take_damage(final_damage)
 
+
 func _on_config_reloaded(file_name: String) -> void:
 	if file_name == "balance.json":
 		var dmg_formula = ConfigLoader.balance_data.get("damage_formula", {})
 		crit_multiplier_base = dmg_formula.get("crit_multiplier_base", 1.5)
 		print("[CombatSystem] 响应 balance.json 重载: crit_mult=" + str(crit_multiplier_base))
+
 
 ## 打击感 - 顿帧效果
 func _apply_hitstop(duration: float):
@@ -362,9 +379,10 @@ func _apply_hitstop(duration: float):
 		return
 	# 兜底：旧实现
 	Engine.time_scale = 0.0
-	get_tree().create_timer(duration, true, false, true).timeout.connect(func():
-		Engine.time_scale = 1.0
+	get_tree().create_timer(duration, true, false, true).timeout.connect(
+		func(): Engine.time_scale = 1.0
 	)
+
 
 ## 打击感 - 震屏效果（暴击时）
 func _apply_screen_shake(intensity: float):
@@ -377,7 +395,8 @@ func _apply_screen_shake(intensity: float):
 	if not camera:
 		return
 	camera.offset = Vector2(randf_range(-intensity, intensity), randf_range(-intensity, intensity))
-	get_tree().create_timer(0.1).timeout.connect(func():
-		if camera:
-			camera.offset = Vector2.ZERO
+	get_tree().create_timer(0.1).timeout.connect(
+		func():
+			if camera:
+				camera.offset = Vector2.ZERO
 	)

@@ -19,11 +19,13 @@ var characters: Array = []
 # 当前操控的角色 id（空表示还没有任何角色）
 var active_char_id: String = ""
 
-signal roster_changed()
+signal roster_changed
 signal active_character_changed(char_id: String)
+
 
 func _ready():
 	print("[RosterSystem] 角色名册系统初始化")
+
 
 ## ============ 角色档案结构 ============
 ## location: "idle"(闲置) / "deployed"(出击中) / "territory"(停驻领地)
@@ -39,11 +41,12 @@ func _make_character(class_id: String, char_name: String = "") -> Dictionary:
 		"exp": 0.0,
 		"attributes": {"strength": 0, "agility": 0, "vitality": 0, "intelligence": 0},
 		"attribute_points": 0,
-		"equipped": {},          # {slot: instance_id}
-		"learned_skills": {},     # {skill_id: level}
+		"equipped": {},  # {slot: instance_id}
+		"learned_skills": {},  # {skill_id: level}
 		"skill_points": 0,
 		"location": "idle",
 	}
+
 
 func _default_name(class_id: String) -> String:
 	var cls = ConfigLoader.get_class_by_id(class_id)
@@ -55,12 +58,14 @@ func _default_name(class_id: String) -> String:
 			count += 1
 	return "%s%d" % [base, count + 1] if count > 0 else base
 
+
 func _generate_char_id() -> String:
 	var chars = "abcdefghijklmnopqrstuvwxyz0123456789"
 	var result = "char_"
 	for i in 10:
 		result += chars[randi() % chars.length()]
 	return result
+
 
 ## ============ 查询 ============
 func get_character(char_id: String) -> Dictionary:
@@ -69,17 +74,22 @@ func get_character(char_id: String) -> Dictionary:
 			return c
 	return {}
 
+
 func get_active_character() -> Dictionary:
 	return get_character(active_char_id)
+
 
 func has_character(char_id: String) -> bool:
 	return not get_character(char_id).is_empty()
 
+
 func character_count() -> int:
 	return characters.size()
 
+
 func is_full() -> bool:
 	return characters.size() >= MAX_CHARACTERS
+
 
 ## 返回除操控角色外、可作为队友/可部署的角色（P2/P5 用）
 func get_other_characters() -> Array:
@@ -88,6 +98,7 @@ func get_other_characters() -> Array:
 		if c.get("char_id", "") != active_char_id:
 			result.append(c)
 	return result
+
 
 ## ============ 角色战斗属性计算（P2 队友 / P4 防御战复用）============
 ## 不切换全局状态，纯函数式算出任意角色的最终面板：
@@ -138,6 +149,7 @@ func compute_character_stats(char_id: String) -> Dictionary:
 	stats["attack_speed"] = min(stats["attack_speed"], 3.0)
 	return stats
 
+
 ## 角色属性点 -> 数值（与 Player._apply_attribute_bonuses 主项一致）
 func _apply_char_attributes(character: Dictionary, stats: Dictionary):
 	var attrs = character.get("attributes", {})
@@ -158,16 +170,21 @@ func _apply_char_attributes(character: Dictionary, stats: Dictionary):
 		stats["max_hp"] += vit_val * float(c.get("max_hp", 0))
 		stats["armor"] += vit_val * float(c.get("armor", 0))
 
+
 ## 计算角色综合战力（单一数值，用于 P4 防御战强度对比 / UI 展示）
 func get_character_power(char_id: String) -> float:
 	var s = compute_character_stats(char_id)
 	if s.is_empty():
 		return 0.0
 	# 战力 = 有效HP × DPS 的简化估算
-	var dps = s.get("damage", 0) * s.get("attack_speed", 1.0) \
+	var dps = (
+		s.get("damage", 0)
+		* s.get("attack_speed", 1.0)
 		* (1.0 + s.get("crit_chance", 0) * (s.get("crit_damage", 1.5) - 1.0))
+	)
 	var ehp = s.get("max_hp", 0) * (1.0 + s.get("armor", 0) / 100.0)
 	return dps * 0.5 + ehp * 0.5
+
 
 ## ============ 创建/删除 ============
 ## 创建新角色。成功返回 char_id，失败返回空串。
@@ -198,6 +215,7 @@ func create_character(class_id: String, char_name: String = "", set_active: bool
 		SaveSystem.mark_dirty()
 	return character["char_id"]
 
+
 ## 给新角色发起手武器（实例进账号实例池，instance_id 记入角色 equipped）
 func _grant_starting_weapon(character: Dictionary):
 	var cls = ConfigLoader.get_class_by_id(character["class_id"])
@@ -207,10 +225,13 @@ func _grant_starting_weapon(character: Dictionary):
 	var template = ConfigLoader.get_equipment_by_id(starting_weapon)
 	if template.is_empty():
 		return
-	var instance_id = EquipmentSystem.roll_equipment(starting_weapon, template.get("rarity", "common"))
+	var instance_id = EquipmentSystem.roll_equipment(
+		starting_weapon, template.get("rarity", "common")
+	)
 	if instance_id != "":
 		var slot = template.get("slot", "weapon")
 		character["equipped"][slot] = instance_id
+
 
 ## 删除角色。不能删最后一个；删的是操控角色时自动切到另一个。
 func delete_character(char_id: String) -> bool:
@@ -241,6 +262,7 @@ func delete_character(char_id: String) -> bool:
 	print("[RosterSystem] 删除角色: %s" % char_id)
 	return true
 
+
 ## 把角色穿戴的装备放回背包（删除角色时调用）
 func _reclaim_equipment(character: Dictionary):
 	if not has_node("/root/Inventory"):
@@ -253,6 +275,7 @@ func _reclaim_equipment(character: Dictionary):
 			# 背包满：销毁实例避免泄漏
 			if has_node("/root/EquipmentSystem"):
 				EquipmentSystem.equipment_instances.erase(inst_id)
+
 
 ## ============ 切换操控角色 ============
 ## 把当前角色私有状态存回档案，载入目标角色。
@@ -270,6 +293,7 @@ func switch_character(char_id: String) -> bool:
 		SaveSystem.mark_dirty()
 	print("[RosterSystem] 切换操控角色: %s" % char_id)
 	return true
+
 
 ## 把 Player/EquipmentSystem/SkillSystem 的当前实时状态抽回操控角色档案。
 ## 在切换前、存档前调用，确保档案是最新的。
@@ -296,6 +320,7 @@ func _sync_active_from_systems():
 			character["attributes"] = player.attributes.duplicate()
 		if player.get("attribute_points_unspent") != null:
 			character["attribute_points"] = player.attribute_points_unspent
+
 
 ## 把目标角色档案灌进 GameState/EquipmentSystem/SkillSystem/Player。
 func _apply_character_to_systems(char_id: String):
@@ -334,6 +359,7 @@ func _apply_character_to_systems(char_id: String):
 		if player.has_method("recalculate_stats"):
 			player.recalculate_stats()
 
+
 func _find_player():
 	var tree = get_tree()
 	if tree == null:
@@ -343,6 +369,7 @@ func _find_player():
 		return null
 	return p
 
+
 ## ============ 序列化（SaveSystem 调用）============
 ## 存档前务必先 _sync_active_from_systems()，由 SaveSystem 统一触发。
 func serialize() -> Dictionary:
@@ -350,6 +377,7 @@ func serialize() -> Dictionary:
 		"characters": characters.duplicate(true),
 		"active_char_id": active_char_id,
 	}
+
 
 func deserialize(data: Dictionary):
 	characters = data.get("characters", []).duplicate(true)
@@ -360,9 +388,11 @@ func deserialize(data: Dictionary):
 	roster_changed.emit()
 	print("[RosterSystem] 加载名册: %d 个角色，操控=%s" % [characters.size(), active_char_id])
 
+
 ## 把存档前的实时状态同步进档案（SaveSystem 在收集数据前调用）
 func sync_before_save():
 	_sync_active_from_systems()
+
 
 ## ============ 旧档迁移 ============
 ## 旧存档（无 roster）把单角色数据包装成名册第一个角色。
@@ -371,8 +401,9 @@ func migrate_from_legacy(char_data: Dictionary):
 	var character = _make_character(char_data.get("class_id", "class_warrior"))
 	character["level"] = char_data.get("level", 1)
 	character["exp"] = char_data.get("current_exp", 0.0)
-	character["attributes"] = char_data.get("attributes",
-		{"strength": 0, "agility": 0, "vitality": 0, "intelligence": 0})
+	character["attributes"] = char_data.get(
+		"attributes", {"strength": 0, "agility": 0, "vitality": 0, "intelligence": 0}
+	)
 	character["attribute_points"] = char_data.get("attribute_points_unspent", 0)
 	character["equipped"] = char_data.get("equipped", {})
 	character["learned_skills"] = char_data.get("learned_skills", {})

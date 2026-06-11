@@ -4,7 +4,7 @@ extends Node
 
 # 热重载信号
 signal config_reloaded(file_name: String)
-signal all_configs_reloaded()
+signal all_configs_reloaded
 
 # 配置数据缓存
 var equipment_data: Dictionary = {}
@@ -34,10 +34,12 @@ var _talents_index: Dictionary = {}
 # 配置文件路径（相对于项目根目录）
 const CONFIG_DIR = "res://config/"
 
+
 func _ready():
 	print("[ConfigLoader] 开始加载配置表...")
 	load_all_configs()
 	print("[ConfigLoader] 配置表加载完成")
+
 
 ## 加载所有配置表
 func load_all_configs():
@@ -55,6 +57,7 @@ func load_all_configs():
 	talents_data = load_json_config("talents.json")
 	endgame_data = load_json_config("endgame.json")
 	_build_indexes()
+
 
 ## 构建 ID 索引（加载后调用一次）
 func _build_indexes():
@@ -106,10 +109,22 @@ func _build_indexes():
 		if id != "":
 			_talents_index[id] = t
 
-	print("[ConfigLoader] 索引构建完成: %d 装备, %d 词缀, %d 技能, %d 敌人, %d 职业, %d 套装, %d 副本, %d 天赋" % [
-		_equipment_index.size(), _affixes_index.size(), _skills_index.size(),
-		_enemies_index.size(), _classes_index.size(), _sets_index.size(), _dungeons_index.size(), _talents_index.size()
-	])
+	print(
+		(
+			"[ConfigLoader] 索引构建完成: %d 装备, %d 词缀, %d 技能, %d 敌人, %d 职业, %d 套装, %d 副本, %d 天赋"
+			% [
+				_equipment_index.size(),
+				_affixes_index.size(),
+				_skills_index.size(),
+				_enemies_index.size(),
+				_classes_index.size(),
+				_sets_index.size(),
+				_dungeons_index.size(),
+				_talents_index.size()
+			]
+		)
+	)
+
 
 ## 加载单个 JSON 配置文件
 func load_json_config(filename: String) -> Dictionary:
@@ -134,7 +149,12 @@ func load_json_config(filename: String) -> Dictionary:
 	var error = json.parse(content)
 
 	if error != OK:
-		push_error("[ConfigLoader] JSON 解析错误: %s (行 %d: %s)" % [path, json.get_error_line(), json.get_error_message()])
+		push_error(
+			(
+				"[ConfigLoader] JSON 解析错误: %s (行 %d: %s)"
+				% [path, json.get_error_line(), json.get_error_message()]
+			)
+		)
 		return {}
 
 	var data = json.data
@@ -145,17 +165,21 @@ func load_json_config(filename: String) -> Dictionary:
 	print("[ConfigLoader] 成功加载: %s" % filename)
 	return data
 
+
 ## 根据 id 查找词缀（O(1) 索引查找）
 func get_affix_by_id(id: String) -> Dictionary:
 	return _affixes_index.get(id, {})
+
 
 ## 根据 id 查找敌人（O(1) 索引查找）
 func get_enemy_by_id(id: String) -> Dictionary:
 	return _enemies_index.get(id, {})
 
+
 ## 获取数值平衡参数
 func get_balance_param(key: String, default_value = null):
 	return balance_data.get(key, default_value)
+
 
 ## 获取完整 balance 配置（只读视图）
 ## 说明：balance_data 是 Dictionary（引用语义），调用方只读不应改写。
@@ -163,6 +187,7 @@ func get_balance_param(key: String, default_value = null):
 ## 通过此方法读取 balance.json，语义比直接访问 balance_data 更清晰。
 func get_balance_config() -> Dictionary:
 	return balance_data
+
 
 ## 获取所有装备列表（8部位全合并）
 func get_all_equipment() -> Array:
@@ -175,37 +200,46 @@ func get_all_equipment() -> Array:
 	result.append_array(equipment_data.get("trinkets", []))
 	return result
 
+
 ## 获取所有词缀列表
 func get_all_affixes() -> Array:
 	return affixes_data.get("affixes", [])
+
 
 ## 获取所有技能列表
 func get_all_skills() -> Array:
 	return skills_data.get("skills", [])
 
+
 ## 根据 id 查找装备（武器/护甲/饰品全找，O(1) 索引查找）
 func get_equipment_by_id(id: String) -> Dictionary:
 	return _equipment_index.get(id, {})
+
 
 ## 根据 id 查找职业（O(1) 索引查找）
 func get_class_by_id(id: String) -> Dictionary:
 	return _classes_index.get(id, {})
 
+
 ## 获取所有职业
 func get_all_classes() -> Array:
 	return classes_data.get("classes", [])
+
 
 ## 根据 id 查找套装（O(1) 索引查找）
 func get_set_by_id(id: String) -> Dictionary:
 	return _sets_index.get(id, {})
 
+
 ## 获取所有套装
 func get_all_sets() -> Array:
 	return sets_data.get("sets", [])
 
+
 ## 根据 id 查找技能（O(1) 索引查找）
 func get_skill_by_id(id: String) -> Dictionary:
 	return _skills_index.get(id, {})
+
 
 ## 获取某职业可用的技能（class 字段匹配或 "all" 通用）
 func get_skills_for_class(class_id: String) -> Array:
@@ -216,17 +250,21 @@ func get_skills_for_class(class_id: String) -> Array:
 			result.append(s)
 	return result
 
+
 ## 根据 id 查找副本（O(1) 索引查找）
 func get_dungeon_by_id(id: String) -> Dictionary:
 	return _dungeons_index.get(id, {})
+
 
 ## 获取所有副本
 func get_all_dungeons() -> Array:
 	return dungeons_data.get("dungeons", [])
 
+
 ## 获取稀有度特效配置
 func get_vfx_for_rarity(rarity: String) -> Dictionary:
 	return vfx_data.get("rarity_vfx", {}).get(rarity, {})
+
 
 ## ============ 领地系统 ============
 ## 获取建筑定义（by id）
@@ -236,9 +274,11 @@ func get_building_def(building_id: String) -> Dictionary:
 			return b
 	return {}
 
+
 ## 获取所有可建造建筑定义
 func get_all_buildings() -> Array:
 	return territory_data.get("buildings", [])
+
 
 ## 获取领地某等级的定义
 func get_territory_level_def(level: int) -> Dictionary:
@@ -247,6 +287,7 @@ func get_territory_level_def(level: int) -> Dictionary:
 			return lv
 	return {}
 
+
 ## 领地最高等级
 func get_territory_max_level() -> int:
 	var mx = 1
@@ -254,16 +295,20 @@ func get_territory_max_level() -> int:
 		mx = max(mx, int(lv.get("level", 1)))
 	return mx
 
+
 ## 获取基础建材定义列表
 func get_basic_materials() -> Array:
 	return territory_data.get("basic_materials", [])
+
 
 ## ============ P6 天赋星图 ============
 func get_talent_def(talent_id: String) -> Dictionary:
 	return _talents_index.get(talent_id, {})
 
+
 func get_all_talents() -> Array:
 	return talents_data.get("talents", [])
+
 
 ## 把已解锁的天赋节点效果聚合成扁平字典 {effect_key: total_value}
 ## unlocked: {talent_id: 1} 形式（来自 GameState.unlocked_talents）
@@ -279,6 +324,7 @@ func get_unlocked_talent_effects(unlocked: Dictionary) -> Dictionary:
 			if typeof(v) in [TYPE_FLOAT, TYPE_INT]:
 				totals[k] = totals.get(k, 0.0) + float(v)
 	return totals
+
 
 ## 检查某节点是否可解锁（前置满足、未已解锁）
 ## any_prerequisite=true 表示前置任一满足即可（用于多职业共享节点）
@@ -302,9 +348,11 @@ func can_unlock_talent(talent_id: String, unlocked: Dictionary) -> Dictionary:
 			return {"ok": false, "reason": "前置缺失: %s" % pid}
 	return {"ok": true, "reason": ""}
 
+
 ## ============ P7 末期内容（地图词缀/试炼塔/裂隙）============
 func get_endgame_config() -> Dictionary:
 	return endgame_data
+
 
 ## 热重载单个配置文件
 func reload_config(file_name: String) -> bool:
@@ -316,19 +364,32 @@ func reload_config(file_name: String) -> bool:
 	if data.is_empty():
 		return false
 	match file_name:
-		"equipment.json": equipment_data = data
-		"affixes.json": affixes_data = data
-		"skills.json": skills_data = data
-		"enemies.json": enemies_data = data
-		"classes.json": classes_data = data
-		"dungeons.json": dungeons_data = data
-		"waves.json": waves_data = data
-		"sets.json": sets_data = data
-		"balance.json": balance_data = data
-		"vfx.json": vfx_data = data
-		"territory.json": territory_data = data
-		"talents.json": talents_data = data
-		"endgame.json": endgame_data = data
+		"equipment.json":
+			equipment_data = data
+		"affixes.json":
+			affixes_data = data
+		"skills.json":
+			skills_data = data
+		"enemies.json":
+			enemies_data = data
+		"classes.json":
+			classes_data = data
+		"dungeons.json":
+			dungeons_data = data
+		"waves.json":
+			waves_data = data
+		"sets.json":
+			sets_data = data
+		"balance.json":
+			balance_data = data
+		"vfx.json":
+			vfx_data = data
+		"territory.json":
+			territory_data = data
+		"talents.json":
+			talents_data = data
+		"endgame.json":
+			endgame_data = data
 		_:
 			push_warning("[ConfigLoader] 未知配置: " + file_name)
 			return false
@@ -336,6 +397,7 @@ func reload_config(file_name: String) -> bool:
 	print("[ConfigLoader] 热重载: " + file_name)
 	config_reloaded.emit(file_name)
 	return true
+
 
 ## 热重载所有配置文件
 func reload_all() -> void:

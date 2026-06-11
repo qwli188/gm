@@ -28,8 +28,10 @@ var _rift_timer: float = 0.0
 # 怪物狂潮备份（恢复用）
 var _surge_backup: Dictionary = {}
 
+
 func _ready():
 	print("[DungeonFeatureSystem] 初始化")
+
 
 ## 激活机制（进入副本时调用）
 func activate_feature(feature_id: String, params: Dictionary) -> void:
@@ -53,6 +55,7 @@ func activate_feature(feature_id: String, params: Dictionary) -> void:
 			_init_ice_slide()
 		"monster_surge":
 			_init_monster_surge()
+
 
 ## 清理机制（退出副本时调用）
 func deactivate() -> void:
@@ -79,6 +82,7 @@ func deactivate() -> void:
 	active_buffs.clear()
 	arena_scene = null
 
+
 ## 主循环更新
 func _process(delta: float) -> void:
 	if active_feature_id.is_empty() or not is_instance_valid(arena_scene):
@@ -96,13 +100,16 @@ func _process(delta: float) -> void:
 		"void_rift":
 			_process_void_rift(delta)
 
+
 # ============================================================
 # 机制1: 死亡之雾 (death_fog)
 # ============================================================
 
+
 func _init_death_fog():
 	_fog_active = false
 	_fog_remaining = 0.0
+
 
 func _process_death_fog(delta: float):
 	var cycle = feature_params.get("cycle_duration", 30.0)
@@ -125,6 +132,7 @@ func _process_death_fog(delta: float):
 		if _fog_remaining <= 0:
 			_end_fog()
 
+
 func _trigger_fog(duration: float, crit_bonus: float):
 	_fog_active = true
 	_fog_remaining = duration
@@ -145,6 +153,7 @@ func _trigger_fog(duration: float, crit_bonus: float):
 	AudioManager.play("footstep")  # 复用音效，或后续换成"fog_start"
 	print("[死亡之雾] 触发！暴击率+50%")
 
+
 func _end_fog():
 	_fog_active = false
 	active_buffs.erase("fog_crit_bonus")
@@ -158,12 +167,15 @@ func _end_fog():
 
 	print("[死亡之雾] 结束")
 
+
 func _cleanup_death_fog():
 	_end_fog()
+
 
 # ============================================================
 # 机制2: 毒池 (poison_pools)
 # ============================================================
+
 
 func _init_poison_pools():
 	_poison_spawn_timer = 0.0
@@ -173,6 +185,7 @@ func _init_poison_pools():
 	# 初始生成
 	for i in range(count):
 		_spawn_poison_pool(radius)
+
 
 func _process_poison_pools(delta: float):
 	var interval = feature_params.get("spawn_interval", 12.0)
@@ -185,15 +198,13 @@ func _process_poison_pools(delta: float):
 		if feature_nodes.size() < 8:
 			_spawn_poison_pool(radius)
 
+
 func _spawn_poison_pool(radius: float):
 	if not is_instance_valid(arena_scene):
 		return
 
 	# 随机位置（Arena 600x400范围）
-	var pos = Vector2(
-		randf_range(-300, 300),
-		randf_range(-200, 200)
-	)
+	var pos = Vector2(randf_range(-300, 300), randf_range(-200, 200))
 
 	# 创建毒池节点
 	var pool = Node2D.new()
@@ -221,12 +232,13 @@ func _spawn_poison_pool(radius: float):
 	var poison_dps = feature_params.get("poison_dps", 8.0)
 	var poison_dur = feature_params.get("poison_duration", 3.0)
 	var tick_timer = 0.0
-	area.body_entered.connect(func(body):
-		if body.is_in_group("player") and body.has_method("take_damage"):
-			# 应用持续毒伤(简化实现: 直接伤害)
-			body.take_damage(poison_dps * 0.5)
-			if is_instance_valid(pool):
-				EffectSprite.spawn(arena_scene, "poison", pool.global_position, 1.0)
+	area.body_entered.connect(
+		func(body):
+			if body.is_in_group("player") and body.has_method("take_damage"):
+				# 应用持续毒伤(简化实现: 直接伤害)
+				body.take_damage(poison_dps * 0.5)
+				if is_instance_valid(pool):
+					EffectSprite.spawn(arena_scene, "poison", pool.global_position, 1.0)
 	)
 
 	arena_scene.add_child(pool)
@@ -235,9 +247,11 @@ func _spawn_poison_pool(radius: float):
 	# 生成特效
 	EffectSprite.spawn(arena_scene, "poison", pool.global_position, 1.2)
 
+
 # ============================================================
 # 机制3: 熔岩喷发 (lava_eruption)
 # ============================================================
+
 
 func _process_lava_eruption(delta: float):
 	var interval = feature_params.get("eruption_interval", 6.0)
@@ -246,6 +260,7 @@ func _process_lava_eruption(delta: float):
 	if _lava_timer >= interval:
 		_lava_timer = 0.0
 		_trigger_lava_eruption()
+
 
 func _trigger_lava_eruption():
 	if not is_instance_valid(arena_scene):
@@ -256,10 +271,7 @@ func _trigger_lava_eruption():
 	var warning_dur = feature_params.get("warning_duration", 1.5)
 
 	# 随机位置
-	var pos = arena_scene.global_position + Vector2(
-		randf_range(-300, 300),
-		randf_range(-200, 200)
-	)
+	var pos = arena_scene.global_position + Vector2(randf_range(-300, 300), randf_range(-200, 200))
 
 	# 预警圈
 	var warning = _create_warning_circle(pos, radius)
@@ -284,6 +296,7 @@ func _trigger_lava_eruption():
 		EffectSprite.spawn(arena_scene, "fire", pos, radius / 75.0)
 		AudioManager.play("hit")  # 复用音效，或后续换成"explosion"
 
+
 func _create_warning_circle(pos: Vector2, radius: float) -> Node2D:
 	var circle = ColorRect.new()
 	circle.size = Vector2(radius * 2, radius * 2)
@@ -292,15 +305,18 @@ func _create_warning_circle(pos: Vector2, radius: float) -> Node2D:
 	circle.z_index = -1
 	return circle
 
+
 func _deal_aoe_damage(center: Vector2, radius: float, dmg: float):
 	var player = _get_player()
 	if is_instance_valid(player) and player.has_method("take_damage"):
 		if player.global_position.distance_to(center) <= radius:
 			player.take_damage(dmg)
 
+
 # ============================================================
 # 机制4: 冰面打滑 (ice_slide)
 # ============================================================
+
 
 func _init_ice_slide():
 	var count = feature_params.get("ice_zone_count", 3)
@@ -311,15 +327,13 @@ func _init_ice_slide():
 	for i in range(count):
 		_spawn_ice_zone(Vector2(zone_size.x, zone_size.y))
 
+
 func _spawn_ice_zone(size: Vector2):
 	if not is_instance_valid(arena_scene):
 		return
 
 	# 随机位置
-	var pos = arena_scene.global_position + Vector2(
-		randf_range(-250, 250),
-		randf_range(-150, 150)
-	)
+	var pos = arena_scene.global_position + Vector2(randf_range(-250, 250), randf_range(-150, 150))
 
 	var zone = Node2D.new()
 	zone.global_position = pos
@@ -348,9 +362,11 @@ func _spawn_ice_zone(size: Vector2):
 	# 特效
 	EffectSprite.spawn(arena_scene, "frost", pos, 1.0)
 
+
 # ============================================================
 # 机制5: 虚空裂隙 (void_rift)
 # ============================================================
+
 
 func _process_void_rift(delta: float):
 	var interval = feature_params.get("rift_spawn_interval", 20.0)
@@ -359,6 +375,7 @@ func _process_void_rift(delta: float):
 	if _rift_timer >= interval:
 		_rift_timer = 0.0
 		_spawn_void_rift()
+
 
 func _spawn_void_rift():
 	if not is_instance_valid(arena_scene):
@@ -369,10 +386,7 @@ func _spawn_void_rift():
 	var elite_count = feature_params.get("elite_spawn_count", 2)
 
 	# 随机位置
-	var pos = arena_scene.global_position + Vector2(
-		randf_range(-300, 300),
-		randf_range(-200, 200)
-	)
+	var pos = arena_scene.global_position + Vector2(randf_range(-300, 300), randf_range(-200, 200))
 
 	var rift = Node2D.new()
 	rift.global_position = pos
@@ -394,9 +408,10 @@ func _spawn_void_rift():
 	area.add_child(collision)
 	rift.add_child(area)
 
-	area.body_entered.connect(func(body):
-		if body.is_in_group("player"):
-			_teleport_player(body, pos, radius)
+	area.body_entered.connect(
+		func(body):
+			if body.is_in_group("player"):
+				_teleport_player(body, pos, radius)
 	)
 
 	arena_scene.add_child(rift)
@@ -414,7 +429,8 @@ func _spawn_void_rift():
 		rift.queue_free()
 		feature_nodes.erase(rift)
 
-func _teleport_player(player: Node2D, rift_pos: Vector2, max_dist: float):
+
+func _teleport_player(player: Node2D, _rift_pos: Vector2, max_dist: float):
 	if not is_instance_valid(arena_scene):
 		return
 
@@ -423,14 +439,14 @@ func _teleport_player(player: Node2D, rift_pos: Vector2, max_dist: float):
 
 	# 随机新位置
 	var offset = Vector2(
-		randf_range(-max_dist, max_dist),
-		randf_range(-max_dist * 0.7, max_dist * 0.7)
+		randf_range(-max_dist, max_dist), randf_range(-max_dist * 0.7, max_dist * 0.7)
 	)
 	player.global_position = arena_scene.global_position + offset
 
 	# 传送后特效
 	EffectSprite.spawn(arena_scene, "frost", player.global_position, 1.2)
 	AudioManager.play("footstep")
+
 
 func _spawn_void_elites(pos: Vector2, count: int):
 	if not is_instance_valid(arena_scene):
@@ -453,9 +469,11 @@ func _spawn_void_elites(pos: Vector2, count: int):
 				arena_scene.add_child(enemy)
 				EffectSprite.spawn(arena_scene, "frost", spawn_pos, 1.0)
 
+
 # ============================================================
 # 机制6: 怪物狂潮 (monster_surge)
 # ============================================================
+
 
 func _init_monster_surge():
 	var spawn_mult = feature_params.get("spawn_rate_multiplier", 2.0)
@@ -476,6 +494,7 @@ func _init_monster_surge():
 
 	print("[怪物狂潮] 刷怪密度x%.1f，掉落率x%.1f" % [density, loot_mult])
 
+
 func _cleanup_monster_surge():
 	# 恢复颜色
 	if is_instance_valid(arena_scene):
@@ -483,9 +502,11 @@ func _cleanup_monster_surge():
 		if modulate_node:
 			modulate_node.color = Color.WHITE
 
+
 # ============================================================
 # 辅助方法
 # ============================================================
+
 
 func _get_player() -> Node2D:
 	var player = get_tree().get_first_node_in_group("player")
@@ -493,8 +514,10 @@ func _get_player() -> Node2D:
 		return player
 	return null
 
+
 func _get_enemies() -> Array:
 	return get_tree().get_nodes_in_group("enemy")
+
 
 func set_arena(arena: Node):
 	arena_scene = arena

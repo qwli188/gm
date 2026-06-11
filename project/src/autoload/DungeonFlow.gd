@@ -9,6 +9,7 @@ var current_dungeon_id: String = ""
 var dungeon_scene: Node2D = null
 var terrain_node: Node2D = null
 
+
 ## 开始副本地形生成（MainScene._ready调用）
 func start_dungeon(dungeon_id: String, scene: Node2D, _player_ref: Node2D):
 	current_dungeon_id = dungeon_id
@@ -17,6 +18,7 @@ func start_dungeon(dungeon_id: String, scene: Node2D, _player_ref: Node2D):
 	_generate_terrain(dungeon_id)
 
 	print("[DungeonFlow] 地形生成: %s" % dungeon_id)
+
 
 ## 生成副本地形
 func _generate_terrain(dungeon_id: String):
@@ -35,6 +37,7 @@ func _generate_terrain(dungeon_id: String):
 
 	terrain_generated.emit(region)
 
+
 ## 获取副本数据
 func _get_dungeon_data(dungeon_id: String) -> Dictionary:
 	var all_dungeons = ConfigLoader.get_all_dungeons()
@@ -42,6 +45,7 @@ func _get_dungeon_data(dungeon_id: String) -> Dictionary:
 		if dg.get("id", "") == dungeon_id:
 			return dg
 	return {}
+
 
 ## 重置
 func reset():

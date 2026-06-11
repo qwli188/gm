@@ -11,8 +11,10 @@ signal sanctify_completed(instance_id: String)
 # 不进存档（强化后立刻消耗），但持久化为 EquipmentSystem 实例字段后续可考虑
 var _sanctified: Dictionary = {}
 
+
 func _ready():
 	print("[AffixWorkshop] 词缀工坊初始化")
+
 
 ## 洗练装备：重新roll词缀，可锁定指定词缀
 ## @param instance_id: 装备实例UUID String（从 EquipmentSystem.equipment_instances 中查找）
@@ -63,10 +65,16 @@ func reforge(instance_id: String, locked_affix_indices: Array[int] = []) -> bool
 	instance["rolled_affixes"] = new_affixes
 	EquipmentSystem.equipment_instances[instance_id] = instance
 
-	print("[AffixWorkshop] 洗练完成: %s (锁定%d个)" % [instance.get("template_id", "?"), locked_affix_indices.size()])
+	print(
+		(
+			"[AffixWorkshop] 洗练完成: %s (锁定%d个)"
+			% [instance.get("template_id", "?"), locked_affix_indices.size()]
+		)
+	)
 	var item_data = EquipmentSystem.get_equipment_instance_data(instance_id)
 	reforge_completed.emit(item_data)
 	return true
+
 
 ## 分解装备：获得符文碎片
 ## @param instance_id: 装备实例UUID String
@@ -100,17 +108,21 @@ func dismantle_equipment(instance_id: String) -> int:
 	dismantle_completed.emit(yield_count)
 	return yield_count
 
+
 ## ============ 内部辅助 ============
+
 
 ## 获取洗练消耗
 func _get_reforge_cost(rarity: String) -> Dictionary:
 	var costs = ConfigLoader.balance_data.get("affix_workshop", {}).get("reforge_cost", {})
 	return costs.get(rarity, {"gold": 100, "rune_shard": 1})
 
+
 ## 获取分解收益
 func _get_dismantle_yield(rarity: String) -> int:
 	var yields = ConfigLoader.balance_data.get("affix_workshop", {}).get("dismantle_yield", {})
 	return yields.get(rarity, 1)
+
 
 ## 检查资源是否充足
 func _check_resources(cost: Dictionary) -> bool:
@@ -123,6 +135,7 @@ func _check_resources(cost: Dictionary) -> bool:
 		return false
 	return true
 
+
 ## 消耗资源
 func _consume_resources(cost: Dictionary):
 	var gold = cost.get("gold", 0)
@@ -132,8 +145,9 @@ func _consume_resources(cost: Dictionary):
 	GameState.total_gold -= gold
 	GameState.add_material("rune_shard", -shards)
 
+
 ## 获取适用于指定槽位和稀有度的词缀列表
-func _get_applicable_affixes(slot: String, rarity: String) -> Array:
+func _get_applicable_affixes(slot: String, _rarity: String) -> Array:
 	var all_affixes = ConfigLoader.get_all_affixes()
 	var result = []
 
@@ -144,8 +158,9 @@ func _get_applicable_affixes(slot: String, rarity: String) -> Array:
 
 	return result
 
+
 ## 随机roll一个词缀ID
-func _roll_random_affix(rarity: String) -> String:
+func _roll_random_affix(_rarity: String) -> String:
 	var all_affixes = ConfigLoader.get_all_affixes()
 	if all_affixes.is_empty():
 		return ""
@@ -159,6 +174,7 @@ func _roll_random_affix(rarity: String) -> String:
 # ============================================================
 # 装备强化系统 (模块5)
 # ============================================================
+
 
 ## 装备强化：+0到+15，消耗金币+符文碎片，有成功率
 ## 返回 {success: bool, new_level: int, cost: {gold, material}, message: String}
@@ -182,8 +198,16 @@ func enhance_equipment(instance_id: String) -> Dictionary:
 	# 计算消耗（按稀有度，含 mythic 档；缺档兜底到 common）
 	var costs_all = config.get("costs", {})
 	var cost_table = costs_all.get(rarity, costs_all.get(Schema.RARITY_COMMON, {}))
-	var gold_cost = int(cost_table.get("gold_base", 50)) + int(cost_table.get("gold_per_level", 25) * current_level)
-	var material_cost = int(cost_table.get("material_base", 1) + cost_table.get("material_per_level", 0.5) * current_level)
+	var gold_cost = (
+		int(cost_table.get("gold_base", 50))
+		+ int(cost_table.get("gold_per_level", 25) * current_level)
+	)
+	var material_cost = int(
+		(
+			cost_table.get("material_base", 1)
+			+ cost_table.get("material_per_level", 0.5) * current_level
+		)
+	)
 
 	# 检查资源（金币走持久钱包，材料统一用通用材料 rune_shard）
 	if GameState.total_gold < gold_cost:
@@ -227,17 +251,18 @@ func enhance_equipment(instance_id: String) -> Dictionary:
 			cost = {gold = gold_cost, material = material_cost},
 			message = msg
 		}
-	else:
-		return {
-			success = false,
-			new_level = current_level,
-			cost = {gold = gold_cost, material = material_cost},
-			message = "强化失败，装备保持+%d（材料已损失）" % current_level
-		}
+	return {
+		success = false,
+		new_level = current_level,
+		cost = {gold = gold_cost, material = material_cost},
+		message = "强化失败，装备保持+%d（材料已损失）" % current_level
+	}
+
 
 # ============================================================
 # P6: 装备升品（common→rare→epic→legendary→mythic）
 # ============================================================
+
 
 ## 是否有可用升品配方
 func can_upgrade(instance_id: String) -> Dictionary:
@@ -253,6 +278,7 @@ func can_upgrade(instance_id: String) -> Dictionary:
 	if tier.is_empty():
 		return {"ok": false, "reason": "已是最高品质"}
 	return {"ok": true, "reason": "", "tier": tier, "rarity": rarity}
+
 
 ## 升品装备
 ## fodder_ids: 同稀有度同部位的"饲料"装备 instance_id 列表（数量必须等于配置 fodder_count_per_upgrade）
@@ -338,23 +364,37 @@ func upgrade_equipment(instance_id: String, fodder_ids: Array) -> Dictionary:
 	if has_node("/root/SaveSystem"):
 		SaveSystem.mark_dirty()
 	print("[AffixWorkshop] 升品: %s -> %s" % [template_id, new_rarity])
-	return {"success": true, "new_rarity": new_rarity, "message": "升品成功 -> %s" % Schema.rarity_display(new_rarity)}
+	return {
+		"success": true,
+		"new_rarity": new_rarity,
+		"message": "升品成功 -> %s" % Schema.rarity_display(new_rarity)
+	}
+
 
 func _affix_count_for_rarity(rarity: String) -> int:
 	match rarity:
-		"common": return 0
-		"rare": return 1
-		"epic": return 2
-		"legendary": return 3
-		"mythic": return 4
-		_: return 0
+		"common":
+			return 0
+		"rare":
+			return 1
+		"epic":
+			return 2
+		"legendary":
+			return 3
+		"mythic":
+			return 4
+		_:
+			return 0
+
 
 # ============================================================
 # P6: 神圣化（保证下一次强化必成功）
 # ============================================================
 
+
 func is_sanctified(instance_id: String) -> bool:
 	return _sanctified.get(instance_id, false)
+
 
 func sanctify_equipment(instance_id: String) -> Dictionary:
 	if not EquipmentSystem.equipment_instances.has(instance_id):

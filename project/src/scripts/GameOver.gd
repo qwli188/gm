@@ -10,10 +10,12 @@ var survival_time: float = 0.0
 var kills: int = 0
 var gold_earned: int = 0
 
+
 func _ready():
 	hide()
 	retry_button.pressed.connect(_on_retry_pressed)
 	menu_button.pressed.connect(_on_menu_pressed)
+
 
 ## 显示游戏结束界面
 func show_game_over(time: float, kill_count: int, gold: int):
@@ -40,10 +42,12 @@ func show_game_over(time: float, kill_count: int, gold: int):
 
 	show()
 
+
 func _on_retry_pressed():
 	# 返回主城（而不是直接重开）
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://scenes/Town.tscn")
+
 
 func _on_menu_pressed():
 	# 返回主菜单

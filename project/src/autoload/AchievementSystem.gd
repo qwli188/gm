@@ -5,8 +5,10 @@ extends Node
 var unlocked: Array = []  # 已解锁成就 id 列表
 var progress: Dictionary = {}  # 进度追踪 {achievement_id: current_value}
 
+
 func _ready():
 	print("[AchievementSystem] 成就系统初始化")
+
 
 func get_all_achievements() -> Array:
 	if has_node("/root/ConfigLoader"):
@@ -14,9 +16,11 @@ func get_all_achievements() -> Array:
 		return cfg.get("achievements", [])
 	return []
 
+
 ## 检查单个成就是否解锁
 func is_unlocked(ach_id: String) -> bool:
 	return ach_id in unlocked
+
 
 ## 获取成就进度（0-100%）
 func get_progress(ach_id: String) -> float:
@@ -27,23 +31,29 @@ func get_progress(ach_id: String) -> float:
 	var cur = progress.get(ach_id, 0)
 	return clampf(float(cur) / goal, 0.0, 1.0)
 
+
 ## 注册事件（由游戏其他系统调用）
 func register_boss_kill(boss_id: String):
 	_inc_achievement("ach_boss_first_kill_%s" % boss_id, 1)
 	_inc_achievement("ach_boss_kill_count", 1)
 
+
 func register_trial_floor(floor: int):
 	_set_achievement("ach_trial_tower_floor", floor)
 
-func register_set_collected(set_id: String):
+
+func register_set_collected(_set_id: String):
 	_inc_achievement("ach_collect_all_sets", 1)
+
 
 func register_paragon_level(level: int):
 	_set_achievement("ach_paragon_level", level)
 
-func register_dungeon_clear(dungeon_id: String, difficulty: int):
+
+func register_dungeon_clear(_dungeon_id: String, difficulty: int):
 	if difficulty >= 3:
 		_inc_achievement("ach_clear_all_hard", 1)
+
 
 ## 内部：增量进度
 func _inc_achievement(ach_id: String, delta: int):
@@ -51,12 +61,14 @@ func _inc_achievement(ach_id: String, delta: int):
 	progress[ach_id] = cur + delta
 	_check_unlock(ach_id)
 
+
 ## 内部：设置进度（取最大值）
 func _set_achievement(ach_id: String, value: int):
 	var cur = progress.get(ach_id, 0)
 	if value > cur:
 		progress[ach_id] = value
 		_check_unlock(ach_id)
+
 
 ## 检查是否达成解锁
 func _check_unlock(ach_id: String):
@@ -72,9 +84,11 @@ func _check_unlock(ach_id: String):
 		_show_unlock_toast(ach)
 		print("[AchievementSystem] 成就解锁: %s" % ach.get("display_name", ach_id))
 
-func _show_unlock_toast(ach: Dictionary):
+
+func _show_unlock_toast(_ach: Dictionary):
 	# TODO: 显示解锁提示 UI（浮窗 + 音效）
 	pass
+
 
 func _get_achievement(ach_id: String) -> Dictionary:
 	for a in get_all_achievements():
@@ -82,8 +96,10 @@ func _get_achievement(ach_id: String) -> Dictionary:
 			return a
 	return {}
 
+
 func serialize() -> Dictionary:
 	return {"unlocked": unlocked, "progress": progress}
+
 
 func deserialize(data: Dictionary):
 	unlocked = data.get("unlocked", [])

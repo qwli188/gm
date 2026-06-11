@@ -13,12 +13,14 @@ const SPRITE_SHEET = preload("res://assets/sprites/roguelike/roguelikeSheet_tran
 var selected_class_id: String = ""
 var class_cards: Dictionary = {}
 
+
 func _ready():
 	print("[ClassSelect] 开始初始化")
 	_build_class_cards()
 	confirm_button.pressed.connect(_on_confirm)
 	back_button.pressed.connect(_on_back)
 	print("[ClassSelect] 初始化完成")
+
 
 ## 创建可视化职业卡片
 func _build_class_cards():
@@ -30,6 +32,7 @@ func _build_class_cards():
 		class_grid.add_child(card)
 		class_cards[cls.get("id", "")] = card
 		print("[ClassSelect] 创建职业卡片: %s" % cls.get("display_name", ""))
+
 
 ## 创建单个职业卡片 - 修复版本
 func _create_class_card(cls: Dictionary) -> PanelContainer:
@@ -94,6 +97,7 @@ func _create_class_card(cls: Dictionary) -> PanelContainer:
 
 	return card
 
+
 ## 职业被选中
 func _on_class_selected(class_id: String):
 	selected_class_id = class_id
@@ -105,21 +109,25 @@ func _on_class_selected(class_id: String):
 	desc_label.text = cls.get("description", "")
 
 	var stats = cls.get("base_stats", {})
-	stats_label.text = "生命: %d | 伤害: %d | 攻速: %.1f | 移速: %d | 护甲: %d\n暴击率: %.0f%% | 暴击伤害: %.0f%%" % [
-		stats.get("max_hp", 100),
-		stats.get("damage", 10),
-		stats.get("attack_speed", 1.0),
-		stats.get("move_speed", 300),
-		stats.get("armor", 0),
-		stats.get("crit_chance", 0.05) * 100,
-		stats.get("crit_damage", 1.5) * 100
-	]
+	stats_label.text = (
+		"生命: %d | 伤害: %d | 攻速: %.1f | 移速: %d | 护甲: %d\n暴击率: %.0f%% | 暴击伤害: %.0f%%"
+		% [
+			stats.get("max_hp", 100),
+			stats.get("damage", 10),
+			stats.get("attack_speed", 1.0),
+			stats.get("move_speed", 300),
+			stats.get("armor", 0),
+			stats.get("crit_chance", 0.05) * 100,
+			stats.get("crit_damage", 1.5) * 100
+		]
+	)
 
 	# 启用确认按钮
 	confirm_button.disabled = false
 
 	# 高亮选中卡片
 	_update_card_highlight(class_id)
+
 
 ## 更新卡片高亮效果
 func _update_card_highlight(selected_id: String):
@@ -143,6 +151,7 @@ func _update_card_highlight(selected_id: String):
 		style.set_corner_radius_all(8)
 		card.add_theme_stylebox_override("panel", style)
 
+
 func _on_confirm():
 	if selected_class_id == "":
 		print("[ClassSelect] 未选择职业")
@@ -154,6 +163,7 @@ func _on_confirm():
 		get_node("/root/RosterSystem").create_character(selected_class_id)
 	# 进入新手村
 	get_tree().change_scene_to_file("res://scenes/Town.tscn")
+
 
 func _on_back():
 	print("[ClassSelect] 返回主菜单")

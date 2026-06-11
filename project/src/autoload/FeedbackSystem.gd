@@ -33,9 +33,11 @@ var _shake_camera = null
 # ============ Hitstop 状态 ============
 var _hitstop_active: bool = false
 
+
 func _ready():
 	print("[FeedbackSystem] 反馈系统初始化")
 	process_mode = PROCESS_MODE_ALWAYS  # 即使在暂停时也跑（hitstop 用 time_scale 而非 paused）
+
 
 func _process(delta: float):
 	# 累计表清理
@@ -53,6 +55,7 @@ func _process(delta: float):
 			_shake_camera.offset = Vector2.ZERO
 			_shake_camera = null
 
+
 # ============ Hitstop ============
 ## 顿帧（短暂 time_scale=0），duration 单位秒。同一帧多次调用以最长者为准。
 func hitstop(duration: float):
@@ -63,10 +66,12 @@ func hitstop(duration: float):
 	_hitstop_active = true
 	Engine.time_scale = 0.0
 	# 用真实时间不受 time_scale 影响
-	get_tree().create_timer(duration, true, false, true).timeout.connect(func():
-		Engine.time_scale = 1.0
-		_hitstop_active = false
+	get_tree().create_timer(duration, true, false, true).timeout.connect(
+		func():
+			Engine.time_scale = 1.0
+			_hitstop_active = false
 	)
+
 
 # ============ 屏幕震动 ============
 ## intensity 是像素幅度。同一帧多次调用以最大者为准。
@@ -86,12 +91,14 @@ func shake(intensity: float, duration: float = 0.15):
 		_shake_remaining = duration
 	_shake_camera = camera
 
+
 # ============ 击杀慢镜头（用于 Boss 死亡）============
 func slowmo(scale: float = 0.35, duration: float = 0.4):
 	Engine.time_scale = clamp(scale, 0.05, 1.0)
-	get_tree().create_timer(duration, true, false, true).timeout.connect(func():
-		Engine.time_scale = 1.0
+	get_tree().create_timer(duration, true, false, true).timeout.connect(
+		func(): Engine.time_scale = 1.0
 	)
+
 
 # ============ 累计伤害飘字 ============
 ## 优先调用此方法替代 DamageNumber.spawn：同一 target 0.3s 内的伤害会合并到上次的飘字上。
@@ -105,7 +112,10 @@ func damage_text(target: Node, parent: Node, pos: Vector2, amount: float, is_cri
 	var now = Time.get_ticks_msec() / 1000.0
 	if key != "" and _damage_accum.has(key):
 		var prev = _damage_accum[key]
-		if now - float(prev.get("last_time", 0)) < ACCUM_WINDOW and is_instance_valid(prev.get("last_node")):
+		if (
+			now - float(prev.get("last_time", 0)) < ACCUM_WINDOW
+			and is_instance_valid(prev.get("last_node"))
+		):
 			# 累计到上一条飘字
 			prev["acc_amount"] = float(prev["acc_amount"]) + amount
 			prev["last_time"] = now
@@ -126,6 +136,7 @@ func damage_text(target: Node, parent: Node, pos: Vector2, amount: float, is_cri
 		"was_crit": is_crit,
 	}
 
+
 func _prune_accum():
 	var now = Time.get_ticks_msec() / 1000.0
 	var to_remove = []
@@ -138,24 +149,32 @@ func _prune_accum():
 	for k in to_remove:
 		_damage_accum.erase(k)
 
+
 # ============ 拾取过滤 ============
-const RARITY_RANK := {
-	"common": 0, "rare": 1, "epic": 2, "legendary": 3, "mythic": 4
-}
+const RARITY_RANK := {"common": 0, "rare": 1, "epic": 2, "legendary": 3, "mythic": 4}
+
 
 func set_loot_filter(threshold: int):
 	loot_filter_threshold = clamp(threshold, FILTER_ALL, FILTER_MYTHIC)
 	print("[FeedbackSystem] 拾取过滤阈值: %d" % loot_filter_threshold)
 
+
 ## 是否应该在地图上显示该装备牌（按稀有度阈值）
 func should_display_drop(rarity: String) -> bool:
 	return RARITY_RANK.get(rarity, 0) >= loot_filter_threshold
 
+
 func filter_label() -> String:
 	match loot_filter_threshold:
-		FILTER_ALL: return "全部显示"
-		FILTER_RARE: return "稀有及以上"
-		FILTER_EPIC: return "史诗及以上"
-		FILTER_LEGENDARY: return "传奇及以上"
-		FILTER_MYTHIC: return "仅神话"
-		_: return "?"
+		FILTER_ALL:
+			return "全部显示"
+		FILTER_RARE:
+			return "稀有及以上"
+		FILTER_EPIC:
+			return "史诗及以上"
+		FILTER_LEGENDARY:
+			return "传奇及以上"
+		FILTER_MYTHIC:
+			return "仅神话"
+		_:
+			return "?"

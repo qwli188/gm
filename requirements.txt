@@ -1,0 +1,14 @@
+# DarkLoot 工程 Python 依赖（工具链 + 素材生成管线）
+# 安装：python -m pip install -r requirements.txt
+#
+# 全部为开源、可商用许可（MIT / BSD / HPND）。
+
+# 素材程序化生成与后处理（gen_assets.py / enhance_sprites.py / gen_tiles_hd.py 等）
+Pillow>=10.0,<13
+
+# GDScript 工具链：gdformat（格式化）+ gdlint（静态检查）+ gdradon（复杂度）
+# MIT 许可
+gdtoolkit==4.5.0
+
+# 代码提交前自动跑格式化/lint 的钩子框架（MIT）
+pre-commit>=3.5

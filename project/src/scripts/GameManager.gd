@@ -8,6 +8,7 @@ extends Node
 # 玩家已学习的技能（起手技能 + 技能树解锁，PR-7 后不再用升级三选一）
 var learned_skills: Dictionary = {}
 
+
 func _ready():
 	# 生成可视化战斗地图（铺地块+障碍物）
 	_generate_battle_map()
@@ -27,6 +28,7 @@ func _ready():
 		get_node("/root/ActiveSkillSystem").reset()
 	_grant_starting_skill()
 
+
 ## 授予职业起手技能
 func _grant_starting_skill():
 	if not has_node("/root/GameState"):
@@ -42,10 +44,12 @@ func _grant_starting_skill():
 	_apply_skill_effect(start_skill_id, 1)
 	print("[GameManager] 授予起手技能: %s" % skill.get("display_name", ""))
 
+
 ## 玩家升级时触发
 ## PR-7: 升级三选一已移除（roguelite 残留）。
 ## 升级成长改为 Player._on_level_up 发放属性点（玩家在 CharacterPanel 分配）+ SP（技能树）。
 ## 技能获取走固定技能树（SkillSystem）+ 装备词缀，不再随机抽取。
+
 
 ## 应用技能效果到玩家
 func _apply_skill_effect(skill_id: String, level: int):
@@ -98,6 +102,7 @@ func _apply_skill_effect(skill_id: String, level: int):
 		_:
 			push_warning("[GameManager] 未知技能效果类型: %s" % kind)
 
+
 ## 应用属性到玩家
 func _apply_stat_to_player(stat: String, value: float, is_multiplier: bool):
 	if not player:
@@ -129,6 +134,7 @@ func _apply_stat_to_player(stat: String, value: float, is_multiplier: bool):
 
 	print("[GameManager] 应用属性: %s %s %s" % [stat, "×" if is_multiplier else "+", value])
 
+
 ## 根据ID查找技能
 func _get_skill_by_id(skill_id: String) -> Dictionary:
 	var skills = ConfigLoader.skills_data.get("skills", [])
@@ -137,31 +143,39 @@ func _get_skill_by_id(skill_id: String) -> Dictionary:
 			return skill
 	return {}
 
+
 ## 玩家死亡时触发
 func _on_player_died(time: float, kill_count: int, gold_earned: int):
 	print("[GameManager] 玩家死亡，显示GameOver界面")
 	game_over.show_game_over(time, kill_count, gold_earned)
 
+
 ## 装备被装备
 func _on_equipment_equipped(item_data: Dictionary):
 	print("[GameManager] 装备已装备: %s" % item_data.get("display_name", ""))
 
+
 ## 装备被丢弃
 func _on_equipment_discarded():
 	print("[GameManager] 装备已丢弃")
+
 
 ## 显示装备拾取UI
 func show_equipment_pickup(item_data: Dictionary, slot):
 	if equipment_pickup:
 		equipment_pickup.show_equipment(item_data, slot)
 
+
 ## ============== 可视化地图生成 ==============
 const TILE_SIZE = 64
 const MAP_WIDTH = 30
 const MAP_HEIGHT = 20
 
+
 func _generate_battle_map():
-	var dungeon_id = GameState.selected_dungeon_id if GameState.selected_dungeon_id != "" else "dungeon_crypt_1"
+	var dungeon_id = (
+		GameState.selected_dungeon_id if GameState.selected_dungeon_id != "" else "dungeon_crypt_1"
+	)
 	var dungeon = ConfigLoader.get_dungeon_by_id(dungeon_id)
 	var region = dungeon.get("region", "field") if not dungeon.is_empty() else "field"
 
@@ -220,6 +234,7 @@ func _generate_battle_map():
 
 	print("[GameManager] 生成 %s 区域地图（%dx%d 格）" % [region, MAP_WIDTH, MAP_HEIGHT])
 
+
 ## 散布装饰道具(纯视觉,无碰撞) - 增强地图氛围
 func _scatter_props(region: String, parent: Node, map_w: float, map_h: float, center: Vector2):
 	var prop_count = SpriteLibrary.count_props(region)
@@ -245,6 +260,7 @@ func _scatter_props(region: String, parent: Node, map_w: float, map_h: float, ce
 		# 轻微随机色调变化,避免完全一致
 		spr.modulate = Color(1.0, 1.0, 1.0).lerp(Color(0.85, 0.9, 1.0), randf() * 0.3)
 		parent.add_child(spr)
+
 
 func _create_obstacles(region: String, parent: Node, map_w: float, map_h: float, center: Vector2):
 	var obs_tex = SpriteLibrary.get_tile(region, true)
@@ -281,4 +297,3 @@ func _create_obstacles(region: String, parent: Node, map_w: float, map_h: float,
 		holder.add_child(body)
 
 		parent.add_child(holder)
-

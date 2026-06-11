@@ -16,6 +16,7 @@ var burst_fired: Dictionary = {}
 var current_enemy_count: int = 0
 var max_total_enemies: int = 60
 
+
 func _ready():
 	add_to_group("enemy_spawner")
 	# 从 GameState 读取选中的副本配置
@@ -26,6 +27,7 @@ func _ready():
 		difficulty_mult_dmg = gs.selected_dmg_mult
 	_load_waveset()
 
+
 func _load_waveset():
 	var waves_data = ConfigLoader.waves_data.get("wave_sets", [])
 	for ws in waves_data:
@@ -34,6 +36,7 @@ func _load_waveset():
 			print("[EnemySpawner] 加载波次组: %s (%d 波段)" % [current_waveset_id, wave_data.size()])
 			return
 	push_warning("[EnemySpawner] 未找到波次组: %s" % current_waveset_id)
+
 
 ## 设置副本（GameManager 进副本时调用）
 func setup_dungeon(waveset_id: String, hp_mult: float, dmg_mult: float):
@@ -45,9 +48,11 @@ func setup_dungeon(waveset_id: String, hp_mult: float, dmg_mult: float):
 	spawn_accumulators = {}
 	_load_waveset()
 
+
 func _process(delta):
 	elapsed_time += delta
 	_process_waves(delta)
+
 
 func _process_waves(delta):
 	for i in range(wave_data.size()):
@@ -69,7 +74,12 @@ func _process_waves(delta):
 					burst_fired[burst_key] = true
 					for k in range(spawn.get("count", 1)):
 						var spawned = _spawn_enemy(enemy_id)
-						if spawned and (enemy_id.begins_with("boss_") or enemy_id.begins_with("field_boss_")):
+						if (
+							spawned
+							and (
+								enemy_id.begins_with("boss_") or enemy_id.begins_with("field_boss_")
+							)
+						):
 							boss_spawned.emit(spawned)
 				continue
 
@@ -84,6 +94,7 @@ func _process_waves(delta):
 				if current_enemy_count < max_total_enemies:
 					_spawn_enemy(enemy_id)
 
+
 func _spawn_enemy(enemy_id: String):
 	var enemy = load("res://scripts/Enemy.gd").create_enemy(enemy_id, _get_spawn_position())
 	if enemy == null:
@@ -95,8 +106,10 @@ func _spawn_enemy(enemy_id: String):
 	current_enemy_count += 1
 	return enemy
 
+
 func _on_enemy_removed():
 	current_enemy_count -= 1
+
 
 func _get_spawn_position() -> Vector2:
 	var player = get_tree().get_first_node_in_group("player")

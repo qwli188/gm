@@ -6,8 +6,10 @@ signal slot_selected(slot_id: int, is_new_game: bool)
 
 @onready var slot_container = $VBoxContainer/SlotContainer
 
+
 func _ready():
 	_refresh_slots()
+
 
 ## 刷新存档槽位显示
 func _refresh_slots():
@@ -28,6 +30,7 @@ func _refresh_slots():
 		var slot_panel = _create_slot_panel(slot_id, slot_info, exists)
 		if slot_container:
 			slot_container.add_child(slot_panel)
+
 
 ## 创建单个槽位面板
 func _create_slot_panel(slot_id: int, slot_info: Dictionary, exists: bool) -> Panel:
@@ -83,6 +86,7 @@ func _create_slot_panel(slot_id: int, slot_info: Dictionary, exists: bool) -> Pa
 
 	return panel
 
+
 ## 加载存档
 func _on_load_pressed(slot_id: int):
 	if not has_node("/root/SaveSystem"):
@@ -94,6 +98,7 @@ func _on_load_pressed(slot_id: int):
 	else:
 		print("[SaveLoadMenu] 加载失败: 槽位 %d" % slot_id)
 
+
 ## 删除存档
 func _on_delete_pressed(slot_id: int):
 	if not has_node("/root/SaveSystem"):
@@ -103,8 +108,8 @@ func _on_delete_pressed(slot_id: int):
 		_refresh_slots()
 		print("[SaveLoadMenu] 删除存档: 槽位 %d" % slot_id)
 
+
 ## 新游戏
 func _on_new_game_pressed(slot_id: int):
 	slot_selected.emit(slot_id, true)
 	print("[SaveLoadMenu] 新游戏: 槽位 %d" % slot_id)
-

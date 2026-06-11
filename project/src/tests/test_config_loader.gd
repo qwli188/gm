@@ -5,6 +5,7 @@ extends Node
 var config_loader: Node
 var test_results: Array = []
 
+
 ## 运行所有测试
 func run_tests() -> Dictionary:
 	print("\n=== ConfigLoader 单元测试开始 ===\n")
@@ -27,6 +28,7 @@ func run_tests() -> Dictionary:
 
 	# 输出测试总结并返回汇总（供 test_runner 聚合）
 	return print_summary()
+
 
 ## 测试1: 启动后所有配置数据非空
 func test_load_all_configs():
@@ -71,6 +73,7 @@ func test_load_all_configs():
 
 	log_result(test_name, passed, failures)
 
+
 ## 测试2: 根据ID查找装备
 func test_get_equipment_by_id():
 	var test_name = "test_get_equipment_by_id"
@@ -102,6 +105,7 @@ func test_get_equipment_by_id():
 		passed = false
 
 	log_result(test_name, passed, failures)
+
 
 ## 测试3: 根据ID查找词缀
 func test_get_affix_by_id():
@@ -135,6 +139,7 @@ func test_get_affix_by_id():
 
 	log_result(test_name, passed, failures)
 
+
 ## 测试4: 根据ID查找技能
 func test_get_skill_by_id():
 	var test_name = "test_get_skill_by_id"
@@ -167,6 +172,7 @@ func test_get_skill_by_id():
 
 	log_result(test_name, passed, failures)
 
+
 ## 测试5: 根据ID查找敌人
 func test_get_enemy_by_id():
 	var test_name = "test_get_enemy_by_id"
@@ -198,6 +204,7 @@ func test_get_enemy_by_id():
 		passed = false
 
 	log_result(test_name, passed, failures)
+
 
 ## 测试6: 热重载配置
 func test_reload_config():
@@ -243,6 +250,7 @@ func test_reload_config():
 	config_loader.config_reloaded.disconnect(signal_handler)
 	log_result(test_name, passed, failures)
 
+
 ## 测试7: 无效路径安全性
 func test_invalid_path_safety():
 	var test_name = "test_invalid_path_safety"
@@ -265,13 +273,10 @@ func test_invalid_path_safety():
 
 	log_result(test_name, passed, failures)
 
+
 ## 记录测试结果
 func log_result(test_name: String, passed: bool, failures: Array):
-	test_results.append({
-		"name": test_name,
-		"passed": passed,
-		"failures": failures
-	})
+	test_results.append({"name": test_name, "passed": passed, "failures": failures})
 
 	if passed:
 		print("  ✅ PASS")
@@ -280,6 +285,7 @@ func log_result(test_name: String, passed: bool, failures: Array):
 		for failure in failures:
 			print("    - " + failure)
 	print("")
+
 
 ## 打印测试总结，并返回 {pass, fail, failed_names} 供 test_runner 聚合
 func print_summary() -> Dictionary:

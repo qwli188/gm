@@ -2,6 +2,7 @@ extends SceneTree
 ## 冒烟测试：实例化 Town 场景，确认多角色 UI 代码运行无误
 ## 通过 root.get_node 访问 autoload（-s 启动脚本无法在编译期解析 autoload 全局名）
 
+
 func _initialize() -> void:
 	await process_frame
 	await process_frame

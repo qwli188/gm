@@ -7,6 +7,7 @@ extends Node
 ##
 ## 设计：装备对比是 ARPG 必需的体验，本系统纯函数式，不改变任何状态。
 
+
 ## 比较 hovered 装备穿上后相对当前的属性差异
 ## 返回：{stat_key: delta} 的字典；正数表示穿上后该属性更高
 func compare_to_equipped(hovered_instance_id: String) -> Dictionary:
@@ -41,6 +42,7 @@ func compare_to_equipped(hovered_instance_id: String) -> Dictionary:
 			diff[k] = -float(current_total[k])
 	return diff
 
+
 ## 比较两件装备（不依赖玩家当前穿戴）
 func compare_two(a_instance_id: String, b_instance_id: String) -> Dictionary:
 	var a_total = _single_stats(a_instance_id)
@@ -54,6 +56,7 @@ func compare_two(a_instance_id: String, b_instance_id: String) -> Dictionary:
 		if not diff.has(k) and not b_total.has(k):
 			diff[k] = -float(a_total[k])
 	return diff
+
 
 ## 单件装备的属性快照（不含套装、词缀效果，仅 base_stats + 词缀属性）
 func _single_stats(instance_id: String) -> Dictionary:
@@ -85,6 +88,7 @@ func _single_stats(instance_id: String) -> Dictionary:
 				stats[stat_name] = float(stats.get(stat_name, 0.0)) + float(eff.get("value", 0))
 	return stats
 
+
 ## 把 diff 字典格式化成富文本（绿色为正、红色为负），UI tooltip 直接用
 func format_diff_richtext(diff: Dictionary) -> String:
 	if diff.is_empty():
@@ -97,6 +101,6 @@ func format_diff_richtext(diff: Dictionary) -> String:
 		var formatted = "%s%.1f" % [sign, v]
 		# 如果是整数倍率，用百分比格式
 		if k.ends_with("_mult"):
-			formatted = "%s%.0f%%" % [sign, (v * 100.0)]
+			formatted = "%s%.0f%%" % [sign, v * 100.0]
 		lines.append("[color=%s]%s: %s[/color]" % [color, k, formatted])
 	return "\n".join(lines)

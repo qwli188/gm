@@ -29,6 +29,7 @@ extends CanvasLayer
 # 统计面板
 @onready var stats_display = $Panel/Content/Right/Stats
 
+
 func _ready():
 	visible = false
 
@@ -48,9 +49,11 @@ func _ready():
 		player.attribute_points_changed.connect(_refresh_points)
 		player.stats_recalculated.connect(_refresh_stats)
 
+
 func _input(event):
 	if event.is_action_pressed("toggle_character_panel"):
 		toggle_panel()
+
 
 func toggle_panel():
 	visible = !visible
@@ -60,17 +63,20 @@ func toggle_panel():
 	else:
 		get_tree().paused = false
 
+
 func _refresh_all():
 	_refresh_attributes(player.attributes)
 	_refresh_points(player.attribute_points_unspent)
 	_refresh_equipment()
 	_refresh_stats()
 
+
 func _refresh_attributes(attrs: Dictionary):
 	strength_label.text = str(attrs.get("strength", 0))
 	agility_label.text = str(attrs.get("agility", 0))
 	vitality_label.text = str(attrs.get("vitality", 0))
 	intelligence_label.text = str(attrs.get("intelligence", 0))
+
 
 func _refresh_points(unspent: int):
 	points_label.text = "剩余点数: %d" % unspent
@@ -80,6 +86,7 @@ func _refresh_points(unspent: int):
 	agi_btn.disabled = !has_points
 	vit_btn.disabled = !has_points
 	int_btn.disabled = !has_points
+
 
 func _refresh_equipment():
 	if not has_node("/root/EquipmentSystem"):
@@ -100,51 +107,60 @@ func _refresh_equipment():
 			slot.text = item.get("display_name", slot_name)
 			# 可扩展：显示图标、颜色按稀有度等
 
+
 func _refresh_stats():
 	if not player:
 		return
 
-	var stats_text = """当前属性:
+	var stats_text = (
+		"""当前属性:
 生命: %.0f / %.0f
 伤害: %.1f
 攻速: %.2f
 暴击率: %.1f%%
 暴击伤害: %.1fx
 护甲: %.1f
-移速: %.0f""" % [
-		player.current_hp, player.max_hp,
-		player.damage,
-		player.attack_speed,
-		player.crit_chance * 100,
-		player.crit_damage,
-		player.armor,
-		player.move_speed
-	]
+移速: %.0f"""
+		% [
+			player.current_hp,
+			player.max_hp,
+			player.damage,
+			player.attack_speed,
+			player.crit_chance * 100,
+			player.crit_damage,
+			player.armor,
+			player.move_speed
+		]
+	)
 
 	stats_display.text = stats_text
+
 
 func _on_add_strength():
 	player.add_attribute("strength", 1)
 
+
 func _on_add_agility():
 	player.add_attribute("agility", 1)
+
 
 func _on_add_vitality():
 	player.add_attribute("vitality", 1)
 
+
 func _on_add_intelligence():
 	player.add_attribute("intelligence", 1)
+
 
 func _on_skill_tree_pressed():
 	print("[CharacterPanel] 技能树功能待实现")
 	# TODO: 打开技能树面板
 
+
 func _on_inventory_pressed():
 	print("[CharacterPanel] 背包功能待实现")
 	# TODO: 打开背包面板
 
+
 func _on_close_pressed():
 	toggle_panel()
-
-
-

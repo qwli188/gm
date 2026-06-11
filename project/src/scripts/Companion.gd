@@ -35,14 +35,16 @@ var _attacking: bool = false
 var _facing_left: bool = false
 
 # 行为参数
-const FOLLOW_DISTANCE := 90.0      # 跟随时与玩家保持的距离
-const VISION_RANGE := 480.0        # 索敌范围
-const ATTACK_RANGE := 46.0         # 攻击距离
-const LEASH_RANGE := 700.0         # 离玩家过远则强制回追，放弃目标
+const FOLLOW_DISTANCE := 90.0  # 跟随时与玩家保持的距离
+const VISION_RANGE := 480.0  # 索敌范围
+const ATTACK_RANGE := 46.0  # 攻击距离
+const LEASH_RANGE := 700.0  # 离玩家过远则强制回追，放弃目标
+
 
 func setup(character_data: Dictionary):
 	character = character_data
 	char_id = character.get("char_id", "")
+
 
 func _ready():
 	add_to_group("companion")
@@ -53,6 +55,7 @@ func _ready():
 	_setup_collision()
 	_setup_hp_bar()
 	_setup_name_label()
+
 
 func _load_stats():
 	var s = {}
@@ -71,6 +74,7 @@ func _load_stats():
 	crit_damage = float(s.get("crit_damage", 1.5))
 	armor = float(s.get("armor", 0))
 
+
 func _setup_visual():
 	anim_sprite = AnimatedSprite2D.new()
 	anim_sprite.name = "Sprite"
@@ -84,12 +88,14 @@ func _setup_visual():
 	anim_sprite.modulate = Color(0.8, 0.92, 1.1)
 	add_child(anim_sprite)
 
+
 func _setup_collision():
 	var col = CollisionShape2D.new()
 	var shape = RectangleShape2D.new()
 	shape.size = Vector2(28, 28)
 	col.shape = shape
 	add_child(col)
+
 
 func _setup_hp_bar():
 	_hp_bar = ProgressBar.new()
@@ -109,6 +115,7 @@ func _setup_hp_bar():
 	_hp_bar.add_theme_stylebox_override("background", bg)
 	add_child(_hp_bar)
 
+
 func _setup_name_label():
 	_name_label = Label.new()
 	_name_label.text = character.get("name", "队友")
@@ -116,6 +123,7 @@ func _setup_name_label():
 	_name_label.add_theme_font_size_override("font_size", 12)
 	_name_label.add_theme_color_override("font_color", Color(0.7, 0.9, 1.0))
 	add_child(_name_label)
+
 
 func _physics_process(delta):
 	if _downed:
@@ -140,6 +148,7 @@ func _physics_process(delta):
 
 	move_and_slide()
 
+
 ## 索敌：优先保留现有目标，丢失/越界后找最近敌人
 func _update_target():
 	# 离玩家太远，放弃目标回追
@@ -152,6 +161,7 @@ func _update_target():
 			return
 	_target = _find_nearest_enemy()
 
+
 func _find_nearest_enemy() -> Node2D:
 	var nearest: Node2D = null
 	var min_d := VISION_RANGE
@@ -163,6 +173,7 @@ func _find_nearest_enemy() -> Node2D:
 			min_d = d
 			nearest = e
 	return nearest
+
 
 ## 跟随玩家：保持 FOLLOW_DISTANCE，超出则靠近
 func _do_follow(_delta):
@@ -179,6 +190,7 @@ func _do_follow(_delta):
 	else:
 		velocity = Vector2.ZERO
 		_play_anim("idle")
+
 
 ## 攻击：接近目标到 ATTACK_RANGE 后挥击
 func _do_attack(_delta):
@@ -198,9 +210,14 @@ func _do_attack(_delta):
 		if _attack_cooldown <= 0:
 			_perform_attack()
 
+
 func _perform_attack():
 	_attack_cooldown = 1.0 / max(attack_speed, 0.1)
-	if anim_sprite and anim_sprite.sprite_frames and anim_sprite.sprite_frames.has_animation("attack"):
+	if (
+		anim_sprite
+		and anim_sprite.sprite_frames
+		and anim_sprite.sprite_frames.has_animation("attack")
+	):
 		_attacking = true
 		anim_sprite.play("attack")
 		if not anim_sprite.animation_finished.is_connected(_on_attack_done):
@@ -221,9 +238,11 @@ func _perform_attack():
 		if _target.has_method("apply_knockback"):
 			_target.apply_knockback(global_position, is_crit)
 
+
 func _on_attack_done():
 	_attacking = false
 	_play_anim("idle")
+
 
 func take_damage(dmg: float, _is_crit: bool = false):
 	if _downed:
@@ -237,6 +256,7 @@ func take_damage(dmg: float, _is_crit: bool = false):
 		ShaderHelper.apply_hit_flash(anim_sprite, Color(1.4, 0.5, 0.5), 0.12)
 	if current_hp <= 0:
 		_go_down()
+
 
 ## 倒下：本次出击退场，不删档
 func _go_down():
@@ -254,12 +274,14 @@ func _go_down():
 	set_collision_mask_value(1, false)
 	print("[Companion] %s 倒下" % character.get("name", "?"))
 
+
 func _play_anim(anim: String):
 	if _attacking:
 		return
 	if anim_sprite and anim_sprite.sprite_frames and anim_sprite.sprite_frames.has_animation(anim):
 		if anim_sprite.animation != anim:
 			anim_sprite.play(anim)
+
 
 func _face(dir_x: float):
 	if abs(dir_x) > 0.1 and anim_sprite:

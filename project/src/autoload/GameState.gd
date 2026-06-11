@@ -17,7 +17,7 @@ var selected_slot_weights: Dictionary = {}
 
 # 局外永久数据（金币、强化等级、已解锁内容）
 var total_gold: int = 0
-var meta_upgrades: Dictionary = {}      # {"perm_hp": 3, "perm_damage": 5, ...}
+var meta_upgrades: Dictionary = {}  # {"perm_hp": 3, "perm_damage": 5, ...}
 var unlocked_dungeons: Array = ["dungeon_crypt_1"]
 # cleared_dungeons: 记录每个副本的通关进度（支持多难度）
 # 格式: {
@@ -51,20 +51,24 @@ var unlocked_talents: Dictionary = {}
 # 天赋点未分配（每巅峰级给 talent_points_per_paragon）
 var talent_points_unspent: int = 0
 
-signal paragon_changed()
-signal talent_changed()
+signal paragon_changed
+signal talent_changed
+
 
 func _ready():
 	print("[GameState] 全局状态初始化")
+
 
 ## 获取当前职业配置
 func get_current_class() -> Dictionary:
 	return ConfigLoader.get_class_by_id(selected_class_id)
 
+
 ## 设置职业
 func set_class(class_id: String):
 	selected_class_id = class_id
 	print("[GameState] 选择职业: %s" % class_id)
+
 
 ## 进入副本：设置副本、波次、难度（Town 选择副本时调用）
 func enter_dungeon(dungeon_id: String, tier: int = 1):
@@ -91,8 +95,20 @@ func enter_dungeon(dungeon_id: String, tier: int = 1):
 		selected_hp_mult *= (1.0 + float(eff.get("enemy_hp_mult", 0.0)))
 		selected_dmg_mult *= (1.0 + float(eff.get("enemy_dmg_mult", 0.0)))
 		selected_drop_bonus += float(eff.get("drop_bonus", 0.0))
-	print("[GameState] 进入副本: %s (波次=%s, tier=%d, hp×%.2f, dmg×%.2f, drop+%.2f)" % [
-		dungeon_id, selected_waveset, tier, selected_hp_mult, selected_dmg_mult, selected_drop_bonus])
+	print(
+		(
+			"[GameState] 进入副本: %s (波次=%s, tier=%d, hp×%.2f, dmg×%.2f, drop+%.2f)"
+			% [
+				dungeon_id,
+				selected_waveset,
+				tier,
+				selected_hp_mult,
+				selected_dmg_mult,
+				selected_drop_bonus
+			]
+		)
+	)
+
 
 ## 局外强化加成查询（每级的总加成）
 func get_meta_bonus(upgrade_id: String) -> float:
@@ -106,15 +122,18 @@ func get_meta_bonus(upgrade_id: String) -> float:
 			return stat.get("per_level", 0) * level
 	return 0.0
 
+
 ## 查询副本最高通关难度（返回 0 表示未通关）
 func get_max_cleared_tier(dungeon_id: String) -> int:
 	if not cleared_dungeons.has(dungeon_id):
 		return 0
 	return cleared_dungeons[dungeon_id].get("max_tier_cleared", 0)
 
+
 ## 查询副本是否通关过指定难度
 func is_dungeon_cleared(dungeon_id: String, tier: int = 1) -> bool:
 	return get_max_cleared_tier(dungeon_id) >= tier
+
 
 ## 材料系统 - 添加/扣除材料
 func add_material(material_id: String, amount: int):
@@ -122,9 +141,11 @@ func add_material(material_id: String, amount: int):
 	materials[material_id] = max(0, current + amount)
 	print("[GameState] 材料变动: %s %+d -> %d" % [material_id, amount, materials[material_id]])
 
+
 ## 材料系统 - 获取材料数量
 func get_material(material_id: String) -> int:
 	return materials.get(material_id, 0)
+
 
 ## ============ P6 巅峰系统 ============
 ## 60 级满后调用：把 player 溢出的经验喂进巅峰池，按曲线给巅峰级
@@ -159,12 +180,14 @@ func gain_paragon_exp(amount: float) -> int:
 		print("[GameState] 巅峰升级 +%d -> Lv.%d (天赋点 +%d)" % [gained, paragon_level, gained])
 	return gained
 
+
 ## 当前巅峰级所需经验（指数曲线）
 func paragon_exp_to_next() -> float:
 	var cfg = ConfigLoader.get_balance_config().get("paragon_system", {})
 	var base = float(cfg.get("exp_per_paragon_level_base", 5000))
 	var growth = float(cfg.get("exp_growth_per_paragon", 1.05))
 	return base * pow(growth, paragon_level)
+
 
 ## 分配一个巅峰点到某条路径，返回 {ok, reason}
 func allocate_paragon(paragon_id: String, points: int = 1) -> Dictionary:
@@ -188,6 +211,7 @@ func allocate_paragon(paragon_id: String, points: int = 1) -> Dictionary:
 	_notify_player_recalc()
 	return {"ok": true, "reason": ""}
 
+
 ## 获取某条巅峰路径的当前总加成（per_level × allocated）
 func get_paragon_bonus(kind: String) -> float:
 	var total = 0.0
@@ -197,6 +221,7 @@ func get_paragon_bonus(kind: String) -> float:
 			total += float(def.get("per_level", 0.0)) * int(paragon_allocations[pid])
 	return total
 
+
 func _get_paragon_def(paragon_id: String) -> Dictionary:
 	var cfg = ConfigLoader.get_balance_config().get("paragon_system", {})
 	for p in cfg.get("paragon_stats", []):
@@ -204,9 +229,11 @@ func _get_paragon_def(paragon_id: String) -> Dictionary:
 			return p
 	return {}
 
+
 ## ============ P6 天赋星图 ============
 func has_talent(talent_id: String) -> bool:
 	return unlocked_talents.get(talent_id, 0) > 0
+
 
 ## 解锁一个天赋节点。返回 {ok, reason}
 func unlock_talent(talent_id: String) -> Dictionary:
@@ -215,7 +242,9 @@ func unlock_talent(talent_id: String) -> Dictionary:
 	if talent_points_unspent <= 0:
 		return {"ok": false, "reason": "天赋点不足"}
 	# 获取节点定义
-	var def = ConfigLoader.get_talent_def(talent_id) if ConfigLoader.has_method("get_talent_def") else {}
+	var def = (
+		ConfigLoader.get_talent_def(talent_id) if ConfigLoader.has_method("get_talent_def") else {}
+	)
 	if def.is_empty():
 		return {"ok": false, "reason": "未知天赋节点"}
 	# 职业根节点：要求当前操控角色与之匹配
@@ -242,6 +271,7 @@ func unlock_talent(talent_id: String) -> Dictionary:
 	print("[GameState] 解锁天赋: %s" % talent_id)
 	return {"ok": true, "reason": ""}
 
+
 ## 重置巅峰加点（所有点回收，分配清空，节点不退）
 func reset_paragon_allocations():
 	var total = 0
@@ -254,6 +284,7 @@ func reset_paragon_allocations():
 		SaveSystem.mark_dirty()
 	_notify_player_recalc()
 
+
 ## 重置天赋（节点全部退回，按解锁数还原天赋点）
 func reset_talents():
 	var refunded = unlocked_talents.size()
@@ -263,6 +294,7 @@ func reset_talents():
 	if has_node("/root/SaveSystem"):
 		SaveSystem.mark_dirty()
 	_notify_player_recalc()
+
 
 ## 让 Player 重算属性（巅峰/天赋变化时）
 func _notify_player_recalc():

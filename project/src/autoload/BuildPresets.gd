@@ -16,11 +16,14 @@ var presets: Dictionary = {}
 
 signal presets_changed(char_id: String)
 
+
 func _ready():
 	print("[BuildPresets] BD 预设系统初始化")
 
+
 func get_presets(char_id: String) -> Array:
 	return presets.get(char_id, [])
+
 
 ## 保存当前角色当前装备/属性/技能为某槽预设。slot_index 0~2
 ## 返回 {ok, reason}
@@ -70,6 +73,7 @@ func save_preset(char_id: String, slot_index: int, name: String = "") -> Diction
 		SaveSystem.mark_dirty()
 	return {"ok": true, "name": preset["name"]}
 
+
 ## 加载预设到当前角色（仅装备部分；技能/属性走预留）
 ## 返回 {ok, reason, missing: [instance_ids]}
 func load_preset(char_id: String, slot_index: int) -> Dictionary:
@@ -114,6 +118,7 @@ func load_preset(char_id: String, slot_index: int) -> Dictionary:
 			EquipmentSystem.equip_from_backpack(want_id)
 	return {"ok": true, "name": preset.get("name", ""), "missing": missing}
 
+
 func delete_preset(char_id: String, slot_index: int) -> bool:
 	var arr = presets.get(char_id, [])
 	if slot_index < 0 or slot_index >= arr.size():
@@ -125,15 +130,18 @@ func delete_preset(char_id: String, slot_index: int) -> bool:
 		SaveSystem.mark_dirty()
 	return true
 
+
 func _find_player():
 	var tree = Engine.get_main_loop()
 	if tree and tree.has_method("get_first_node_in_group"):
 		return tree.get_first_node_in_group("player")
 	return null
 
+
 # ============ 序列化 ============
 func serialize() -> Dictionary:
 	return {"presets": presets.duplicate(true)}
+
 
 func deserialize(data: Dictionary):
 	presets = data.get("presets", {}).duplicate(true)

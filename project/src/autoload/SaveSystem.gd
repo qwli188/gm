@@ -13,9 +13,11 @@ signal save_completed(slot: int)
 signal load_completed(slot: int)
 signal save_failed(slot: int, error: String)
 
+
 func _ready():
 	print("[SaveSystem] 存档系统初始化")
 	_ensure_save_directory()
+
 
 ## 确保存档目录存在
 func _ensure_save_directory():
@@ -23,9 +25,11 @@ func _ensure_save_directory():
 	if not dir.dir_exists("saves"):
 		dir.make_dir("saves")
 
+
 ## 标记需要自动保存
 func mark_dirty():
 	_dirty = true
+
 
 ## 保存游戏到指定槽位
 func save_game(slot: int) -> bool:
@@ -53,6 +57,7 @@ func save_game(slot: int) -> bool:
 	print("[SaveSystem] 存档保存成功: 槽位 %d" % slot)
 	return true
 
+
 ## 加载指定槽位的游戏
 func load_game(slot: int) -> bool:
 	if slot < 1 or slot > MAX_SLOTS:
@@ -75,7 +80,9 @@ func load_game(slot: int) -> bool:
 	var json = JSON.new()
 	var parse_result = json.parse(json_string)
 	if parse_result != OK:
-		push_error("[SaveSystem] 存档解析失败: 第%d行 %s" % [json.get_error_line(), json.get_error_message()])
+		push_error(
+			"[SaveSystem] 存档解析失败: 第%d行 %s" % [json.get_error_line(), json.get_error_message()]
+		)
 		return false
 
 	var save_data = json.data
@@ -88,6 +95,7 @@ func load_game(slot: int) -> bool:
 	print("[SaveSystem] 存档加载成功: 槽位 %d" % slot)
 	return true
 
+
 ## 自动保存（在关键时机调用：升级/进城/退出副本）
 func auto_save(slot: int = 1):
 	if not auto_save_enabled:
@@ -96,6 +104,7 @@ func auto_save(slot: int = 1):
 		return
 	print("[SaveSystem] 自动保存触发: 槽位 %d" % slot)
 	save_game(slot)
+
 
 ## 列出已有存档（返回每个槽位的摘要信息）
 func get_save_slots() -> Array:
@@ -111,6 +120,7 @@ func get_save_slots() -> Array:
 		slots.append(summary)
 	return slots
 
+
 ## 删除指定槽位存档
 func delete_save(slot: int) -> bool:
 	var file_path = _get_save_path(slot)
@@ -124,6 +134,7 @@ func delete_save(slot: int) -> bool:
 		print("[SaveSystem] 删除存档: 槽位 %d" % slot)
 		return true
 	return false
+
 
 ## 读取存档摘要（不完整加载，仅显示用）
 func _read_save_summary(slot: int) -> Dictionary:
@@ -148,11 +159,14 @@ func _read_save_summary(slot: int) -> Dictionary:
 		"last_played": data.get("last_played", ""),
 	}
 
+
 func _get_save_filename(slot: int) -> String:
 	return "save_%d.json" % slot
 
+
 func _get_save_path(slot: int) -> String:
 	return SAVE_DIR + _get_save_filename(slot)
+
 
 ## ============ 数据收集（保存时）============
 ## 从 Player / EquipmentSystem / GameState 收集持久数据
@@ -193,6 +207,7 @@ func _collect_save_data(slot: int) -> Dictionary:
 
 	return data
 
+
 ## 读取已存在的原始存档（用于保留 created_at 等字段）
 func _read_existing_raw(slot: int) -> Dictionary:
 	var file_path = _get_save_path(slot)
@@ -207,6 +222,7 @@ func _read_existing_raw(slot: int) -> Dictionary:
 	if json.parse(txt) != OK or typeof(json.data) != TYPE_DICTIONARY:
 		return {}
 	return json.data
+
 
 ## 收集角色数据
 func _collect_character_data() -> Dictionary:
@@ -259,11 +275,13 @@ func _collect_character_data() -> Dictionary:
 
 	return char_data
 
+
 ## 收集角色名册（多角色，v2.0+）
 func _collect_roster_data() -> Dictionary:
 	if has_node("/root/RosterSystem"):
 		return get_node("/root/RosterSystem").serialize()
 	return {}
+
 
 ## 收集领地数据（v2.0+）
 func _collect_territory_data() -> Dictionary:
@@ -271,11 +289,13 @@ func _collect_territory_data() -> Dictionary:
 		return get_node("/root/TerritorySystem").serialize()
 	return {}
 
+
 ## P7 收集末期内容数据（试炼塔进度等）
 func _collect_endgame_data() -> Dictionary:
 	if has_node("/root/EndgameSystem"):
 		return get_node("/root/EndgameSystem").serialize()
 	return {}
+
 
 ## P9 收集任务系统数据
 func _collect_quest_data() -> Dictionary:
@@ -283,11 +303,13 @@ func _collect_quest_data() -> Dictionary:
 		return get_node("/root/QuestSystem").serialize()
 	return {}
 
+
 ## P10 收集 BD 预设数据
 func _collect_preset_data() -> Dictionary:
 	if has_node("/root/BuildPresets"):
 		return get_node("/root/BuildPresets").serialize()
 	return {}
+
 
 ## 收集世界状态
 func _collect_world_state() -> Dictionary:
@@ -300,6 +322,7 @@ func _collect_world_state() -> Dictionary:
 		for dungeon_id in gs.cleared_dungeons:
 			ws["cleared_dungeons"][dungeon_id] = gs.cleared_dungeons[dungeon_id].duplicate(true)
 	return ws
+
 
 ## 收集局外永久进度
 func _collect_meta_progression() -> Dictionary:
@@ -322,6 +345,7 @@ func _collect_meta_progression() -> Dictionary:
 			"points_unspent": gs.talent_points_unspent,
 		}
 	return meta
+
 
 ## ============ 数据应用（加载时）============
 func _apply_save_data(data: Dictionary):
@@ -353,9 +377,7 @@ func _apply_save_data(data: Dictionary):
 					# 旧格式 key 可能是 "clear_crypt_1_t1"，提取真实 dungeon_id
 					var real_dungeon_id = _parse_legacy_dungeon_key(dungeon_id)
 					gs.cleared_dungeons[real_dungeon_id] = {
-						"max_tier_cleared": 1,
-						"first_clear_time": "",
-						"total_clears": 1
+						"max_tier_cleared": 1, "first_clear_time": "", "total_clears": 1
 					}
 			elif typeof(value) == TYPE_DICTIONARY:
 				# 新格式：直接深拷贝
@@ -417,10 +439,15 @@ func _apply_save_data(data: Dictionary):
 
 	# 背包/仓库（PR-3 后由 Inventory autoload 管理）
 	if has_node("/root/Inventory"):
-		Inventory.deserialize({
-			"backpack": char_data.get("backpack", []),
-			"warehouse": char_data.get("warehouse", []),
-		})
+		(
+			Inventory
+			. deserialize(
+				{
+					"backpack": char_data.get("backpack", []),
+					"warehouse": char_data.get("warehouse", []),
+				}
+			)
+		)
 
 	# 5. 玩家等级/经验/金币/属性加点（防御性：兼容残缺/Mock player）
 	#    多角色：操控角色的私有数据优先取自名册档案，回退到旧 char_data。
@@ -432,9 +459,13 @@ func _apply_save_data(data: Dictionary):
 		player.gold = char_data.get("gold", 0)
 		# 恢复属性加点数据
 		if player.get("attributes") != null:
-			player.attributes = active_char.get("attributes", {"strength": 0, "agility": 0, "vitality": 0, "intelligence": 0})
+			player.attributes = active_char.get(
+				"attributes", {"strength": 0, "agility": 0, "vitality": 0, "intelligence": 0}
+			)
 		if player.get("attribute_points_unspent") != null:
-			player.attribute_points_unspent = active_char.get("attribute_points", char_data.get("attribute_points_unspent", 0))
+			player.attribute_points_unspent = active_char.get(
+				"attribute_points", char_data.get("attribute_points_unspent", 0)
+			)
 		if player.has_method("_calculate_exp_to_next_level"):
 			player._calculate_exp_to_next_level()
 		if player.has_method("recalculate_stats"):
@@ -444,9 +475,12 @@ func _apply_save_data(data: Dictionary):
 	if has_node("/root/SkillSystem"):
 		var ss = get_node("/root/SkillSystem")
 		ss.learned_skills = active_char.get("learned_skills", char_data.get("learned_skills", {}))
-		ss.skill_points_unspent = active_char.get("skill_points", char_data.get("skill_points_unspent", 0))
+		ss.skill_points_unspent = active_char.get(
+			"skill_points", char_data.get("skill_points_unspent", 0)
+		)
 		# 触发信号更新UI
 		ss.skill_points_changed.emit(ss.skill_points_unspent)
+
 
 ## 恢复名册：新档读 roster；旧档把单角色 char_data 迁移成名册。
 func _restore_roster(data: Dictionary, char_data: Dictionary):
@@ -465,6 +499,7 @@ func _restore_roster(data: Dictionary, char_data: Dictionary):
 		# 旧档：单角色迁移成名册第一个角色
 		rs.migrate_from_legacy(char_data)
 
+
 ## 取操控角色档案；无名册时回退到旧 char_data（字段名做映射）
 func _get_active_char_or_legacy(char_data: Dictionary) -> Dictionary:
 	if has_node("/root/RosterSystem"):
@@ -472,6 +507,7 @@ func _get_active_char_or_legacy(char_data: Dictionary) -> Dictionary:
 		if not active.is_empty():
 			return active
 	return char_data
+
 
 ## 查找当前场景中的 Player 节点
 func _find_player():
@@ -483,6 +519,7 @@ func _find_player():
 	if p == null or not is_instance_valid(p):
 		return null
 	return p
+
 
 ## 解析旧格式副本 key（"clear_crypt_1_t1" -> "dungeon_crypt_1"）
 func _parse_legacy_dungeon_key(legacy_key: String) -> String:
@@ -497,5 +534,3 @@ func _parse_legacy_dungeon_key(legacy_key: String) -> String:
 	# 如果解析失败，返回原 key（兜底）
 	push_warning("[SaveSystem] 无法解析旧格式副本 key: %s" % legacy_key)
 	return legacy_key
-
-

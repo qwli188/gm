@@ -23,6 +23,7 @@ const TEST_SCRIPTS = [
 	"res://tests/test_art_layer.gd"
 ]
 
+
 func _initialize() -> void:
 	# 等待一帧让 autoload 完成初始化
 	await process_frame

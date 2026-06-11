@@ -12,33 +12,38 @@ extends Node
 ##   garrison: [unit_id...]     驻军（P3）
 ##   residents: [unit_dict...]  居民（P3）
 
-signal territory_changed()
+signal territory_changed
 signal building_changed(building_id: String)
 signal territory_leveled_up(new_level: int)
-signal residents_changed()
+signal residents_changed
 
 var level: int = 1
-var buildings: Dictionary = {}      # {building_id: building_level}
-var garrison: Array = []            # P4: 驻军单位 [{name, power}]
-var residents: Array = []           # P3: 居民 [{name, job, assigned_building}]
-var sortie_count: int = 0           # P4: 出击计数,触发防御战
-var last_defense_result: String = "" # P4: 上次防御战结果 (victory/defeat/none)
+var buildings: Dictionary = {}  # {building_id: building_level}
+var garrison: Array = []  # P4: 驻军单位 [{name, power}]
+var residents: Array = []  # P3: 居民 [{name, job, assigned_building}]
+var sortie_count: int = 0  # P4: 出击计数,触发防御战
+var last_defense_result: String = ""  # P4: 上次防御战结果 (victory/defeat/none)
+
 
 func _ready():
 	print("[TerritorySystem] 领地系统初始化")
 	_ensure_townhall()
 
+
 ## ============ P3: 居民系统 ============
 const RESIDENT_RECRUIT_COST_GOLD := 100
 const RESIDENT_RECRUIT_COST_FOOD := 5
+
 
 ## 当前居民数量
 func resident_count() -> int:
 	return residents.size()
 
+
 ## 可招募居民数(受上限限制)
 func can_recruit_resident() -> bool:
 	return resident_count() < get_resident_cap()
+
 
 ## 招募居民。返回 {ok, reason, resident}
 func recruit_resident() -> Dictionary:
@@ -57,16 +62,37 @@ func recruit_resident() -> Dictionary:
 	print("[TerritorySystem] 招募居民: %s" % r["name"])
 	return {"ok": true, "reason": "", "resident": r}
 
+
 func _make_resident() -> Dictionary:
-	var names = ["艾莉", "布兰登", "凯瑟琳", "德里克", "艾玛", "菲利克斯",
-		"格蕾丝", "哈罗德", "艾薇", "杰克", "凯特", "利奥", "玛丽", "诺亚",
-		"奥利维亚", "帕特里克", "昆西", "瑞秋", "塞缪尔", "泰勒"]
+	var names = [
+		"艾莉",
+		"布兰登",
+		"凯瑟琳",
+		"德里克",
+		"艾玛",
+		"菲利克斯",
+		"格蕾丝",
+		"哈罗德",
+		"艾薇",
+		"杰克",
+		"凯特",
+		"利奥",
+		"玛丽",
+		"诺亚",
+		"奥利维亚",
+		"帕特里克",
+		"昆西",
+		"瑞秋",
+		"塞缪尔",
+		"泰勒"
+	]
 	return {
 		"name": names[randi() % names.size()] + str(randi() % 100),
 		"job": "idle",  # idle / farmer / miner / lumberjack / soldier
 		"assigned_building": "",  # 分配到的建筑 id，空表示闲置
 		"sorties_worked": 0,  # P9: 该居民跟过的出击次数（仅当被分配时累计）
 	}
+
 
 ## P9: 居民等级（学徒/熟练/大师/宗师）—— 由 sorties_worked 决定
 func get_resident_stage(resident_idx: int) -> Dictionary:
@@ -80,6 +106,7 @@ func get_resident_stage(resident_idx: int) -> Dictionary:
 			current = s
 	return current
 
+
 ## P9: 该建筑分配居民的总产出乘数（每居民按等级加成）
 func building_resident_production_mult(building_id: String) -> float:
 	var total = 0.0
@@ -89,6 +116,7 @@ func building_resident_production_mult(building_id: String) -> float:
 			# 每居民贡献 0.10 × 等级倍率（基础 1.0 → 学徒 0.10、熟练 0.125、大师 0.16、宗师 0.20）
 			total += 0.10 * float(stage.get("production_mult", 1.0))
 	return min(1.0 + total, 2.5)  # 上限 2.5x
+
 
 ## 分配居民到建筑(提升产出 / 兵营转为驻军)
 func assign_resident(resident_idx: int, building_id: String) -> bool:
@@ -106,10 +134,14 @@ func assign_resident(resident_idx: int, building_id: String) -> bool:
 		match cat:
 			"production":
 				match building_id:
-					"lumber_mill": residents[resident_idx]["job"] = "lumberjack"
-					"quarry": residents[resident_idx]["job"] = "miner"
-					"farm": residents[resident_idx]["job"] = "farmer"
-					_: residents[resident_idx]["job"] = "worker"
+					"lumber_mill":
+						residents[resident_idx]["job"] = "lumberjack"
+					"quarry":
+						residents[resident_idx]["job"] = "miner"
+					"farm":
+						residents[resident_idx]["job"] = "farmer"
+					_:
+						residents[resident_idx]["job"] = "worker"
 			"military":
 				residents[resident_idx]["job"] = "soldier"
 			_:
@@ -117,6 +149,7 @@ func assign_resident(resident_idx: int, building_id: String) -> bool:
 	_emit_dirty()
 	residents_changed.emit()
 	return true
+
 
 ## 统计分配到某建筑的居民数(用于产出加成)
 func count_assigned_to(building_id: String) -> int:
@@ -126,6 +159,7 @@ func count_assigned_to(building_id: String) -> int:
 			n += 1
 	return n
 
+
 ## 统计士兵(分配到 military 建筑的居民，P4 防御战用)
 func count_soldiers() -> int:
 	var n = 0
@@ -134,18 +168,22 @@ func count_soldiers() -> int:
 			n += 1
 	return n
 
+
 ## 领主大厅是核心建筑，领地必有一座，等级跟随领地等级
 func _ensure_townhall():
 	if not buildings.has("townhall"):
 		buildings["townhall"] = level
 
+
 ## ============ 查询 ============
 func get_level_def() -> Dictionary:
 	return ConfigLoader.get_territory_level_def(level)
 
+
 ## 建筑槽位上限（已含领地等级基础值）
 func get_building_slots() -> int:
 	return int(get_level_def().get("building_slots", 3))
+
 
 ## 已占用槽位（townhall 不占普通槽位）
 func get_used_slots() -> int:
@@ -156,14 +194,18 @@ func get_used_slots() -> int:
 		n += 1
 	return n
 
+
 func has_free_slot() -> bool:
 	return get_used_slots() < get_building_slots()
+
 
 func get_building_level(building_id: String) -> int:
 	return int(buildings.get(building_id, 0))
 
+
 func has_building(building_id: String) -> bool:
 	return buildings.has(building_id)
+
 
 ## 居民上限 = 领地等级基础 + 农田/民居加成
 func get_resident_cap() -> int:
@@ -171,17 +213,21 @@ func get_resident_cap() -> int:
 	cap += _sum_building_effect("resident_cap_bonus")
 	return cap
 
+
 ## 驻军上限 = 兵营加成
 func get_garrison_cap() -> int:
 	return _sum_building_effect("garrison_cap_bonus")
+
 
 ## 领地防御值（0~1 减伤，城墙/领主大厅贡献）
 func get_defense_bonus() -> float:
 	return _sum_building_effect_f("defense_bonus")
 
+
 ## 哨塔总伤害（防御战远程火力，P4 用）
 func get_tower_damage() -> float:
 	return _sum_building_effect_f("tower_damage")
+
 
 ## 汇总所有建筑的某个整数 per_level 效果（按建筑当前等级）
 func _sum_building_effect(key: String) -> int:
@@ -193,6 +239,7 @@ func _sum_building_effect(key: String) -> int:
 			total += int(per[key]) * int(buildings[bid])
 	return total
 
+
 func _sum_building_effect_f(key: String) -> float:
 	var total = 0.0
 	for bid in buildings:
@@ -201,6 +248,7 @@ func _sum_building_effect_f(key: String) -> float:
 		if per.has(key):
 			total += float(per[key]) * int(buildings[bid])
 	return total
+
 
 ## ============ 建造 / 升级 ============
 ## 判断成本是否可负担（gold 走 GameState.total_gold，其余走 materials）
@@ -215,6 +263,7 @@ func can_afford(cost: Dictionary) -> bool:
 				return false
 	return true
 
+
 ## 扣除成本（调用前应先 can_afford）
 func _pay_cost(cost: Dictionary):
 	for key in cost:
@@ -223,6 +272,7 @@ func _pay_cost(cost: Dictionary):
 			GameState.total_gold -= amount
 		else:
 			GameState.add_material(key, -amount)
+
 
 ## 建造新建筑。返回 {ok, reason}
 func build_building(building_id: String) -> Dictionary:
@@ -245,6 +295,7 @@ func build_building(building_id: String) -> Dictionary:
 	territory_changed.emit()
 	print("[TerritorySystem] 建造: %s" % building_id)
 	return {"ok": true, "reason": ""}
+
 
 ## 升级已有建筑。返回 {ok, reason}
 func upgrade_building(building_id: String) -> Dictionary:
@@ -271,6 +322,7 @@ func upgrade_building(building_id: String) -> Dictionary:
 	print("[TerritorySystem] 升级建筑: %s -> Lv.%d" % [building_id, cur + 1])
 	return {"ok": true, "reason": ""}
 
+
 ## 建筑升级成本随等级递增（每级 ×(1 + 0.4*cur)）
 func _scaled_upgrade_cost(def: Dictionary, current_level: int) -> Dictionary:
 	var base = def.get("upgrade_cost_per_level", {})
@@ -280,6 +332,7 @@ func _scaled_upgrade_cost(def: Dictionary, current_level: int) -> Dictionary:
 		scaled[key] = int(ceil(float(base[key]) * mult))
 	return scaled
 
+
 ## 获取建筑下一级的成本（UI 显示用，不扣费）
 func get_upgrade_cost(building_id: String) -> Dictionary:
 	var def = ConfigLoader.get_building_def(building_id)
@@ -287,15 +340,18 @@ func get_upgrade_cost(building_id: String) -> Dictionary:
 		return {}
 	return _scaled_upgrade_cost(def, get_building_level(building_id))
 
+
 ## ============ 领地升级 ============
 func get_territory_upgrade_cost() -> Dictionary:
 	var next_def = ConfigLoader.get_territory_level_def(level + 1)
 	return next_def.get("upgrade_cost", {})
 
+
 func can_upgrade_territory() -> bool:
 	if level >= ConfigLoader.get_territory_max_level():
 		return false
 	return can_afford(get_territory_upgrade_cost())
+
 
 func upgrade_territory() -> Dictionary:
 	if level >= ConfigLoader.get_territory_max_level():
@@ -309,12 +365,16 @@ func upgrade_territory() -> Dictionary:
 	_emit_dirty()
 	territory_leveled_up.emit(level)
 	territory_changed.emit()
-	print("[TerritorySystem] 领地升级 -> Lv.%d (%s)" % [level, get_level_def().get("display_name", "?")])
+	print(
+		"[TerritorySystem] 领地升级 -> Lv.%d (%s)" % [level, get_level_def().get("display_name", "?")]
+	)
 	return {"ok": true, "reason": ""}
+
 
 func _emit_dirty():
 	if has_node("/root/SaveSystem"):
 		SaveSystem.mark_dirty()
+
 
 ## ============ 出击结算（P3 接入产出，P1 先留接口）============
 ## 每次出击归来调用：建筑产出材料入库。返回产出明细 {material: amount}
@@ -351,10 +411,12 @@ func settle_sortie() -> Dictionary:
 		print("[TerritorySystem] 出击结算产出: %s" % str(gains))
 	return gains
 
+
 ## ============ P9 流浪商人 ============
-var merchant_stock: Array = []          # 当前可购商品 [{id, display_name, ...}]
+var merchant_stock: Array = []  # 当前可购商品 [{id, display_name, ...}]
 var merchant_last_refresh_sortie: int = 0
-signal merchant_refreshed()
+signal merchant_refreshed
+
 
 func _maybe_refresh_merchant():
 	var cfg = ConfigLoader.territory_data.get("merchant", {})
@@ -364,6 +426,7 @@ func _maybe_refresh_merchant():
 	if sortie_count - merchant_last_refresh_sortie < every and not merchant_stock.is_empty():
 		return
 	refresh_merchant()
+
 
 ## 强制刷新商人库存（出击结算 / 测试用）
 func refresh_merchant():
@@ -394,6 +457,7 @@ func refresh_merchant():
 	_emit_dirty()
 	print("[TerritorySystem] 商人刷新, %d 件库存" % merchant_stock.size())
 
+
 ## 购买商人商品。返回 {ok, reason}
 func buy_from_merchant(item_id: String) -> Dictionary:
 	var idx = -1
@@ -414,7 +478,9 @@ func buy_from_merchant(item_id: String) -> Dictionary:
 		"random_equipment":
 			var rarity = item.get("rarity", "rare")
 			# 从该稀有度池里随便抽一件
-			var pool_eq = ConfigLoader.get_all_equipment().filter(func(e): return e.get("rarity", "") == rarity)
+			var pool_eq = ConfigLoader.get_all_equipment().filter(
+				func(e): return e.get("rarity", "") == rarity
+			)
 			if pool_eq.is_empty():
 				pool_eq = ConfigLoader.get_all_equipment()
 			if pool_eq.is_empty():
@@ -441,11 +507,14 @@ func buy_from_merchant(item_id: String) -> Dictionary:
 	print("[TerritorySystem] 购买: %s -%d 金" % [item.get("display_name", "?"), cost])
 	return {"ok": true, "reason": ""}
 
+
 ## ============ P4: 防御战触发 ============
 const DEFENSE_INTERVAL := 5  # 每 5 次出击触发一次防御
 
+
 func should_trigger_defense() -> bool:
 	return sortie_count > 0 and (sortie_count % DEFENSE_INTERVAL) == 0
+
 
 ## 防御战胜利奖励
 func reward_defense_victory() -> Dictionary:
@@ -460,6 +529,7 @@ func reward_defense_victory() -> Dictionary:
 	_emit_dirty()
 	print("[TerritorySystem] 防御战胜利奖励: %s" % str(rewards))
 	return rewards
+
 
 ## 防御战失败惩罚(损失部分材料 + 金币)
 func penalty_defense_defeat():
@@ -477,6 +547,7 @@ func penalty_defense_defeat():
 	_emit_dirty()
 	print("[TerritorySystem] 防御战失败惩罚: 金%d %s" % [loss_gold, str(losses)])
 
+
 ## ============ 序列化 ============
 func serialize() -> Dictionary:
 	return {
@@ -489,6 +560,7 @@ func serialize() -> Dictionary:
 		"merchant_stock": merchant_stock.duplicate(true),
 		"merchant_last_refresh_sortie": merchant_last_refresh_sortie,
 	}
+
 
 func deserialize(data: Dictionary):
 	level = int(data.get("level", 1))

@@ -1,0 +1,40 @@
+# pre-commit 钩子：提交前自动格式化 + 静态检查 GDScript。
+# 启用：python -m pip install pre-commit && pre-commit install
+# 之后每次 git commit 会自动跑；手动全量跑：pre-commit run --all-files
+#
+# 全部开源免费（MIT）。
+
+repos:
+  - repo: local
+    hooks:
+      # gdformat：自动格式化暂存的 .gd 文件（会修改文件，需重新 add）
+      - id: gdformat
+        name: gdformat (GDScript 格式化)
+        entry: python -m gdtoolkit.formatter
+        language: python
+        additional_dependencies: ["gdtoolkit==4.5.0"]
+        files: '^project/src/.*\.gd$'
+        exclude: '^project/src/\.godot/'
+
+      # gdlint：静态检查（不修改文件，有问题则阻止提交）
+      - id: gdlint
+        name: gdlint (GDScript 静态检查)
+        entry: python -m gdtoolkit.linter
+        language: python
+        additional_dependencies: ["gdtoolkit==4.5.0"]
+        files: '^project/src/.*\.gd$'
+        exclude: '^project/src/\.godot/'
+
+  # 通用卫生检查
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: '\.(md|json)$'
+      - id: end-of-file-fixer
+        exclude: '^project/src/\.godot/'
+      - id: check-json
+        files: '^project/src/config/.*\.json$'
+      - id: check-yaml
+        files: '\.(yml|yaml)$'
+      - id: check-merge-conflict

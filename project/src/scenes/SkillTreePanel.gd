@@ -1,7 +1,7 @@
 extends Control
 ## 技能树面板 - 显示职业技能树并允许玩家加点
 
-signal skill_tree_closed()
+signal skill_tree_closed
 
 # UI节点引用
 @onready var skill_points_label: Label = $Panel/TopBar/SkillPointsLabel
@@ -18,16 +18,19 @@ var current_skills: Array = []
 # 技能分支（按tags分类）
 var skill_branches: Dictionary = {}
 
+
 func _ready():
 	hide()
 	close_button.pressed.connect(_on_close_pressed)
 	skill_tooltip.hide()
+
 
 ## 显示技能树面板
 func show_skill_tree():
 	_refresh_skill_tree()
 	show()
 	get_tree().paused = true
+
 
 ## 刷新技能树显示
 func _refresh_skill_tree():
@@ -50,6 +53,7 @@ func _refresh_skill_tree():
 	for branch_name in skill_branches.keys():
 		_create_branch_ui(branch_name, skill_branches[branch_name])
 
+
 ## 按第一个tag分类技能
 func _categorize_skills(skills: Array) -> Dictionary:
 	var branches = {}
@@ -67,6 +71,7 @@ func _categorize_skills(skills: Array) -> Dictionary:
 		branches[branch_name].append(skill_data)
 
 	return branches
+
 
 ## 创建分支UI
 func _create_branch_ui(branch_name: String, skills: Array):
@@ -89,6 +94,7 @@ func _create_branch_ui(branch_name: String, skills: Array):
 	var spacer = Control.new()
 	spacer.custom_minimum_size = Vector2(0, 20)
 	skill_tree_container.add_child(spacer)
+
 
 ## 创建单个技能按钮
 func _create_skill_button(parent: Container, skill_data: Dictionary):
@@ -127,6 +133,7 @@ func _create_skill_button(parent: Container, skill_data: Dictionary):
 
 	parent.add_child(button)
 
+
 ## 技能按钮点击
 func _on_skill_button_pressed(skill_id: String):
 	var skill_system = get_node("/root/SkillSystem")
@@ -136,14 +143,17 @@ func _on_skill_button_pressed(skill_id: String):
 	else:
 		AudioManager.play("error")
 
+
 ## 技能按钮悬停
 func _on_skill_button_hover(skill_data: Dictionary, button: Button):
 	# 显示技能详情tooltip
 	_show_tooltip(skill_data, button.global_position)
 
+
 ## 技能按钮取消悬停
 func _on_skill_button_unhover():
 	skill_tooltip.hide()
+
 
 ## 显示技能tooltip
 func _show_tooltip(skill_data: Dictionary, pos: Vector2):
@@ -164,7 +174,14 @@ func _show_tooltip(skill_data: Dictionary, pos: Vector2):
 	else:
 		text += _format_skill_effect(skill_data.get("effect", {}))
 
-	text += "\n\n前置: %s" % ("无" if skill_data.get("prerequisites", []).is_empty() else str(skill_data.get("prerequisites", [])))
+	text += (
+		"\n\n前置: %s"
+		% (
+			"无"
+			if skill_data.get("prerequisites", []).is_empty()
+			else str(skill_data.get("prerequisites", []))
+		)
+	)
 
 	# 显示下一级消耗
 	if current_level < max_level:
@@ -186,6 +203,7 @@ func _show_tooltip(skill_data: Dictionary, pos: Vector2):
 	skill_tooltip.global_position = pos + Vector2(10, -50)
 	skill_tooltip.show()
 
+
 ## 格式化技能效果描述
 func _format_skill_effect(effect: Dictionary) -> String:
 	var text = ""
@@ -201,7 +219,10 @@ func _format_skill_effect(effect: Dictionary) -> String:
 		"add_stat":
 			text += "%s +%s" % [_translate_stat(effect.get("stat", "")), effect.get("value", 0)]
 		"mult_stat":
-			text += "%s +%d%%" % [_translate_stat(effect.get("stat", "")), effect.get("value", 0.0) * 100]
+			text += (
+				"%s +%d%%"
+				% [_translate_stat(effect.get("stat", "")), effect.get("value", 0.0) * 100]
+			)
 		"execute":
 			text += "斩杀线: %d%%\n" % (effect.get("threshold", 0.3) * 100)
 			text += "伤害倍率: %.1fx" % effect.get("bonus_mult", 1.0)
@@ -213,40 +234,65 @@ func _format_skill_effect(effect: Dictionary) -> String:
 
 	return text
 
+
 ## 翻译属性名
 func _translate_stat(stat: String) -> String:
 	match stat:
-		"armor": return "护甲"
-		"max_hp": return "最大生命"
-		"damage": return "伤害"
-		"attack_speed": return "攻击速度"
-		"crit_chance": return "暴击率"
-		"crit_damage": return "暴击伤害"
-		"move_speed": return "移动速度"
-		_: return stat
+		"armor":
+			return "护甲"
+		"max_hp":
+			return "最大生命"
+		"damage":
+			return "伤害"
+		"attack_speed":
+			return "攻击速度"
+		"crit_chance":
+			return "暴击率"
+		"crit_damage":
+			return "暴击伤害"
+		"move_speed":
+			return "移动速度"
+		_:
+			return stat
+
 
 ## 翻译分支名
 func _translate_branch(branch: String) -> String:
 	match branch:
-		"melee": return "近战系"
-		"defense": return "防御系"
-		"tank": return "坦克系"
-		"rage": return "怒气系"
-		"ranged": return "远程系"
-		"crit": return "暴击系"
-		"mobility": return "机动系"
-		"fire": return "火焰系"
-		"magic": return "魔法系"
-		"stealth": return "潜行系"
-		"poison": return "毒素系"
-		"holy": return "神圣系"
-		"undead": return "亡灵系"
-		"summon": return "召唤系"
-		_: return branch.capitalize()
+		"melee":
+			return "近战系"
+		"defense":
+			return "防御系"
+		"tank":
+			return "坦克系"
+		"rage":
+			return "怒气系"
+		"ranged":
+			return "远程系"
+		"crit":
+			return "暴击系"
+		"mobility":
+			return "机动系"
+		"fire":
+			return "火焰系"
+		"magic":
+			return "魔法系"
+		"stealth":
+			return "潜行系"
+		"poison":
+			return "毒素系"
+		"holy":
+			return "神圣系"
+		"undead":
+			return "亡灵系"
+		"summon":
+			return "召唤系"
+		_:
+			return branch.capitalize()  # gdlint:ignore=max-returns
+
 
 ## 关闭按钮
 func _on_close_pressed():
 	get_tree().paused = false
 	hide()
 	skill_tree_closed.emit()
-

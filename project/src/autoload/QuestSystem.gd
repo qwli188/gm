@@ -7,7 +7,7 @@ extends Node
 ## - 每出击 N 次自动刷新一批新任务（旧的不丢，仍可继续推进，直至完成或被替换）。
 ## - 完成后调用 claim_reward 领取，自动从 active_quests 移除。
 
-signal quests_changed()
+signal quests_changed
 signal quest_completed(quest_id: String)
 signal quest_claimed(quest_id: String, rewards: Dictionary)
 
@@ -18,17 +18,22 @@ var completed_quests: Array = []
 # 上次刷新对应的 sortie_count
 var last_refresh_sortie: int = 0
 
+
 func _ready():
 	print("[QuestSystem] 任务系统初始化")
+
 
 func _config() -> Dictionary:
 	return ConfigLoader.territory_data.get("resident_quests", {})
 
+
 func _templates() -> Array:
 	return _config().get("templates", [])
 
+
 func _max_active() -> int:
 	return int(_config().get("active_max", 3))
+
 
 # ============ 刷新 ============
 func maybe_refresh(current_sortie: int) -> bool:
@@ -41,6 +46,7 @@ func maybe_refresh(current_sortie: int) -> bool:
 		return false
 	refresh_quests(current_sortie)
 	return true
+
 
 ## 强制刷新一批任务到最大数量
 func refresh_quests(current_sortie: int = 0):
@@ -70,6 +76,7 @@ func refresh_quests(current_sortie: int = 0):
 		SaveSystem.mark_dirty()
 	print("[QuestSystem] 刷新任务: %d 条" % active_quests.size())
 
+
 # ============ 进度推进（由系统事件触发）============
 func register_kill(enemy_data: Dictionary):
 	var changed = false
@@ -88,6 +95,7 @@ func register_kill(enemy_data: Dictionary):
 		_check_completions()
 		quests_changed.emit()
 
+
 func register_drop(rarity: String):
 	var changed = false
 	for q in active_quests:
@@ -97,6 +105,7 @@ func register_drop(rarity: String):
 	if changed:
 		_check_completions()
 		quests_changed.emit()
+
 
 func register_clear_dungeon(_dungeon_id: String):
 	var changed = false
@@ -108,6 +117,7 @@ func register_clear_dungeon(_dungeon_id: String):
 		_check_completions()
 		quests_changed.emit()
 
+
 func register_collect(material_id: String, amount: int):
 	var changed = false
 	for q in active_quests:
@@ -118,25 +128,33 @@ func register_collect(material_id: String, amount: int):
 		_check_completions()
 		quests_changed.emit()
 
+
 func _inc_progress(quest: Dictionary, delta: int):
 	quest["progress"] = min(int(quest["progress"]) + delta, int(quest["target"]))
+
 
 func _check_completions():
 	var still_active: Array = []
 	for q in active_quests:
 		if int(q.get("progress", 0)) >= int(q.get("target", 1)):
-			completed_quests.append({
-				"id": q["id"],
-				"template_id": q.get("template_id", ""),
-				"display_name": q.get("display_name", ""),
-				"rewards": q.get("rewards", {}).duplicate(true),
-			})
+			(
+				completed_quests
+				. append(
+					{
+						"id": q["id"],
+						"template_id": q.get("template_id", ""),
+						"display_name": q.get("display_name", ""),
+						"rewards": q.get("rewards", {}).duplicate(true),
+					}
+				)
+			)
 			quest_completed.emit(q["id"])
 		else:
 			still_active.append(q)
 	active_quests = still_active
 	if has_node("/root/SaveSystem"):
 		SaveSystem.mark_dirty()
+
 
 # ============ 领奖 ============
 func claim_reward(quest_id: String) -> Dictionary:
@@ -151,16 +169,22 @@ func claim_reward(quest_id: String) -> Dictionary:
 	var rewards = q.get("rewards", {})
 	for k in rewards:
 		match k:
-			"gold": GameState.total_gold += int(rewards[k])
-			"talent_points": GameState.talent_points_unspent += int(rewards[k])
-			"paragon_points": GameState.paragon_points_unspent += int(rewards[k])
-			"exp_bonus": pass  # 仅在出击中有效，已生效则无操作
-			_: GameState.add_material(k, int(rewards[k]))
+			"gold":
+				GameState.total_gold += int(rewards[k])
+			"talent_points":
+				GameState.talent_points_unspent += int(rewards[k])
+			"paragon_points":
+				GameState.paragon_points_unspent += int(rewards[k])
+			"exp_bonus":
+				pass  # 仅在出击中有效，已生效则无操作
+			_:
+				GameState.add_material(k, int(rewards[k]))
 	completed_quests.remove_at(idx)
 	quest_claimed.emit(quest_id, rewards)
 	if has_node("/root/SaveSystem"):
 		SaveSystem.mark_dirty()
 	return {"ok": true, "rewards": rewards}
+
 
 # ============ 序列化 ============
 func serialize() -> Dictionary:
@@ -169,6 +193,7 @@ func serialize() -> Dictionary:
 		"completed_quests": completed_quests.duplicate(true),
 		"last_refresh_sortie": last_refresh_sortie,
 	}
+
 
 func deserialize(data: Dictionary):
 	active_quests = data.get("active_quests", []).duplicate(true)

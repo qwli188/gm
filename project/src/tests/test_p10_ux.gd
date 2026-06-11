@@ -5,6 +5,7 @@ var _passed: int = 0
 var _failed: int = 0
 var _failed_names: Array = []
 
+
 func _check(name: String, cond: bool, msg: String = "") -> void:
 	if cond:
 		_passed += 1
@@ -12,6 +13,7 @@ func _check(name: String, cond: bool, msg: String = "") -> void:
 		_failed += 1
 		_failed_names.append("p10: " + name)
 		print("[FAIL] " + name + (": " + msg if msg != "" else ""))
+
 
 func _make_instance(slot: String, rarity: String, enhance: int = 0) -> String:
 	var pool = ConfigLoader.get_all_equipment()
@@ -23,6 +25,7 @@ func _make_instance(slot: String, rarity: String, enhance: int = 0) -> String:
 			return id
 	return ""
 
+
 func _reset():
 	# 清空背包
 	for id in Inventory.backpack.duplicate():
@@ -33,6 +36,7 @@ func _reset():
 	# 清实例池中本测试创建的（实测不必，留着没影响）
 	BuildPresets.presets.clear()
 
+
 # ============ ItemCompare ============
 func test_compare_to_empty_slot():
 	_reset()
@@ -40,7 +44,10 @@ func test_compare_to_empty_slot():
 	# 当前 weapon 槽空 → 穿上后所有属性都是正向
 	var diff = ItemCompare.compare_to_equipped(inst)
 	_check("compare: returns dict", typeof(diff) == TYPE_DICTIONARY, "")
-	_check("compare: has damage delta", diff.has("damage") or diff.has("max_hp"), "got " + str(diff))
+	_check(
+		"compare: has damage delta", diff.has("damage") or diff.has("max_hp"), "got " + str(diff)
+	)
+
 
 func test_compare_two():
 	_reset()
@@ -50,11 +57,13 @@ func test_compare_two():
 	# epic+8 的 base_stats 经强化放大，必然在某维度 > common
 	_check("compare_two: nontrivial diff", not diff.is_empty(), "got " + str(diff))
 
+
 func test_format_richtext():
 	var diff = {"damage": 5.0, "max_hp": -10.0}
 	var s = ItemCompare.format_diff_richtext(diff)
 	_check("compare: format has lime", s.find("lime") >= 0, s)
 	_check("compare: format has red", s.find("red") >= 0, s)
+
 
 # ============ Inventory.sort ============
 func test_inventory_sort():
@@ -77,7 +86,10 @@ func test_inventory_sort():
 	var idx_e_low = Inventory.backpack.find(w_epic2)
 	_check("sort: enhanced epic before bare epic", idx_e_high < idx_e_low, "")
 	# 最后是 common
-	_check("sort: last is common", Inventory.backpack[Inventory.backpack.size() - 1] == w_common, "")
+	_check(
+		"sort: last is common", Inventory.backpack[Inventory.backpack.size() - 1] == w_common, ""
+	)
+
 
 func test_auto_dismantle_below():
 	_reset()
@@ -92,6 +104,7 @@ func test_auto_dismantle_below():
 	_check("auto_dismantle: 2 commons sold", result["sold_count"] == 2, "got " + str(result))
 	_check("auto_dismantle: shards gained", result["shards_gained"] >= 2, "got " + str(result))
 	_check("auto_dismantle: rare kept", r in Inventory.backpack, "")
+
 
 # ============ BuildPresets ============
 func test_save_load_preset():
@@ -116,6 +129,7 @@ func test_save_load_preset():
 	_check("preset: loaded", l["ok"], l.get("reason", ""))
 	_check("preset: weapon back on", EquipmentSystem.equipped_items["weapon"] == w, "")
 
+
 func test_preset_invalid_slot():
 	var char_id = "char_dummy"
 	var r = BuildPresets.save_preset(char_id, 99)
@@ -123,15 +137,21 @@ func test_preset_invalid_slot():
 	var r2 = BuildPresets.load_preset(char_id, 0)
 	_check("preset: load missing rejected", not r2["ok"], "")
 
+
 func test_preset_delete():
 	_reset()
 	if RosterSystem.character_count() == 0:
 		RosterSystem.create_character("class_warrior", "T2", true)
 	var char_id = RosterSystem.active_char_id
 	BuildPresets.save_preset(char_id, 1, "Tank")
-	_check("preset: saved at slot 1", BuildPresets.get_presets(char_id)[1].get("name", "") == "Tank", "")
+	_check(
+		"preset: saved at slot 1",
+		BuildPresets.get_presets(char_id)[1].get("name", "") == "Tank",
+		""
+	)
 	BuildPresets.delete_preset(char_id, 1)
 	_check("preset: cleared", BuildPresets.get_presets(char_id)[1].is_empty(), "")
+
 
 func run_tests() -> Dictionary:
 	test_compare_to_empty_slot()

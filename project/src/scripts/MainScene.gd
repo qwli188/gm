@@ -3,11 +3,13 @@ extends Node2D
 
 @onready var player: Node2D = $Player
 
+
 func _ready():
 	# 阶段2: 启动副本流程系统
 	_start_dungeon_flow()
 	# P2: 生成随行 AI 队友
 	_spawn_companions()
+
 
 ## P2: 在玩家附近生成随行 AI 队友（Companion）
 func _spawn_companions():
@@ -34,6 +36,7 @@ func _spawn_companions():
 		idx += 1
 	print("[MainScene] 生成 %d 个随行队友" % companions.size())
 
+
 func _start_dungeon_flow():
 	# 获取当前副本ID（从GameState或默认值）
 	var dungeon_id = "dungeon_crypt_1"  # 默认第一个副本
@@ -47,6 +50,7 @@ func _start_dungeon_flow():
 	if has_node("/root/DungeonFlow"):
 		DungeonFlow.start_dungeon(dungeon_id, self, player)
 		print("[MainScene] 副本地形已生成: %s" % dungeon_id)
+
 
 func _input(event):
 	# UI 面板切换
@@ -65,6 +69,7 @@ func _input(event):
 		if has_node("/root/SaveSystem"):
 			get_node("/root/SaveSystem").load_game(1)
 			print("[Main] 快速读档从槽位 1")
+
 
 func _toggle_panel(panel_name: String):
 	var panel = $UILayer.get_node_or_null(panel_name)
