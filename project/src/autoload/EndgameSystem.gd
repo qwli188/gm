@@ -44,7 +44,9 @@ func get_modifier_def(mod_id: String) -> Dictionary:
 
 func get_all_modifiers() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
-	result.assign(ConfigLoader.get_endgame_config().get("dungeon_modifiers", {}).get("modifiers", []))
+	result.assign(
+		ConfigLoader.get_endgame_config().get("dungeon_modifiers", {}).get("modifiers", [])
+	)
 	return result
 
 

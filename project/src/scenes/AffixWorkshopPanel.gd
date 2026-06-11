@@ -172,7 +172,9 @@ func _on_reforge_pressed():
 	var success = AffixWorkshop.reforge(instance_id, locked_affixes)
 	if success:
 		# 重新从 EquipmentSystem 拉取最新装备数据
-		var refreshed = EquipmentSystem.get_instance(instance_id) if EquipmentSystem.has_method("get_instance") else current_item
+		var refreshed = current_item
+		if EquipmentSystem.has_method("get_instance"):
+			refreshed = EquipmentSystem.get_instance(instance_id)
 		if refreshed and not refreshed.is_empty():
 			current_item = refreshed
 		locked_affixes.clear()
