@@ -38,27 +38,13 @@ func _initialize() -> void:
 				await process_frame
 				print("[SMOKE OK] Town 切换角色成功，当前=" + rs.get_active_character().get("name", "?"))
 
-		# 领地面板
-		var ts = root.get_node("TerritorySystem")
-		ts.level = 1
-		ts.buildings = {"townhall": 1}
-		root.get_node("GameState").total_gold = 999999
-		root.get_node("GameState").materials = {"timber": 999, "stone_block": 999, "food": 999}
-		if town.has_method("_on_territory_clicked"):
-			town._on_territory_clicked()
-			await process_frame
-			print("[SMOKE OK] Town 领地面板构建成功")
-			# 建造一座伐木场
-			town._on_build_building("lumber_mill")
-			await process_frame
-			if ts.has_building("lumber_mill"):
-				print("[SMOKE OK] 领地建造伐木场成功")
-			else:
-				print("[SMOKE FAIL] 领地建造失败")
-				fails += 1
-		else:
-			print("[SMOKE FAIL] Town 缺少 _on_territory_clicked")
+		# 领地入口（建造逻辑已迁移到独立 Territory 场景，Town 只保留跳转按钮，
+		# 实际建造由 smoke_territory 覆盖；这里不真正调用 change_scene 以免破坏测试运行环境）
+		if not town.has_method("_on_territory_clicked"):
+			print("[SMOKE FAIL] Town 缺少 _on_territory_clicked 入口")
 			fails += 1
+		else:
+			print("[SMOKE OK] Town 领地入口存在")
 		town.queue_free()
 
 	print("[SMOKE] fails=%d" % fails)

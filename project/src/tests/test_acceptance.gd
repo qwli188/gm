@@ -153,6 +153,24 @@ func _test_combat_system():
 			print("  [OK] 方法: %s" % m)
 
 
+## run_tests() 接口：供 test_runner.gd 作为子节点调用，返回 {pass, fail, failed_names}
+func run_tests() -> Dictionary:
+	if not _ran:
+		_test_config_loading()
+		_test_autoload_systems()
+		_test_equipment_system()
+		_test_combat_system()
+		_ran = true
+	# 每个错误算一条失败，无错误则整体算一条通过
+	var fail_count := _errors.size()
+	var pass_count := 1 if fail_count == 0 else 0
+	return {
+		"pass": pass_count,
+		"fail": fail_count,
+		"failed_names": _errors.duplicate(),
+	}
+
+
 func _print_report():
 	var sep = "============================================================"
 	print("\n" + sep)

@@ -1,6 +1,6 @@
 name: CI
 
-# DarkLoot 持续集成：每次 push / PR 自动跑 GDScript 格式检查、静态 lint、356 单元测试。
+# DarkLoot 持续集成：每次 push / PR 自动跑 GDScript 格式检查、静态 lint、单元测试、冒烟测试。
 # 全部工具开源免费：gdtoolkit (MIT)、Godot 引擎 (MIT)。
 
 on:
@@ -25,6 +25,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
 
       - name: 安装 gdtoolkit
         run: pip install "gdtoolkit==4.5.0"
@@ -40,14 +41,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: 缓存 Godot 二进制
+        uses: actions/cache@v4
+        with:
+          path: godot
+          key: godot-${{ env.GODOT_VERSION }}
+
       - name: 下载 Godot ${{ env.GODOT_VERSION }} (headless, Linux)
         run: |
           set -e
-          URL="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
-          curl -L -o godot.zip "$URL"
-          unzip -o godot.zip
-          mv Godot_v${GODOT_VERSION}-stable_linux.x86_64 godot
-          chmod +x godot
+          if [ -f godot ]; then
+            echo "缓存命中，跳过下载"
+            chmod +x godot
+          else
+            URL="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+            curl -L -o godot.zip "$URL"
+            unzip -o godot.zip
+            mv Godot_v${GODOT_VERSION}-stable_linux.x86_64 godot
+            chmod +x godot
+          fi
           ./godot --version
 
       - name: 导入资源 (首次 headless 需生成 .godot 缓存)
@@ -55,13 +67,31 @@ jobs:
           # 首次打开工程会导入资源；超时也无妨，目的是生成导入缓存
           timeout 120 ./godot --headless --path project/src --import || true
 
-      - name: 运行 356 单元测试
+      - name: 运行全部单元测试
         run: |
           set -o pipefail
+          # test_runner.gd 跑完后会用退出码报告结果：有失败 quit(1)，全过 quit(0)。
+          # pipefail 让管道透传 Godot 的退出码，所以这一步成败直接由退出码决定。
+          # tee 仅用于把日志同时存进 test_output.txt（CI 失败时方便查看）。
           ./godot --headless --path project/src -s res://tests/test_runner.gd 2>&1 | tee test_output.txt
-          # test_runner 不返回非零退出码，靠解析输出判定：有“失败: N”且 N>0 则失败
-          if grep -qE "失败:\s*[1-9]" test_output.txt; then
+          code=$?
+          # 双保险：万一 Godot headless 偶发不透传退出码，再解析一次汇总输出。
+          if [ "$code" -ne 0 ] || grep -qE "失败:\s*0*[1-9]" test_output.txt; then
             echo "::error::存在测试失败"
             exit 1
           fi
           echo "全部测试通过"
+
+      - name: 冒烟测试 - 组队面板 + 名册 UI
+        run: |
+          # 这两个文件继承 SceneTree，必须独立 -s 启动；靠退出码报告结果
+          ./godot --headless --path project/src -s res://tests/smoke_p2_party.gd 2>&1
+          ./godot --headless --path project/src -s res://tests/smoke_town_roster.gd 2>&1
+
+      - name: 上传测试日志 (仅失败时保留)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs
+          path: test_output.txt
+          retention-days: 7

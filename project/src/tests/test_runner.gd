@@ -20,7 +20,12 @@ const TEST_SCRIPTS = [
 	"res://tests/test_feedback_system.gd",
 	"res://tests/test_p9_territory_quests.gd",
 	"res://tests/test_p10_ux.gd",
-	"res://tests/test_art_layer.gd"
+	"res://tests/test_art_layer.gd",
+	"res://tests/test_victory_flow.gd",
+	"res://tests/test_endgame_ui_wiring.gd",
+	"res://tests/smoke_territory.gd",
+	"res://tests/smoke_wilderness.gd",
+	"res://tests/test_acceptance.gd",
 ]
 
 
