@@ -22,6 +22,11 @@ func _ready():
 	_show_tutorial_if_needed()
 	# 阶段1: 自动装备职业技能到槽位
 	_equip_class_skills()
+	# P7: 回城清空上一局的地图词缀（临时态，不应跨局残留）
+	if has_node("/root/EndgameSystem"):
+		get_node("/root/EndgameSystem").clear_modifiers()
+	# P7: 回城重置本局模式（防止试炼/裂隙中途死亡留下陈旧 run_mode）
+	GameState.run_mode = "dungeon"
 	# BGM: 城镇音乐
 	if has_node("/root/AudioManager"):
 		get_node("/root/AudioManager").play_bgm("town")
@@ -78,10 +83,10 @@ func _create_town_locations():
 		},
 		{
 			pos = Vector2(530, 420),
-			name = "副本入口",
-			color = Color(0.6, 0.3, 1),
-			icon = "obstacle_void",
-			cb = _on_dungeon_portal_clicked
+			name = "城外野区",
+			color = Color(0.8, 0.2, 0.2),
+			icon = "obstacle_crypt",
+			cb = _on_wilderness_clicked
 		},
 		{
 			pos = Vector2(840, 420),
@@ -92,13 +97,6 @@ func _create_town_locations():
 		},
 		{
 			pos = Vector2(1150, 420),
-			name = "城外野区",
-			color = Color(0.8, 0.2, 0.2),
-			icon = "obstacle_crypt",
-			cb = _on_wilderness_clicked
-		},
-		{
-			pos = Vector2(1460, 420),
 			name = "我的领地",
 			color = Color(0.9, 0.75, 0.2),
 			icon = "obstacle_forge",
@@ -241,18 +239,9 @@ func _on_shop_clicked():
 	info_label.text = "[center][color=green]流浪商人[/color]\n购买装备与材料[/center]"
 
 
-## 城外野区点击
+## 城外野区点击 → 切换到野外场景
 func _on_wilderness_clicked():
-	upgrade_panel.visible = false
-	dungeon_panel.visible = false
-	if _roster_panel and is_instance_valid(_roster_panel):
-		_roster_panel.visible = false
-	if _territory_panel and is_instance_valid(_territory_panel):
-		_territory_panel.visible = false
-	if _party_panel and is_instance_valid(_party_panel):
-		_party_panel.visible = false
-	# P5: 触发随机野外事件
-	_trigger_wilderness_event()
+	get_tree().change_scene_to_file("res://scenes/Wilderness.tscn")
 
 
 ## 构建升级列表
@@ -336,6 +325,12 @@ func _build_dungeon_list():
 	for child in container.get_children():
 		child.queue_free()
 
+	# P7: 地图词缀选择区（进副本前选 0-3 条，提升敌人换更高掉落）
+	_add_modifier_selector(container)
+
+	# P7: 末期挑战模式入口（试炼塔 / 裂隙）
+	_add_endgame_launchers(container)
+
 	var dungeons = ConfigLoader.get_all_dungeons()
 
 	# 按区域分组
@@ -401,6 +396,110 @@ func _get_region_name(region_id: String) -> String:
 func _on_dungeon_selected(dungeon_id: String):
 	GameState.enter_dungeon(dungeon_id, 1)
 	# 进入战斗场景
+	get_tree().change_scene_to_file("res://scenes/main.tscn")
+
+
+## P7: 地图词缀选择区。toggle 直接走 EndgameSystem，副本进入时 GameState 聚合消费。
+func _add_modifier_selector(container: VBoxContainer):
+	if not has_node("/root/EndgameSystem"):
+		return
+	var es = get_node("/root/EndgameSystem")
+	var mods = es.get_all_modifiers()
+	if mods.is_empty():
+		return
+
+	var title = Label.new()
+	title.text = (
+		"地图词缀  (%d/%d，提升敌人换取更高掉落/经验/稀有度)" % [es.active_modifiers.size(), es.max_modifiers()]
+	)
+	title.add_theme_font_size_override("font_size", 22)
+	title.add_theme_color_override("font_color", Color(1, 0.5, 0.9))
+	container.add_child(title)
+
+	var grid = GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 12)
+	grid.add_theme_constant_override("v_separation", 6)
+	container.add_child(grid)
+
+	for mod in mods:
+		var mid = mod.get("id", "")
+		var active = mid in es.active_modifiers
+		var btn = Button.new()
+		btn.toggle_mode = true
+		btn.button_pressed = active
+		btn.custom_minimum_size = Vector2(560, 44)
+		btn.text = (
+			"%s  %s  (掉落+%d%%)"
+			% [
+				"☑" if active else "☐",
+				mod.get("display_name", mid),
+				int(float(mod.get("drop_bonus", 0.0)) * 100.0),
+			]
+		)
+		btn.tooltip_text = mod.get("design_note", "")
+		btn.add_theme_font_size_override("font_size", 16)
+		btn.pressed.connect(_on_modifier_toggled.bind(mid))
+		grid.add_child(btn)
+
+	var sep = HSeparator.new()
+	container.add_child(sep)
+
+
+func _on_modifier_toggled(mid: String):
+	var es = get_node("/root/EndgameSystem")
+	es.toggle_modifier(mid)
+	# 重建列表刷新选中态与计数（达上限时新选会被后端拒绝）
+	_build_dungeon_list()
+
+
+## P7: 试炼塔 / 裂隙入口。点击即开启对应会话并进入战斗场景。
+func _add_endgame_launchers(container: VBoxContainer):
+	if not has_node("/root/EndgameSystem"):
+		return
+	var es = get_node("/root/EndgameSystem")
+
+	var title = Label.new()
+	title.text = "末期挑战"
+	title.add_theme_font_size_override("font_size", 22)
+	title.add_theme_color_override("font_color", Color(0.6, 0.9, 1))
+	container.add_child(title)
+
+	var row = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 16)
+	container.add_child(row)
+
+	# 试炼塔：从最高层的下一层续战（首次从 1 层）
+	var resume_floor = max(1, es.trial_max_floor)
+	var trial_btn = Button.new()
+	trial_btn.text = "试炼塔  (最高 %d 层，从 %d 层开战)" % [es.trial_max_floor, resume_floor]
+	trial_btn.custom_minimum_size = Vector2(560, 50)
+	trial_btn.add_theme_font_size_override("font_size", 18)
+	trial_btn.pressed.connect(_on_start_trial.bind(resume_floor))
+	row.add_child(trial_btn)
+
+	var rift_btn = Button.new()
+	rift_btn.text = "裂隙  (限时挑战，掉落裂隙精华)"
+	rift_btn.custom_minimum_size = Vector2(560, 50)
+	rift_btn.add_theme_font_size_override("font_size", 18)
+	rift_btn.pressed.connect(_on_start_rift)
+	row.add_child(rift_btn)
+
+	var sep = HSeparator.new()
+	container.add_child(sep)
+
+
+func _on_start_trial(starting_floor: int):
+	var es = get_node("/root/EndgameSystem")
+	es.start_trial(starting_floor)
+	GameState.enter_trial_floor()
+	get_tree().change_scene_to_file("res://scenes/main.tscn")
+
+
+func _on_start_rift():
+	var es = get_node("/root/EndgameSystem")
+	es.start_rift()
+	GameState.enter_rift_run()
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 
@@ -615,344 +714,9 @@ func _on_create_character_pressed():
 var _territory_panel: Panel = null
 
 
+## 领地点击 → 切换到领地场景
 func _on_territory_clicked():
-	upgrade_panel.visible = false
-	dungeon_panel.visible = false
-	if _roster_panel and is_instance_valid(_roster_panel):
-		_roster_panel.visible = false
-	_ensure_territory_panel()
-	_territory_panel.visible = true
-	_build_territory_view()
-
-
-func _ensure_territory_panel():
-	if _territory_panel != null and is_instance_valid(_territory_panel):
-		return
-	var panel = Panel.new()
-	panel.name = "TerritoryPanel"
-	panel.custom_minimum_size = Vector2(820, 640)
-	panel.size = Vector2(820, 640)
-	panel.position = Vector2(550, 210)
-
-	var title = Label.new()
-	title.name = "TitleLabel"
-	title.text = "我的领地"
-	title.position = Vector2(20, 14)
-	title.add_theme_font_size_override("font_size", 28)
-	title.add_theme_color_override("font_color", Color(1, 0.85, 0.3))
-	panel.add_child(title)
-
-	var close_btn = Button.new()
-	close_btn.text = "X"
-	close_btn.position = Vector2(760, 14)
-	close_btn.custom_minimum_size = Vector2(40, 40)
-	close_btn.pressed.connect(func(): _territory_panel.visible = false)
-	panel.add_child(close_btn)
-
-	# 资源条
-	var res_label = RichTextLabel.new()
-	res_label.name = "ResourceLabel"
-	res_label.bbcode_enabled = true
-	res_label.fit_content = true
-	res_label.position = Vector2(20, 56)
-	res_label.custom_minimum_size = Vector2(780, 30)
-	res_label.size = Vector2(780, 30)
-	panel.add_child(res_label)
-
-	# 领地等级 + 升级按钮行
-	var lvl_label = RichTextLabel.new()
-	lvl_label.name = "LevelLabel"
-	lvl_label.bbcode_enabled = true
-	lvl_label.fit_content = true
-	lvl_label.position = Vector2(20, 92)
-	lvl_label.custom_minimum_size = Vector2(560, 30)
-	lvl_label.size = Vector2(560, 30)
-	panel.add_child(lvl_label)
-
-	var up_btn = Button.new()
-	up_btn.name = "TerritoryUpgradeButton"
-	up_btn.position = Vector2(590, 88)
-	up_btn.custom_minimum_size = Vector2(210, 40)
-	up_btn.pressed.connect(_on_upgrade_territory)
-	panel.add_child(up_btn)
-
-	# 建筑列表滚动区
-	var scroll = ScrollContainer.new()
-	scroll.name = "ScrollContainer"
-	scroll.position = Vector2(20, 140)
-	scroll.custom_minimum_size = Vector2(780, 480)
-	scroll.size = Vector2(780, 480)
-	var vbox = VBoxContainer.new()
-	vbox.name = "VBoxContainer"
-	vbox.add_theme_constant_override("separation", 8)
-	vbox.custom_minimum_size = Vector2(760, 0)
-	scroll.add_child(vbox)
-	panel.add_child(scroll)
-
-	$Panels.add_child(panel)
-	_territory_panel = panel
-
-
-func _build_territory_view():
-	if not has_node("/root/TerritorySystem"):
-		return
-	var ts = get_node("/root/TerritorySystem")
-
-	# 资源条
-	var res_label: RichTextLabel = _territory_panel.get_node("ResourceLabel")
-	res_label.text = _format_resources()
-
-	# 领地等级
-	var lvl_label: RichTextLabel = _territory_panel.get_node("LevelLabel")
-	var lv_def = ts.get_level_def()
-	lvl_label.text = (
-		"[color=gold]领地 Lv.%d %s[/color]  槽位 %d/%d  居民 %d/%d  防御 +%d%%"
-		% [
-			ts.level,
-			lv_def.get("display_name", "?"),
-			ts.get_used_slots(),
-			ts.get_building_slots(),
-			ts.resident_count(),
-			ts.get_resident_cap(),
-			int(ts.get_defense_bonus() * 100),
-		]
-	)
-
-	# 领地升级按钮
-	var up_btn: Button = _territory_panel.get_node("TerritoryUpgradeButton")
-	if ts.level >= ConfigLoader.get_territory_max_level():
-		up_btn.text = "领地已达最高等级"
-		up_btn.disabled = true
-	else:
-		var cost = ts.get_territory_upgrade_cost()
-		up_btn.text = "升级领地 (%s)" % _format_cost(cost)
-		up_btn.disabled = not ts.can_upgrade_territory()
-
-	# 建筑列表
-	var container = _territory_panel.get_node("ScrollContainer/VBoxContainer")
-	for child in container.get_children():
-		child.queue_free()
-
-	# P3: 居民招募区
-	container.add_child(_make_resident_section(ts))
-
-	for def in ConfigLoader.get_all_buildings():
-		if def.get("id", "") == "townhall":
-			continue  # 领主大厅随领地升级，不在列表单列
-		container.add_child(_make_building_row(def, ts))
-
-
-## P3: 居民招募与分配区
-func _make_resident_section(ts) -> VBoxContainer:
-	var section = VBoxContainer.new()
-	section.add_theme_constant_override("separation", 8)
-
-	var header = PanelContainer.new()
-	var h_style = StyleBoxFlat.new()
-	h_style.bg_color = Color(0.2, 0.3, 0.25)
-	h_style.set_corner_radius_all(4)
-	header.add_theme_stylebox_override("panel", h_style)
-	var h_margin = MarginContainer.new()
-	h_margin.add_theme_constant_override("margin_left", 10)
-	h_margin.add_theme_constant_override("margin_top", 6)
-	h_margin.add_theme_constant_override("margin_right", 10)
-	h_margin.add_theme_constant_override("margin_bottom", 6)
-	header.add_child(h_margin)
-	var h_box = HBoxContainer.new()
-	h_box.add_theme_constant_override("separation", 16)
-	h_margin.add_child(h_box)
-
-	var h_label = Label.new()
-	h_label.text = (
-		"居民管理  当前 %d/%d  (每个居民提升所在建筑 +10%% 产出)" % [ts.resident_count(), ts.get_resident_cap()]
-	)
-	h_label.add_theme_font_size_override("font_size", 18)
-	h_label.add_theme_color_override("font_color", Color(0.7, 1, 0.8))
-	h_label.custom_minimum_size = Vector2(450, 0)
-	h_box.add_child(h_label)
-
-	var recruit_btn = Button.new()
-	recruit_btn.text = (
-		"招募居民 (金%d 粮%d)" % [ts.RESIDENT_RECRUIT_COST_GOLD, ts.RESIDENT_RECRUIT_COST_FOOD]
-	)
-	recruit_btn.custom_minimum_size = Vector2(220, 40)
-	recruit_btn.disabled = (
-		not ts.can_recruit_resident()
-		or GameState.total_gold < ts.RESIDENT_RECRUIT_COST_GOLD
-		or GameState.get_material("food") < ts.RESIDENT_RECRUIT_COST_FOOD
-	)
-	recruit_btn.pressed.connect(_on_recruit_resident)
-	h_box.add_child(recruit_btn)
-	section.add_child(header)
-
-	# 居民列表（简化版：只显示 job 和分配按钮，点击弹出分配菜单由 P4 完善）
-	if ts.residents.size() > 0:
-		var res_list = Label.new()
-		var job_counts = {}
-		for r in ts.residents:
-			var j = r.get("job", "idle")
-			job_counts[j] = job_counts.get(j, 0) + 1
-		var parts = []
-		for j in job_counts:
-			var j_disp = (
-				{
-					"idle": "闲置",
-					"farmer": "农夫",
-					"lumberjack": "伐木",
-					"miner": "矿工",
-					"soldier": "士兵",
-					"worker": "工人"
-				}
-				. get(j, j)
-			)
-			parts.append("%s×%d" % [j_disp, job_counts[j]])
-		res_list.text = "  分配情况: " + " / ".join(parts)
-		res_list.add_theme_font_size_override("font_size", 14)
-		res_list.add_theme_color_override("font_color", Color(0.65, 0.75, 0.7))
-		section.add_child(res_list)
-
-	return section
-
-
-func _on_recruit_resident():
-	var ts = get_node("/root/TerritorySystem")
-	var r = ts.recruit_resident()
-	if not r.get("ok", false):
-		info_label.text = "[center][color=red]招募失败: %s[/color][/center]" % r.get("reason", "")
-	else:
-		info_label.text = (
-			"[center][color=lime]招募成功: %s[/color][/center]" % r.get("resident", {}).get("name", "?")
-		)
-	_refresh_ui()
-	_build_territory_view()
-
-
-func _make_building_row(def: Dictionary, ts) -> PanelContainer:
-	var bid = def.get("id", "")
-	var built = ts.has_building(bid)
-	var cur_lv = ts.get_building_level(bid)
-	var max_lv = int(def.get("max_level", 5))
-
-	var row = PanelContainer.new()
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.18, 0.2, 0.16) if built else Color(0.14, 0.14, 0.17)
-	style.set_border_width_all(2)
-	style.border_color = Color(0.5, 0.7, 0.3) if built else Color(0.3, 0.3, 0.4)
-	style.set_corner_radius_all(6)
-	row.add_theme_stylebox_override("panel", style)
-
-	var margin = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 12)
-	margin.add_theme_constant_override("margin_top", 8)
-	margin.add_theme_constant_override("margin_right", 12)
-	margin.add_theme_constant_override("margin_bottom", 8)
-	row.add_child(margin)
-
-	var hbox = HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 12)
-	margin.add_child(hbox)
-
-	# 左侧信息
-	var info = VBoxContainer.new()
-	info.custom_minimum_size = Vector2(480, 0)
-	var name_lbl = Label.new()
-	var cat_tag = {"production": "产出", "military": "军事", "housing": "住房", "core": "核心"}.get(
-		def.get("category", ""), ""
-	)
-	if built:
-		name_lbl.text = (
-			"%s  Lv.%d/%d  [%s]" % [def.get("display_name", "?"), cur_lv, max_lv, cat_tag]
-		)
-	else:
-		name_lbl.text = "%s  [%s]  (未建造)" % [def.get("display_name", "?"), cat_tag]
-	name_lbl.add_theme_font_size_override("font_size", 19)
-	if built:
-		name_lbl.add_theme_color_override("font_color", Color(0.8, 1, 0.6))
-	info.add_child(name_lbl)
-
-	var desc_lbl = Label.new()
-	desc_lbl.text = def.get("description", "")
-	desc_lbl.add_theme_font_size_override("font_size", 14)
-	desc_lbl.add_theme_color_override("font_color", Color(0.7, 0.7, 0.75))
-	desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
-	desc_lbl.custom_minimum_size = Vector2(470, 0)
-	info.add_child(desc_lbl)
-	hbox.add_child(info)
-
-	# 右侧按钮
-	var btn = Button.new()
-	btn.custom_minimum_size = Vector2(220, 50)
-	btn.add_theme_font_size_override("font_size", 15)
-	if not built:
-		var cost = def.get("build_cost", {})
-		btn.text = "建造\n%s" % _format_cost(cost)
-		btn.disabled = not (ts.has_free_slot() and ts.can_afford(cost))
-		btn.pressed.connect(_on_build_building.bind(bid))
-	elif cur_lv >= max_lv:
-		btn.text = "已满级"
-		btn.disabled = true
-	else:
-		var cost = ts.get_upgrade_cost(bid)
-		btn.text = "升级 Lv.%d\n%s" % [cur_lv + 1, _format_cost(cost)]
-		btn.disabled = not ts.can_afford(cost)
-		btn.pressed.connect(_on_upgrade_building.bind(bid))
-	hbox.add_child(btn)
-
-	return row
-
-
-func _on_build_building(building_id: String):
-	var ts = get_node("/root/TerritorySystem")
-	var r = ts.build_building(building_id)
-	if not r.get("ok", false):
-		info_label.text = "[center][color=red]建造失败: %s[/color][/center]" % r.get("reason", "")
-	_refresh_ui()
-	_build_territory_view()
-
-
-func _on_upgrade_building(building_id: String):
-	var ts = get_node("/root/TerritorySystem")
-	var r = ts.upgrade_building(building_id)
-	if not r.get("ok", false):
-		info_label.text = "[center][color=red]升级失败: %s[/color][/center]" % r.get("reason", "")
-	_refresh_ui()
-	_build_territory_view()
-
-
-func _on_upgrade_territory():
-	var ts = get_node("/root/TerritorySystem")
-	var r = ts.upgrade_territory()
-	if r.get("ok", false):
-		info_label.text = "[center][color=lime]领地升级到 Lv.%d！[/color][/center]" % ts.level
-	else:
-		info_label.text = "[center][color=red]领地升级失败: %s[/color][/center]" % r.get("reason", "")
-	_refresh_ui()
-	_build_territory_view()
-
-
-## 格式化资源条（金币 + 基础建材）
-func _format_resources() -> String:
-	var parts = ["[color=gold]金币 %d[/color]" % GameState.total_gold]
-	for m in ConfigLoader.get_basic_materials():
-		var mid = m.get("id", "")
-		parts.append("%s %d" % [m.get("display_name", mid), GameState.get_material(mid)])
-	return "  ".join(parts)
-
-
-## 格式化成本字典为简短文本（材料不足标红）
-func _format_cost(cost: Dictionary) -> String:
-	if cost.is_empty():
-		return "免费"
-	var parts = []
-	for key in cost:
-		var need = int(cost[key])
-		var have = GameState.total_gold if key == "gold" else GameState.get_material(key)
-		var disp = "金" if key == "gold" else _material_name(key)
-		if have < need:
-			parts.append("[color=red]%s%d[/color]" % [disp, need])
-		else:
-			parts.append("%s%d" % [disp, need])
-	return " ".join(parts)
+	get_tree().change_scene_to_file("res://scenes/Territory.tscn")
 
 
 func _material_name(material_id: String) -> String:
@@ -1142,72 +906,6 @@ func _on_enter_dungeon():
 	info_label.text = "[center][color=purple]副本传送门[/color]\n选择副本进入战斗[/center]"
 
 
-# ============================================================
-# P5: 野外随机事件
-# ============================================================
-
-
-func _trigger_wilderness_event():
-	var events = [
-		{"type": "resource", "weight": 40},
-		{"type": "merchant", "weight": 30},
-		{"type": "nothing", "weight": 30},
-	]
-	var total_weight = 0
-	for e in events:
-		total_weight += e["weight"]
-	var roll = randi() % total_weight
-	var acc = 0
-	var chosen = events[0]
-	for e in events:
-		acc += e["weight"]
-		if roll < acc:
-			chosen = e
-			break
-
-	match chosen["type"]:
-		"resource":
-			_event_resource_cache()
-		"merchant":
-			_event_wandering_merchant()
-		"nothing":
-			_event_nothing()
-
-
-func _event_resource_cache():
-	var gains = {
-		"timber": 20 + randi() % 30,
-		"stone_block": 15 + randi() % 20,
-		"food": 25 + randi() % 25,
-	}
-	for mat in gains:
-		GameState.add_material(mat, gains[mat])
-	var parts = []
-	for mat in gains:
-		parts.append("%s +%d" % [_material_name(mat), gains[mat]])
-	info_label.text = "[center][color=lime]发现资源点！[/color]\n获得: " + "  ".join(parts) + "[/center]"
-	SaveSystem.mark_dirty()
-
-
-func _event_wandering_merchant():
-	var gold_gain = 50 + randi() % 100
-	GameState.total_gold += gold_gain
-	info_label.text = (
-		"[center][color=yellow]遇到流浪商人！[/color]\n商人收购了你的战利品\n金币 +%d[/center]" % gold_gain
-	)
-	SaveSystem.mark_dirty()
-
-
-func _event_nothing():
-	var msgs = [
-		"四处寻找无果，空手而归",
-		"远处传来怪物咆哮，你谨慎撤退",
-		"天色渐暗，决定回城",
-		"遇到巡逻队，他们劝你不要深入",
-	]
-	info_label.text = "[center][color=gray]野外探索[/color]\n%s[/center]" % msgs[randi() % msgs.size()]
-
-
 ## 阶段1: 自动装备职业技能
 func _equip_class_skills():
 	var class_id = GameState.get_current_class().get("id", "")
@@ -1326,63 +1024,52 @@ func _show_paragon_tab():
 	content.add_child(vbox)
 
 	var header = Label.new()
-	var pg = GameState.meta_progression.get("paragon", {})
-	var lvl = pg.get("level", 0)
-	var pts = pg.get("points", 0)
-	header.text = "巅峰等级: %d   可用点数: %d" % [lvl, pts]
+	var lvl = GameState.paragon_level
+	var pts = GameState.paragon_points_unspent
+	var to_next = GameState.paragon_exp_to_next()
+	header.text = (
+		"巅峰等级: %d   可用点数: %d   (距下一级 %d 经验)" % [lvl, pts, int(to_next - GameState.paragon_exp)]
+	)
 	header.add_theme_font_size_override("font_size", 24)
 	header.add_theme_color_override("font_color", Color(1, 0.9, 0.3))
 	vbox.add_child(header)
 
-	var paths = [
-		"power",
-		"finesse",
-		"vitality",
-		"spirit",
-		"defense",
-		"swiftness",
-		"fortune",
-		"mastery",
-		"cunning",
-		"might"
-	]
-	var names = {
-		"power": "力量",
-		"finesse": "灵巧",
-		"vitality": "活力",
-		"spirit": "精神",
-		"defense": "防御",
-		"swiftness": "迅捷",
-		"fortune": "幸运",
-		"mastery": "精通",
-		"cunning": "狡诈",
-		"might": "威能"
-	}
+	# 巅峰条目来自 balance.json -> paragon_system.paragon_stats（真实单源）
+	var cfg = ConfigLoader.get_balance_config().get("paragon_system", {})
+	var stats: Array = cfg.get("paragon_stats", [])
+	if stats.is_empty():
+		var empty = Label.new()
+		empty.text = "（未配置巅峰条目）"
+		vbox.add_child(empty)
+		return
 
-	for path in paths:
+	for stat in stats:
+		var pid = stat.get("id", "")
+		var max_alloc = int(stat.get("max_alloc", 100))
+		var cur = int(GameState.paragon_allocations.get(pid, 0))
+
 		var row = HBoxContainer.new()
 		row.add_theme_constant_override("separation", 12)
 		row.custom_minimum_size = Vector2(1700, 50)
 		vbox.add_child(row)
 
 		var name_lbl = Label.new()
-		name_lbl.text = names.get(path, path)
+		name_lbl.text = stat.get("display_name", pid)
 		name_lbl.custom_minimum_size = Vector2(120, 0)
 		name_lbl.add_theme_font_size_override("font_size", 20)
 		row.add_child(name_lbl)
 
-		var cur = pg.get("stats", {}).get(path, 0)
 		var val_lbl = Label.new()
-		val_lbl.text = "%d / 50" % cur
+		val_lbl.text = "%d / %d" % [cur, max_alloc]
 		val_lbl.custom_minimum_size = Vector2(100, 0)
 		val_lbl.add_theme_font_size_override("font_size", 18)
 		row.add_child(val_lbl)
 
 		var bar = ProgressBar.new()
 		bar.min_value = 0
-		bar.max_value = 50
+		bar.max_value = max_alloc
 		bar.value = cur
-		bar.custom_minimum_size = Vector2(800, 30)
+		bar.custom_minimum_size = Vector2(760, 30)
 		bar.show_percentage = false
 		row.add_child(bar)
 
@@ -1390,39 +1077,39 @@ func _show_paragon_tab():
 		btn_minus.text = "-"
 		btn_minus.custom_minimum_size = Vector2(50, 40)
 		btn_minus.disabled = cur <= 0
-		btn_minus.pressed.connect(_paragon_adjust.bind(path, -1))
+		btn_minus.pressed.connect(_paragon_adjust.bind(pid, -1))
 		row.add_child(btn_minus)
 
 		var btn_plus = Button.new()
 		btn_plus.text = "+"
 		btn_plus.custom_minimum_size = Vector2(50, 40)
-		btn_plus.disabled = pts <= 0 or cur >= 50
-		btn_plus.pressed.connect(_paragon_adjust.bind(path, 1))
+		btn_plus.disabled = pts <= 0 or cur >= max_alloc
+		btn_plus.pressed.connect(_paragon_adjust.bind(pid, 1))
 		row.add_child(btn_plus)
 
 		var bonus_lbl = Label.new()
-		var bonus_pct = cur * 0.5
-		bonus_lbl.text = "+%.1f%%" % bonus_pct
-		bonus_lbl.custom_minimum_size = Vector2(100, 0)
+		bonus_lbl.text = _format_paragon_bonus(stat, cur)
+		bonus_lbl.custom_minimum_size = Vector2(140, 0)
 		bonus_lbl.add_theme_color_override("font_color", Color(0.3, 1, 0.3))
 		row.add_child(bonus_lbl)
 
 
-func _paragon_adjust(path: String, delta: int):
-	var pg = GameState.meta_progression.get("paragon", {})
-	var pts = pg.get("points", 0)
-	var stats = pg.get("stats", {})
-	var cur = stats.get(path, 0)
+## 根据 kind 把 per_level × 已分配 格式化为可读加成（百分比类 vs 数值类）
+func _format_paragon_bonus(stat: Dictionary, allocated: int) -> String:
+	var per = float(stat.get("per_level", 0.0))
+	var total = per * allocated
+	var kind = stat.get("kind", "")
+	var flat_kinds = ["armor_flat"]
+	if kind in flat_kinds:
+		return "+%.0f" % total
+	return "+%.1f%%" % (total * 100.0)
 
-	if delta > 0 and pts > 0 and cur < 50:
-		stats[path] = cur + 1
-		pg["points"] = pts - 1
-	elif delta < 0 and cur > 0:
-		stats[path] = cur - 1
-		pg["points"] = pts + 1
 
-	pg["stats"] = stats
-	GameState.meta_progression["paragon"] = pg
+func _paragon_adjust(pid: String, delta: int):
+	if delta > 0:
+		GameState.allocate_paragon(pid, 1)
+	elif delta < 0:
+		GameState.deallocate_paragon(pid, 1)
 	_show_paragon_tab()
 
 
@@ -1437,21 +1124,34 @@ func _show_talent_tab():
 	vbox.add_theme_constant_override("separation", 6)
 	content.add_child(vbox)
 
-	var tal = GameState.meta_progression.get("talents", {})
-	var pts = tal.get("points", 0)
-	var unlocked = tal.get("unlocked", [])
+	# 真实后端：unlocked_talents 是 Dictionary {tid: 1}，talent_points_unspent 是点数
+	var unlocked: Dictionary = GameState.unlocked_talents
+	var pts = GameState.talent_points_unspent
+	var talents_cfg = ConfigLoader.get_all_talents()
+	var active_class = _active_class_id()
 
 	var header = Label.new()
-	header.text = "可用天赋点: %d   已解锁: %d / 23" % [pts, unlocked.size()]
+	header.text = (
+		"可用天赋点: %d   已解锁: %d / %d   当前职业: %s"
+		% [pts, unlocked.size(), talents_cfg.size(), active_class]
+	)
 	header.add_theme_font_size_override("font_size", 24)
 	header.add_theme_color_override("font_color", Color(1, 0.9, 0.3))
 	vbox.add_child(header)
 
-	var talents_cfg = ConfigLoader.get_all_talents()
 	for t in talents_cfg:
 		var tid = t.get("id", "")
-		var is_unlocked = tid in unlocked
-		var can_unlock = _can_unlock_talent(tid, unlocked, tal.get("class", ""))
+		var is_unlocked = unlocked.has(tid)
+		# 后端校验前置（all/any 模式由 ConfigLoader 判定）
+		var unlock_check = ConfigLoader.can_unlock_talent(tid, unlocked)
+		var prereq_ok = unlock_check.get("ok", false)
+		# 职业根节点：仅当前职业对应的根可解
+		var class_gated = false
+		if t.get("is_class_root", false):
+			var grid = ConfigLoader.get_balance_config().get("talent_grid", {})
+			var roots = grid.get("starter_node_per_class", {})
+			if roots.get(active_class, "") != tid:
+				class_gated = true
 
 		var row = HBoxContainer.new()
 		row.add_theme_constant_override("separation", 12)
@@ -1460,7 +1160,9 @@ func _show_talent_tab():
 
 		var name_lbl = Label.new()
 		name_lbl.text = t.get("display_name", tid)
-		name_lbl.custom_minimum_size = Vector2(200, 0)
+		if t.get("is_class_root", false):
+			name_lbl.text += "  [根]"
+		name_lbl.custom_minimum_size = Vector2(220, 0)
 		name_lbl.add_theme_font_size_override("font_size", 18)
 		name_lbl.add_theme_color_override(
 			"font_color", Color(0.3, 1, 0.3) if is_unlocked else Color(0.7, 0.7, 0.7)
@@ -1468,28 +1170,20 @@ func _show_talent_tab():
 		row.add_child(name_lbl)
 
 		var desc_lbl = Label.new()
-		var effects = t.get("effects", [])
-		var desc_parts = []
-		for eff in effects:
-			if eff.get("kind") == "add_stat":
-				desc_parts.append("%s +%s" % [eff.get("stat", "?"), eff.get("value", 0)])
-		desc_lbl.text = (
-			" / ".join(desc_parts) if desc_parts.size() > 0 else t.get("description", "")
-		)
-		desc_lbl.custom_minimum_size = Vector2(600, 0)
+		desc_lbl.text = _format_talent_effects(t.get("effects", {}))
+		desc_lbl.custom_minimum_size = Vector2(560, 0)
 		desc_lbl.add_theme_font_size_override("font_size", 16)
 		row.add_child(desc_lbl)
 
 		var prereq_lbl = Label.new()
-		var prereq = t.get("prerequisite", [])
-		var any_prereq = t.get("any_prerequisite", [])
-		if prereq.size() > 0:
-			prereq_lbl.text = "前置: " + ", ".join(prereq)
-		elif any_prereq.size() > 0:
-			prereq_lbl.text = "前置(任一): " + ", ".join(any_prereq)
-		else:
+		var prereqs = t.get("prerequisites", [])
+		if prereqs.is_empty():
 			prereq_lbl.text = "无前置"
-		prereq_lbl.custom_minimum_size = Vector2(400, 0)
+		elif bool(t.get("any_prerequisite", false)):
+			prereq_lbl.text = "前置(任一): " + ", ".join(prereqs)
+		else:
+			prereq_lbl.text = "前置: " + ", ".join(prereqs)
+		prereq_lbl.custom_minimum_size = Vector2(420, 0)
 		prereq_lbl.add_theme_font_size_override("font_size", 14)
 		prereq_lbl.add_theme_color_override("font_color", Color(0.8, 0.8, 0.5))
 		row.add_child(prereq_lbl)
@@ -1498,7 +1192,10 @@ func _show_talent_tab():
 		if is_unlocked:
 			btn.text = "已解锁"
 			btn.disabled = true
-		elif can_unlock and pts > 0:
+		elif class_gated:
+			btn.text = "非本职业"
+			btn.disabled = true
+		elif prereq_ok and pts > 0:
 			btn.text = "解锁"
 			btn.pressed.connect(_talent_unlock.bind(tid))
 		else:
@@ -1508,50 +1205,49 @@ func _show_talent_tab():
 		row.add_child(btn)
 
 
-func _can_unlock_talent(tid: String, unlocked: Array, player_class: String) -> bool:
-	var talents_cfg = ConfigLoader.get_all_talents()
-	var t = null
-	for talent in talents_cfg:
-		if talent.get("id") == tid:
-			t = talent
-			break
-	if not t:
-		return false
+## 当前操控角色的职业 id（多角色名册优先，回退 GameState.selected_class_id）
+func _active_class_id() -> String:
+	var cid = GameState.selected_class_id
+	if has_node("/root/RosterSystem"):
+		var active = get_node("/root/RosterSystem").get_active_character()
+		if not active.is_empty():
+			cid = active.get("class_id", cid)
+	return cid
 
-	var class_req = t.get("class_requirement", [])
-	if class_req.size() > 0 and player_class not in class_req:
-		return false
 
-	var prereq = t.get("prerequisite", [])
-	if prereq.size() > 0:
-		for p in prereq:
-			if p not in unlocked:
-				return false
-
-	var any_prereq = t.get("any_prerequisite", [])
-	if any_prereq.size() > 0:
-		var has_any = false
-		for p in any_prereq:
-			if p in unlocked:
-				has_any = true
-				break
-		if not has_any:
-			return false
-
-	return true
+## 把天赋 effects 字典格式化为可读串
+func _format_talent_effects(effects: Dictionary) -> String:
+	if effects.is_empty():
+		return "（无数值效果）"
+	var pct_keys = [
+		"damage_pct",
+		"max_hp_pct",
+		"crit_chance",
+		"crit_damage",
+		"attack_speed_pct",
+		"move_speed_pct",
+		"skill_cd_reduce",
+		"lifesteal",
+		"summon_chance",
+		"freeze_chance",
+		"ignite_chance",
+		"chain_chance"
+	]
+	var parts = []
+	for k in effects:
+		var v = effects[k]
+		if k in pct_keys:
+			parts.append("%s +%.0f%%" % [k, float(v) * 100.0])
+		else:
+			parts.append("%s +%s" % [k, v])
+	return " / ".join(parts)
 
 
 func _talent_unlock(tid: String):
-	var tal = GameState.meta_progression.get("talents", {})
-	var pts = tal.get("points", 0)
-	var unlocked = tal.get("unlocked", [])
-
-	if pts > 0 and tid not in unlocked:
-		unlocked.append(tid)
-		tal["points"] = pts - 1
-		tal["unlocked"] = unlocked
-		GameState.meta_progression["talents"] = tal
-		_show_talent_tab()
+	var result = GameState.unlock_talent(tid)
+	if not result.get("ok", false):
+		info_label.text = "[center][color=red]解锁失败: %s[/color][/center]" % result.get("reason", "")
+	_show_talent_tab()
 
 
 func _show_quest_tab():

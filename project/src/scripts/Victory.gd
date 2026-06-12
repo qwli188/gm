@@ -1,5 +1,6 @@
 extends Control
 
+@onready var title_label: Label = $Panel/VBoxContainer/TitleLabel
 @onready var completion_time_label: Label = $Panel/VBoxContainer/StatsContainer/CompletionTimeLabel
 @onready var kills_label: Label = $Panel/VBoxContainer/StatsContainer/KillsLabel
 @onready var gold_label: Label = $Panel/VBoxContainer/StatsContainer/GoldLabel
@@ -9,6 +10,8 @@ extends Control
 var completion_time: float = 0.0
 var kills: int = 0
 var gold_earned: int = 0
+# 结算模式："dungeon" / "trial" / "rift"，决定按钮去向
+var _result_mode: String = "dungeon"
 
 
 func _ready():
@@ -19,6 +22,7 @@ func _ready():
 
 ## 显示通关界面
 func show_victory(time: float, kill_count: int, gold: int):
+	_result_mode = "dungeon"
 	# 清理副本机制
 	if has_node("/root/DungeonFeatureSystem"):
 		get_node("/root/DungeonFeatureSystem").deactivate()
@@ -131,13 +135,77 @@ func _calculate_defense_power(ts) -> float:
 	return power
 
 
+## 试炼塔层通关结算界面
+func show_trial_result(result: Dictionary, kill_count: int):
+	_result_mode = "trial"
+	if has_node("/root/DungeonFeatureSystem"):
+		get_node("/root/DungeonFeatureSystem").deactivate()
+	var cleared = int(result.get("cleared_floor", 0))
+	var finished = bool(result.get("finished", false))
+	title_label.text = "试炼塔 第 %d 层 通过！" % cleared
+	completion_time_label.text = (
+		"已达最高层: %d"
+		% int(
+			(
+				get_node("/root/EndgameSystem").trial_max_floor
+				if has_node("/root/EndgameSystem")
+				else cleared
+			)
+		)
+	)
+	kills_label.text = "击杀数: %d" % kill_count
+	var reward_parts = []
+	for d in [result.get("layer_rewards", {}), result.get("milestone_rewards", {})]:
+		for k in d:
+			if k == "design_note":
+				continue
+			reward_parts.append("%s +%s" % [k, d[k]])
+	gold_label.text = "奖励: " + ("  ".join(reward_parts) if reward_parts.size() > 0 else "（本层无额外奖励）")
+	if finished:
+		next_button.text = "已登顶！"
+		next_button.disabled = true
+	else:
+		next_button.text = "继续下一层"
+		next_button.disabled = false
+	menu_button.text = "收手回城"
+	show()
+
+
+## 裂隙通关结算界面
+func show_rift_result(rewards: Dictionary, success: bool, kill_count: int):
+	_result_mode = "rift"
+	if has_node("/root/DungeonFeatureSystem"):
+		get_node("/root/DungeonFeatureSystem").deactivate()
+	title_label.text = "裂隙关闭" if success else "裂隙崩溃"
+	completion_time_label.text = "结果: %s" % ("成功" if success else "失败")
+	kills_label.text = "击杀数: %d" % kill_count
+	var parts = []
+	for k in rewards:
+		parts.append("%s +%s" % [k, rewards[k]])
+	gold_label.text = "奖励: " + ("  ".join(parts) if parts.size() > 0 else "（无）")
+	next_button.text = "返回主城"
+	next_button.disabled = false
+	menu_button.text = "返回主菜单"
+	show()
+
+
 func _on_next_pressed():
-	# 返回主城（选下一个难度/副本）
 	get_tree().paused = false
+	# 试炼塔：继续下一层（重进战斗场景，逐层倍率已由 EndgameSystem 推进）
+	if _result_mode == "trial":
+		if has_node("/root/GameState"):
+			get_node("/root/GameState").enter_trial_floor()
+		get_tree().change_scene_to_file("res://scenes/main.tscn")
+		return
+	# 普通副本 / 裂隙：返回主城
 	get_tree().change_scene_to_file("res://scenes/Town.tscn")
 
 
 func _on_menu_pressed():
-	# 返回主菜单
 	get_tree().paused = false
+	# 试炼塔"收手回城"按钮：回主城而非主菜单
+	if _result_mode == "trial":
+		get_tree().change_scene_to_file("res://scenes/Town.tscn")
+		return
+	# 返回主菜单
 	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")

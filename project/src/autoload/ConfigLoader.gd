@@ -20,6 +20,7 @@ var vfx_data: Dictionary = {}
 var territory_data: Dictionary = {}
 var talents_data: Dictionary = {}
 var endgame_data: Dictionary = {}
+var wilderness_data: Dictionary = {}
 
 # O(1) 查找索引（id -> 数据字典）
 var _equipment_index: Dictionary = {}
@@ -56,6 +57,7 @@ func load_all_configs():
 	territory_data = load_json_config("territory.json")
 	talents_data = load_json_config("talents.json")
 	endgame_data = load_json_config("endgame.json")
+	wilderness_data = load_json_config("wilderness.json")
 	_build_indexes()
 
 
@@ -368,6 +370,11 @@ func can_unlock_talent(talent_id: String, unlocked: Dictionary) -> Dictionary:
 ## ============ P7 末期内容（地图词缀/试炼塔/裂隙）============
 func get_endgame_config() -> Dictionary:
 	return endgame_data
+
+
+## ============ 野外探索配置 ============
+func get_wilderness_config() -> Dictionary:
+	return wilderness_data
 
 
 ## 热重载单个配置文件

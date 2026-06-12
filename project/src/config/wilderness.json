@@ -1,0 +1,68 @@
+{
+  "_comment": "野外探索配置 - 事件点类型 / 生成规则 / 遭遇结算。副本入口（传送门）按 region 从 dungeons.json 动态取，不在此处写死。",
+  "version": "1.0.0",
+  "generation": {
+    "_comment": "每次进野外随机生成的事件点数量范围与地图尺寸",
+    "event_points_min": 5,
+    "event_points_max": 8,
+    "portal_count": 3,
+    "map_width_px": 1760,
+    "map_height_px": 900,
+    "min_spacing_px": 180
+  },
+  "event_types": [
+    {
+      "id": "herb",
+      "display_name": "草药丛",
+      "weight": 25,
+      "sprite": "wild_herb",
+      "reward": {"timber": [10, 25], "food": [15, 30]}
+    },
+    {
+      "id": "ore",
+      "display_name": "矿脉",
+      "weight": 20,
+      "sprite": "wild_ore",
+      "reward": {"stone_block": [12, 28]}
+    },
+    {
+      "id": "chest",
+      "display_name": "藏宝箱",
+      "weight": 12,
+      "sprite": "wild_chest",
+      "reward": {"gold": [80, 200]},
+      "equipment_drop_chance": 0.35
+    },
+    {
+      "id": "ruin",
+      "display_name": "古老遗迹",
+      "weight": 10,
+      "sprite": "wild_ruin",
+      "reward": {"exp": [50, 120]},
+      "talent_point_chance": 0.15
+    },
+    {
+      "id": "merchant",
+      "display_name": "流浪商人",
+      "weight": 13,
+      "sprite": "wild_merchant",
+      "opens_merchant": true
+    },
+    {
+      "id": "lair",
+      "display_name": "怪物窝点",
+      "weight": 20,
+      "sprite": "wild_lair",
+      "encounter": true,
+      "win_reward": {"gold": [100, 250], "exp": [60, 140]},
+      "win_equipment_drop_chance": 0.4,
+      "lose_hp_loss_pct": 0.35
+    }
+  ],
+  "encounter": {
+    "_comment": "遭遇自动结算：玩家战力 vs 怪窝威胁。威胁随当前角色等级增长。",
+    "threat_base": 60,
+    "threat_per_level": 14,
+    "player_power_formula": "damage*2 + max_hp*0.3 + armor*1.5"
+  }
+}

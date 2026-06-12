@@ -4,9 +4,14 @@ extends Node
 @onready var player: CharacterBody2D = get_parent().get_node("Player")
 @onready var equipment_pickup: Control = get_parent().get_node("UILayer/EquipmentPickup")
 @onready var game_over: Control = get_parent().get_node("UILayer/GameOver")
+@onready var victory: Control = get_parent().get_node("UILayer/Victory")
+@onready var enemy_spawner: Node2D = get_parent().get_node("EnemySpawner")
 
 # 玩家已学习的技能（起手技能 + 技能树解锁，PR-7 后不再用升级三选一）
 var learned_skills: Dictionary = {}
+
+# 局已结束标记：胜利或死亡只能触发一次，防止双结算
+var _game_ended: bool = false
 
 
 func _ready():
@@ -20,6 +25,10 @@ func _ready():
 	if equipment_pickup:
 		equipment_pickup.equipment_equipped.connect(_on_equipment_equipped)
 		equipment_pickup.equipment_discarded.connect(_on_equipment_discarded)
+
+	# 胜利条件：监听 Boss 生成，Boss 阵亡即通关
+	if enemy_spawner and enemy_spawner.has_signal("boss_spawned"):
+		enemy_spawner.boss_spawned.connect(_on_boss_spawned)
 
 	print("[GameManager] 游戏管理器初始化完成")
 
@@ -146,8 +155,72 @@ func _get_skill_by_id(skill_id: String) -> Dictionary:
 
 ## 玩家死亡时触发
 func _on_player_died(time: float, kill_count: int, gold_earned: int):
+	if _game_ended:
+		return
+	_game_ended = true
+	# 试炼塔/裂隙：死亡中止会话（保留已达最高层记录），回落普通 GameOver
+	if has_node("/root/EndgameSystem"):
+		var es = get_node("/root/EndgameSystem")
+		if GameState.run_mode == "trial" and es.trial_active:
+			es.abort_trial()
+		elif GameState.run_mode == "rift" and es.rift_active:
+			es.complete_rift(false)
 	print("[GameManager] 玩家死亡，显示GameOver界面")
 	game_over.show_game_over(time, kill_count, gold_earned)
+
+
+## Boss 生成时触发：挂上其阵亡回调
+## EnemySpawner 仅对 boss_/field_boss_ 前缀的敌人发出此信号，召唤小兵不会误触发。
+func _on_boss_spawned(boss_node):
+	if boss_node == null or not is_instance_valid(boss_node):
+		return
+	# Boss 离开场景树即视为被击杀（die() 末尾 queue_free）
+	boss_node.tree_exited.connect(_on_boss_defeated)
+
+
+## Boss 阵亡 → 按模式结算（普通副本/试炼塔/裂隙）
+func _on_boss_defeated():
+	if _game_ended:
+		return
+	# 玩家已死（与死亡竞争）则不算胜利，交给 GameOver 路径
+	if player == null or not is_instance_valid(player):
+		return
+	_game_ended = true
+	# 通关瞬间暂停战斗，避免玩家在结算时被残怪击杀
+	get_tree().paused = true
+	var mode = GameState.run_mode if has_node("/root/GameState") else "dungeon"
+	match mode:
+		"trial":
+			print("[GameManager] 试炼塔层通关")
+			_settle_trial_floor()
+		"rift":
+			print("[GameManager] 裂隙通关")
+			_settle_rift(true)
+		_:
+			print("[GameManager] Boss 阵亡，副本通关")
+			victory.show_victory(player.survival_time, player.kills, player.gold)
+
+
+## 试炼塔：结算当前层，推进进度，让玩家选择继续下一层或收手回城
+func _settle_trial_floor():
+	var result = {}
+	if has_node("/root/EndgameSystem"):
+		result = get_node("/root/EndgameSystem").clear_trial_floor()
+	if victory.has_method("show_trial_result"):
+		victory.show_trial_result(result, player.kills)
+	else:
+		victory.show_victory(player.survival_time, player.kills, player.gold)
+
+
+## 裂隙：结算奖励并展示
+func _settle_rift(success: bool):
+	var rewards = {}
+	if has_node("/root/EndgameSystem"):
+		rewards = get_node("/root/EndgameSystem").complete_rift(success)
+	if victory.has_method("show_rift_result"):
+		victory.show_rift_result(rewards, success, player.kills)
+	else:
+		victory.show_victory(player.survival_time, player.kills, player.gold)
 
 
 ## 装备被装备

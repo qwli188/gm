@@ -15,6 +15,10 @@ var selected_drop_bonus: float = 0.0
 var selected_set_drop: String = ""
 var selected_slot_weights: Dictionary = {}
 
+# 本局模式："dungeon"（普通副本）/ "trial"（试炼塔）/ "rift"（裂隙）
+# GameManager 据此分支通关结算；进城/进副本会重置回 "dungeon"。
+var run_mode: String = "dungeon"
+
 # 局外永久数据（金币、强化等级、已解锁内容）
 var total_gold: int = 0
 var meta_upgrades: Dictionary = {}  # {"perm_hp": 3, "perm_damage": 5, ...}
@@ -72,6 +76,7 @@ func set_class(class_id: String):
 
 ## 进入副本：设置副本、波次、难度（Town 选择副本时调用）
 func enter_dungeon(dungeon_id: String, tier: int = 1):
+	run_mode = "dungeon"
 	selected_dungeon_id = dungeon_id
 	var dungeon = ConfigLoader.get_dungeon_by_id(dungeon_id)
 	if dungeon.is_empty():
@@ -108,6 +113,44 @@ func enter_dungeon(dungeon_id: String, tier: int = 1):
 			]
 		)
 	)
+
+
+## 进入试炼塔某一层：用 EndgameSystem 的逐层倍率覆盖战斗参数。
+## 波次复用 crypt 默认组（试炼塔无专属波次，倍率才是难度来源）。
+func enter_trial_floor():
+	run_mode = "trial"
+	if not has_node("/root/EndgameSystem"):
+		return
+	var es = get_node("/root/EndgameSystem")
+	var m = es.get_trial_floor_multipliers()
+	selected_dungeon_id = "trial_tower"
+	selected_waveset = "waveset_crypt_1"
+	selected_set_drop = ""
+	selected_slot_weights = {}
+	selected_difficulty_tier = es.trial_current_floor
+	selected_hp_mult = float(m.get("hp_mult", 1.0))
+	selected_dmg_mult = float(m.get("dmg_mult", 1.0))
+	selected_drop_bonus = float(m.get("drop_bonus", 0.0))
+	print(
+		(
+			"[GameState] 进入试炼塔 Lv.%d (hp×%.2f, dmg×%.2f)"
+			% [es.trial_current_floor, selected_hp_mult, selected_dmg_mult]
+		)
+	)
+
+
+## 进入裂隙：限时波次会话，倍率取裂隙基准（略强于普通），词缀由裂隙自带。
+func enter_rift_run():
+	run_mode = "rift"
+	selected_dungeon_id = "rift"
+	selected_waveset = "waveset_crypt_1"
+	selected_set_drop = ""
+	selected_slot_weights = {}
+	selected_difficulty_tier = 1
+	selected_hp_mult = 1.3
+	selected_dmg_mult = 1.2
+	selected_drop_bonus = 0.2
+	print("[GameState] 进入裂隙会话")
 
 
 ## 局外强化加成查询（每级的总加成）
@@ -283,6 +326,26 @@ func reset_paragon_allocations():
 	if has_node("/root/SaveSystem"):
 		SaveSystem.mark_dirty()
 	_notify_player_recalc()
+
+
+## 退回单条巅峰加点（UI 减号用）。返回 {ok, reason}
+func deallocate_paragon(paragon_id: String, points: int = 1) -> Dictionary:
+	if points <= 0:
+		return {"ok": false, "reason": "无效点数"}
+	var current = int(paragon_allocations.get(paragon_id, 0))
+	if current < points:
+		return {"ok": false, "reason": "该条加点不足"}
+	var remaining = current - points
+	if remaining <= 0:
+		paragon_allocations.erase(paragon_id)
+	else:
+		paragon_allocations[paragon_id] = remaining
+	paragon_points_unspent += points
+	paragon_changed.emit()
+	if has_node("/root/SaveSystem"):
+		SaveSystem.mark_dirty()
+	_notify_player_recalc()
+	return {"ok": true, "reason": ""}
 
 
 ## 重置天赋（节点全部退回，按解锁数还原天赋点）

@@ -31,6 +31,10 @@ REGIONS = {
     "field": {"base": (62, 70, 50),  "crack": (45, 52, 36),  "deco": (110, 140, 80),  "theme": "grass"},
     "chaos": {"base": (66, 44, 60),  "crack": (120, 50, 90), "deco": (220, 120, 180), "theme": "stone"},
     "town":  {"base": (66, 76, 58),  "crack": (48, 56, 42),  "deco": (130, 150, 95),  "theme": "grass"},
+    # 领地: 整洁的城镇泥土路 + 草地，比 town 更暖更亮（已开垦感）
+    "territory": {"base": (78, 82, 60), "crack": (56, 52, 38), "deco": (150, 165, 100), "theme": "grass"},
+    # 野外: 末世荒原，褐绿带枯黄，比 field 更荒凉
+    "wild":  {"base": (70, 66, 46),  "crack": (50, 44, 30),  "deco": (120, 125, 70),   "theme": "grass"},
 }
 
 
