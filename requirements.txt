@@ -4,7 +4,7 @@
 # 全部为开源、可商用许可（MIT / BSD / HPND）。
 
 # 素材程序化生成与后处理（gen_assets.py / enhance_sprites.py / gen_tiles_hd.py 等）
-Pillow>=10.0,<13
+Pillow>=12.2.0,<13
 
 # GDScript 工具链：gdformat（格式化）+ gdlint（静态检查）+ gdradon（复杂度）
 # MIT 许可
