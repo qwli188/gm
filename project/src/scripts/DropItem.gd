@@ -14,6 +14,9 @@ func setup(data: Dictionary):
 	# 掉落闪烁粒子
 	var rarity = item_data.get("rarity", "common")
 	ParticleHelper.spawn_pickup_sparkle(get_parent(), global_position, rarity)
+	# 持续光晕（mobile 渲染器下生效，仅稀有及以上）
+	if rarity in ["rare", "epic", "legendary", "mythic"]:
+		ParticleHelper.attach_drop_glow(self, rarity)
 
 
 func _ready():

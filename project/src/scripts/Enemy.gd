@@ -62,6 +62,8 @@ func _play_boss_entrance():
 		return
 	var tint = Color(1.0, 0.4, 0.3)
 	ParticleHelper.spawn_boss_entrance(get_parent(), global_position, tint)
+	# 附加常驻光环（mobile 渲染器下生效，gl_compatibility 下静默无效）
+	ParticleHelper.attach_boss_aura(self, tint, 320.0, 1.2)
 	if has_node("/root/FeedbackSystem"):
 		get_node("/root/FeedbackSystem").shake(10.0, 0.4)
 

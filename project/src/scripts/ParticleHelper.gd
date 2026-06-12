@@ -393,3 +393,128 @@ static func spawn_boss_entrance(
 	# 升腾的能量粒子柱
 	spawn_skill_burst(parent, pos, "shadow", 2.0)
 	return 0.9
+
+
+# ============================================================
+# 动态光照辅助 (mobile/forward_plus 渲染器, gl_compatibility 下静默无效)
+# ============================================================
+
+
+## 创建一个一次性 PointLight2D 闪光，自动渐隐销毁
+## 用途：暴击命中、技能释放、捡到稀有装备等瞬时光效
+static func spawn_flash_light(
+	parent: Node,
+	pos: Vector2,
+	color: Color = Color(1, 0.8, 0.3),
+	radius: float = 200.0,
+	duration: float = 0.3,
+	energy: float = 1.5
+) -> void:
+	if parent == null:
+		return
+	var light := PointLight2D.new()
+	light.global_position = pos
+	light.color = color
+	light.energy = energy
+	light.texture_scale = radius / 256.0  # 默认光照纹理 ~256px
+	light.shadow_enabled = false
+	# 用一张白色径向渐变作为光照纹理：用 GradientTexture2D 程序化生成
+	var grad := Gradient.new()
+	grad.add_point(0.0, Color(1, 1, 1, 1))
+	grad.add_point(1.0, Color(1, 1, 1, 0))
+	var tex := GradientTexture2D.new()
+	tex.gradient = grad
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	tex.width = 256
+	tex.height = 256
+	light.texture = tex
+	parent.add_child(light)
+
+	# 渐隐 + 销毁
+	var tw := light.create_tween()
+	tw.tween_property(light, "energy", 0.0, duration)
+	tw.tween_callback(light.queue_free)
+
+
+## 给 Boss 节点附加常驻光环（跟随 Boss 移动）
+## 调用方负责保留返回的 PointLight2D 引用，Boss 死亡时 queue_free
+static func attach_boss_aura(
+	boss_node: Node2D,
+	color: Color = Color(1.0, 0.3, 0.2),
+	radius: float = 320.0,
+	energy: float = 1.2
+) -> PointLight2D:
+	if boss_node == null:
+		return null
+	var light := PointLight2D.new()
+	light.color = color
+	light.energy = energy
+	light.texture_scale = radius / 256.0
+	light.shadow_enabled = false
+
+	var grad := Gradient.new()
+	grad.add_point(0.0, Color(1, 1, 1, 1))
+	grad.add_point(0.6, Color(1, 1, 1, 0.4))
+	grad.add_point(1.0, Color(1, 1, 1, 0))
+	var tex := GradientTexture2D.new()
+	tex.gradient = grad
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	tex.width = 256
+	tex.height = 256
+	light.texture = tex
+	boss_node.add_child(light)
+
+	# 缓慢脉冲让光环有"生命感"
+	var tw := light.create_tween().set_loops()
+	tw.tween_property(light, "energy", energy * 1.3, 1.2).set_trans(Tween.TRANS_SINE)
+	tw.tween_property(light, "energy", energy * 0.85, 1.2).set_trans(Tween.TRANS_SINE)
+	return light
+
+
+## 装备拾取的稀有度光晕（捡起瞬间一闪 + 持续微光直到被捡走）
+## 用途：DropItem 节点上的小光源，提示稀有度
+static func attach_drop_glow(drop_node: Node2D, rarity: String = "common") -> PointLight2D:
+	if drop_node == null:
+		return null
+	var color := _get_rarity_color(rarity)
+	var light := PointLight2D.new()
+	light.color = color
+	light.energy = 0.8
+	light.texture_scale = 0.5
+	light.shadow_enabled = false
+
+	var grad := Gradient.new()
+	grad.add_point(0.0, Color(1, 1, 1, 1))
+	grad.add_point(1.0, Color(1, 1, 1, 0))
+	var tex := GradientTexture2D.new()
+	tex.gradient = grad
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	tex.width = 128
+	tex.height = 128
+	light.texture = tex
+	drop_node.add_child(light)
+
+	# 呼吸效果
+	var tw := light.create_tween().set_loops()
+	tw.tween_property(light, "energy", 1.2, 0.8).set_trans(Tween.TRANS_SINE)
+	tw.tween_property(light, "energy", 0.6, 0.8).set_trans(Tween.TRANS_SINE)
+	return light
+
+
+## 玩家技能释放的爆炸光（瞬时强光，强度按技能等级缩放）
+static func spawn_skill_burst_light(
+	parent: Node,
+	pos: Vector2,
+	element: String = "fire",
+	radius: float = 350.0,
+	duration: float = 0.5
+) -> void:
+	var color := element_color(element)
+	# 高能量瞬时光 + 略大半径
+	spawn_flash_light(parent, pos, color, radius, duration, 2.5)

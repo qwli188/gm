@@ -325,6 +325,16 @@ func check_player_attack(attack_area: Area2D, player_stats: Dictionary):
 			if result.is_crit:
 				_apply_hitstop(0.08)
 				_apply_screen_shake(8.0)
+				# 暴击爆闪光（mobile 渲染器下生效）
+				if is_instance_valid(enemy) and enemy.get_parent():
+					ParticleHelper.spawn_flash_light(
+						enemy.get_parent(),
+						enemy.global_position,
+						Color(1.0, 0.85, 0.3),
+						240.0,
+						0.25,
+						2.0
+					)
 			else:
 				_apply_hitstop(0.04)
 			# 击退
