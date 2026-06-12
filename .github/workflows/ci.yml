@@ -90,7 +90,7 @@ jobs:
 
       - name: 上传测试日志 (仅失败时保留)
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-logs
           path: test_output.txt
