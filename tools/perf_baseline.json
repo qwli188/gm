@@ -1,0 +1,45 @@
+{
+  "config_access": {
+    "avg_us_per_call": 6.89056666666667,
+    "count": 10000,
+    "note": "每轮调 3 个 get_all_*，总调用数 = count*3",
+    "total_us": 206717
+  },
+  "equipment_gen": {
+    "avg_us_per_item": 37.798,
+    "count": 1000,
+    "items_per_sec": 26456,
+    "total_us": 37798
+  },
+  "memory": {
+    "node_count": 98,
+    "object_count": 1614,
+    "orphan_node_count": 0,
+    "resource_count": 62,
+    "static_mem_bytes": 26539828,
+    "static_mem_peak_bytes": 27973472
+  },
+  "meta": {
+    "godot_version": {
+      "build": "official",
+      "hash": "77dcf97d82cbfe4e4615475fa52ca03da645dbd8",
+      "hex": 262912,
+      "major": 4,
+      "minor": 3,
+      "patch": 0,
+      "status": "stable",
+      "string": "4.3-stable (official)",
+      "timestamp": 0
+    },
+    "renderer": "mobile",
+    "timestamp": "2026-06-12T09:31:51"
+  },
+  "startup": {
+    "cold_start_ms": 286
+  },
+  "tag_recompute": {
+    "avg_us": 5.475,
+    "count": 200,
+    "total_us": 1095
+  }
+}

@@ -16,3 +16,6 @@ verify_*.txt
 
 # 类型审计报告（一次性产物，决策已沉淀到提交信息）
 type_audit_report.txt
+
+# 性能采样报告（每次运行覆盖，基线在 tools/perf_baseline.json 单独保存）
+project/src/performance_report.json

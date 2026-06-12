@@ -53,10 +53,10 @@ func recompute_tags():
 
 	# 调试：打印标签统计
 	if not active_tag_counts.is_empty():
-		print("[TagSynergySystem] 标签统计: %s" % str(active_tag_counts))
+		print_verbose("[TagSynergySystem] 标签统计: %s" % str(active_tag_counts))
 		var bonuses = get_tag_synergy_bonuses()
 		if not bonuses.is_empty():
-			print("[TagSynergySystem] 标签联动加成激活: %s" % str(bonuses))
+			print_verbose("[TagSynergySystem] 标签联动加成激活: %s" % str(bonuses))
 
 
 ## 获取某标签当前数量

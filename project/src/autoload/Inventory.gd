@@ -57,7 +57,7 @@ func add_to_backpack(instance_id: String) -> bool:
 	if instance_id == "":
 		return false
 	if is_backpack_full():
-		print("[Inventory] 背包已满，无法添加: %s" % instance_id)
+		print_verbose("[Inventory] 背包已满，无法添加: %s" % instance_id)
 		return false
 	if instance_id in backpack:
 		push_warning("[Inventory] 重复添加同一实例: %s" % instance_id)
@@ -72,7 +72,7 @@ func transfer_to_warehouse(instance_id: String) -> bool:
 	if not instance_id in backpack:
 		return false
 	if is_warehouse_full():
-		print("[Inventory] 仓库已满，无法存入")
+		print_verbose("[Inventory] 仓库已满，无法存入")
 		return false
 	backpack.erase(instance_id)
 	warehouse.append(instance_id)
@@ -86,7 +86,7 @@ func transfer_to_backpack(instance_id: String) -> bool:
 	if not instance_id in warehouse:
 		return false
 	if is_backpack_full():
-		print("[Inventory] 背包已满，无法取回")
+		print_verbose("[Inventory] 背包已满，无法取回")
 		return false
 	warehouse.erase(instance_id)
 	backpack.append(instance_id)

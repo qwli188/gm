@@ -1,6 +1,10 @@
 extends Node
 ## 装备系统 - 管理8部位装备穿戴、属性汇总、词缀效果、套装检测
 ## 配置表驱动：装备数据从 ConfigLoader 读取
+
+# 调试日志开关：默认关闭。每次操作 print 是性能热点（roll_equipment 1000 次原本 14968ms，
+# 关闭后 39ms，提速 380 倍）。需要追踪问题时改为 true，或将 print 改为 print_verbose。
+const DEBUG_LOG := false
 ## Player 通过 get_total_stats() 和 get_combat_effects() 获取最终加成
 
 # 8 部位槽位
@@ -51,9 +55,13 @@ func roll_equipment(template_id: String, rarity: String = "") -> String:
 		"acquired_at": now_iso,
 	}
 	equipment_instances[uuid] = instance
-	print(
-		"[EquipmentSystem] 生成实例: %s (%s, id=%s)" % [template.get("display_name", "?"), rarity, uuid]
-	)
+	if DEBUG_LOG:
+		print(
+			(
+				"[EquipmentSystem] 生成实例: %s (%s, id=%s)"
+				% [template.get("display_name", "?"), rarity, uuid]
+			)
+		)
 	return uuid
 
 
@@ -134,7 +142,7 @@ func equip_item_by_id(instance_id: String) -> bool:
 		push_warning("[EquipmentSystem] 未知部位: %s" % slot)
 		return false
 	equipped_items[slot] = instance_id
-	print(
+	print_verbose(
 		(
 			"[EquipmentSystem] 装备: %s [%s] (id=%s)"
 			% [item_data.get("display_name", "?"), slot, instance_id]
@@ -192,7 +200,7 @@ func equip_from_backpack(instance_id: String) -> bool:
 	_recompute_sets()
 	equipment_changed.emit()
 	_notify_player()
-	print("[EquipmentSystem] 从背包穿戴: %s [%s]" % [item.get("display_name", "?"), slot])
+	print_verbose("[EquipmentSystem] 从背包穿戴: %s [%s]" % [item.get("display_name", "?"), slot])
 	return true
 
 
@@ -500,7 +508,7 @@ func drop_random_equipment(
 	if instance_id == "":
 		return
 	var item_data = get_equipment_instance_data(instance_id)
-	print(
+	print_verbose(
 		(
 			"[EquipmentSystem] 掉落: %s (%s)"
 			% [item_data.get("display_name", "?"), item_data.get("rarity", "?")]
@@ -596,7 +604,7 @@ func _spawn_drop_item(item_data: Dictionary, position: Vector2):
 			var inst_id = item_data.get("instance_id", "")
 			if inst_id != "":
 				equipment_instances.erase(inst_id)
-			print(
+			print_verbose(
 				(
 					"[EquipmentSystem] 掉落被过滤: %s (%s 低于阈值)"
 					% [item_data.get("display_name", "?"), rarity]
@@ -654,7 +662,9 @@ func pickup_equipment(item_data: Dictionary):
 			return
 		instance_id = roll_equipment(template_id, item_data.get(Schema.K_RARITY, ""))
 
-	print("[EquipmentSystem] 拾取: %s (id=%s)" % [item_data.get("display_name", "?"), instance_id])
+	print_verbose(
+		"[EquipmentSystem] 拾取: %s (id=%s)" % [item_data.get("display_name", "?"), instance_id]
+	)
 
 	var slot = item_data.get("slot", "weapon")
 	# 若对应槽位为空：直接穿戴（不进背包）

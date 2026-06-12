@@ -65,7 +65,7 @@ func reforge(instance_id: String, locked_affix_indices: Array[int] = []) -> bool
 	instance["rolled_affixes"] = new_affixes
 	EquipmentSystem.equipment_instances[instance_id] = instance
 
-	print(
+	print_verbose(
 		(
 			"[AffixWorkshop] 洗练完成: %s (锁定%d个)"
 			% [instance.get("template_id", "?"), locked_affix_indices.size()]
@@ -104,7 +104,9 @@ func dismantle_equipment(instance_id: String) -> int:
 	# 增加材料
 	GameState.add_material("rune_shard", yield_count)
 
-	print("[AffixWorkshop] 分解: %s -> %d符文碎片" % [instance.get("template_id", "?"), yield_count])
+	print_verbose(
+		"[AffixWorkshop] 分解: %s -> %d符文碎片" % [instance.get("template_id", "?"), yield_count]
+	)
 	dismantle_completed.emit(yield_count)
 	return yield_count
 
@@ -363,7 +365,7 @@ func upgrade_equipment(instance_id: String, fodder_ids: Array) -> Dictionary:
 	upgrade_completed.emit(item_data)
 	if has_node("/root/SaveSystem"):
 		SaveSystem.mark_dirty()
-	print("[AffixWorkshop] 升品: %s -> %s" % [template_id, new_rarity])
+	print_verbose("[AffixWorkshop] 升品: %s -> %s" % [template_id, new_rarity])
 	return {
 		"success": true,
 		"new_rarity": new_rarity,
@@ -428,5 +430,5 @@ func sanctify_equipment(instance_id: String) -> Dictionary:
 	sanctify_completed.emit(instance_id)
 	if has_node("/root/SaveSystem"):
 		SaveSystem.mark_dirty()
-	print("[AffixWorkshop] 神圣化: %s" % instance_id)
+	print_verbose("[AffixWorkshop] 神圣化: %s" % instance_id)
 	return {"success": true, "message": "神圣化生效，下次强化必成"}
