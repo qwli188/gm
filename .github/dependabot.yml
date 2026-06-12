@@ -1,0 +1,20 @@
+# Dependabot 自动依赖更新
+# 每周一检查一次，有新版本自动提 PR，CI 跑绿后你合并即可。
+
+version: 2
+updates:
+  # GitHub Actions（ci.yml 里用到的 actions/checkout、actions/cache 等）
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels: ["dependencies"]
+
+  # Python 依赖（requirements.txt：gdtoolkit、Pillow、pre-commit）
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels: ["dependencies"]
