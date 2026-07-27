@@ -11,4 +11,4 @@ Pillow>=10.0,<13
 gdtoolkit==4.5.0
 
 # 代码提交前自动跑格式化/lint 的钩子框架（MIT）
-pre-commit>=3.5
+pre-commit>=4.6.1
